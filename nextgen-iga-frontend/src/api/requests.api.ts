@@ -79,17 +79,24 @@ export const requestsApi = {
       const expiry = new Date();
       expiry.setSeconds(expiry.getSeconds() + totalSeconds);
 
-      const payload = {
-        uid: body.targetUserId,
+      // Extract UTC date and time for server compatibility
+      const isoString = expiry.toISOString();
+      const [utcDate, utcTimeWithMs] = isoString.split('T');
+      const utcTime = utcTimeWithMs.split('.')[0]; // HH:mm:ss
+
+      const timeBasedPayload = {
+        uid: body.targetUserId || "unknown",
         privilege_access: body.resourceId ?? body.application_id ?? "",
-        end_date: expiry.toISOString().split('T')[0],
-        end_time: expiry.toTimeString().split(' ')[0],
+        end_date: utcDate,
+        end_time: utcTime,
       };
 
-      console.debug(`[requestsApi.create] POST to http://13.206.205.158:8080/api/access/time | payload →`, payload);
+      console.debug(`[requestsApi.create] POST to http://13.206.205.158:8080/api/access/time | payload →`, timeBasedPayload);
       
-      // Use direct axios POST for "POST request only and nothing else"
-      return axios.post("http://13.206.205.158:8080/api/access/time", payload).then(res => res.data);
+      // Call external API but DO NOT return yet, so we can also create the platform record
+      axios.post("http://13.206.205.158:8080/api/access/time", timeBasedPayload).catch(err => {
+        console.error("[requestsApi.create] External time-based API failed:", err.message);
+      });
     }
 
     const url = "/api/access/request";

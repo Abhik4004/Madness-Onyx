@@ -373,9 +373,15 @@ export function NewRequestPage() {
             <div className="detail-row">
               <span className="detail-label">Justification</span>
               <span className="detail-value italic text-gray-600">
-                "{justificationType === "Other" ? customJustification : justificationType}"
+                "{justificationType === "other" || justificationType === "Other" ? watch("customJustification") : justificationType}"
               </span>
             </div>
+            {watch("duration") && (
+              <div className="detail-row fade-in">
+                <span className="detail-label">Duration</span>
+                <span className="detail-value text-amber-600 font-bold">{watch("duration")} Seconds</span>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-between">
