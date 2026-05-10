@@ -23,14 +23,12 @@ export function ApplicationListPage() {
     const q = search.toLowerCase();
     return apps.filter(a =>
       a.name?.toLowerCase().includes(q) ||
-      a.category?.toLowerCase().includes(q) ||
       a.owner_name?.toLowerCase().includes(q)
     );
   }, [apps, search]);
 
   const columns: Column<Application>[] = [
-    { key: 'app_name', header: 'Application', render: a => <Link to={`/admin/applications/${a.id}`} className="font-medium" style={{ color: 'var(--color-primary)' }}>{a.name}</Link> },
-    { key: 'app_type', header: 'Category', render: a => a.category },
+    { key: 'name', header: 'Application', render: a => <Link to={`/admin/applications/${a.id}`} className="font-medium" style={{ color: 'var(--color-primary)' }}>{a.name || a.id}</Link> },
     { key: 'owner', header: 'Owner', render: a => a.owner_name },
     { key: 'access', header: 'Active Users', render: a => a.access_count },
     { key: 'connector', header: 'Connector', render: a => <StatusBadge status={a.connector_status} /> },

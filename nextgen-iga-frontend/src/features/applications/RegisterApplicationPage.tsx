@@ -11,6 +11,7 @@ import { applicationsApi } from "../../api/applications.api";
 import { usersApi } from "../../api/users.api";
 
 const schema = z.object({
+  appName: z.string().min(2, "Application name must be at least 2 characters"),
   groupCn: z.string().min(2, "Group name must be at least 2 characters"),
   owner: z.string().min(1, "Owner (Manager) is required"),
 });
@@ -79,6 +80,17 @@ export function RegisterApplicationPage() {
           </div>
 
           <form onSubmit={handleSubmit((d) => create.mutate(d))} className="space-y-6">
+            <div className="form-group">
+              <label className="form-label required">Application Display Name</label>
+              <input
+                className={`form-control ${errors.appName ? "error" : ""}`}
+                placeholder="Sales Portal"
+                {...register("appName")}
+              />
+              {errors.appName && <span className="form-error">{errors.appName.message}</span>}
+              <span className="form-hint">User-friendly name shown across the platform.</span>
+            </div>
+
             <div className="form-group">
               <label className="form-label required">Group Common Name (CN)</label>
               <div className="input-group">
@@ -198,6 +210,7 @@ export function RegisterApplicationPage() {
             <div className="bg-black text-green-400 p-4 rounded-lg font-mono text-xs overflow-x-auto shadow-inner">
               <div className="mb-1"># Payload Preview</div>
               <div>{`{`}</div>
+              <div className="pl-4">{`"appName": "${watchValues.appName || "Sales Portal"}",`}</div>
               <div className="pl-4">{`"groupCn": "${watchValues.groupCn || "managers"}",`}</div>
               <div className="pl-4">{`"owner": "${selectedOwner || "aghosh"}",`}</div>
               <div className="pl-4">{`"channel": "NATS",`}</div>
