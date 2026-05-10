@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep -l \"approveUser\\\\|approve\\\\|status\\\\|PENDING_APPROVAL\")",
+      "Bash(xargs grep -l \"relay\\\\|Relay\")",
+      "Bash(Get-ChildItem -Path \"D:\\\\EY\" -Recurse -Force)",
+      "Bash(Select-Object FullName, PSIsContainer)",
+      "Bash(Sort-Object FullName)",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(xargs grep -l \"password\\\\|secret\\\\|key\")",
+      "PowerShell(Get-ChildItem D:\\\\EY\\\\nextGen-IGA-tool -Recurse -Filter \".env\" | ForEach-Object { Write-Output \"=== $\\($_.FullName\\) ===\"; Get-Content $_.FullName })",
+      "PowerShell(netstat -ano)",
+      "Bash(find /mnt/d/EY/nextGen-IGA-tool/gateway/src -name \"*.js\" -not -path \"*/node_modules/*\" 2>/dev/null)",
+      "PowerShell($r = Invoke-WebRequest \"http://localhost:3001/api/users/list\" -ErrorAction SilentlyContinue; $r.Content)",
+      "Bash(node -e ' *)",
+      "Bash(Get-ChildItem -Recurse \"D:\\\\EY\\\\nextGen-IGA-tool\\\\access-management\\\\src\" -Name)",
+      "Bash(node --input-type=module)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":3001\")",
+      "Bash(findstr \"LISTEN\")",
+      "Bash(wmic process *)",
+      "PowerShell(Get-Process -Id 12988 | Select-Object Id, ProcessName, Path; \\(Get-WmiObject Win32_Process -Filter \"ProcessId = 12988\"\\).CommandLine)"
+    ]
+  }
+}

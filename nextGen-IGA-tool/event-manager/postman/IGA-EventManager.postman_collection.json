@@ -1,0 +1,345 @@
+{
+  "info": {
+    "name": "IGA Gateway – Full EventManager",
+    "_postman_id": "iga-event-manager-v2",
+    "description": "All routes through Gateway→EventManager. Run Login first — token auto-saved. Base: http://localhost:3000.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base",      "value": "http://localhost:3000" },
+    { "key": "token",     "value": "" },
+    { "key": "requestId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/health"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('OK', () => pm.expect(pm.response.code).to.eql(200));"
+          ]}}]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const b = pm.response.json();",
+            "if (b.data?.token) pm.collectionVariables.set('token', b.data.token);",
+            "pm.test('200 + token', () => {",
+            "  pm.expect(pm.response.code).to.eql(200);",
+            "  pm.expect(b.data.token).to.be.a('string');",
+            "});"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base}}/api/user/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@iga.local\",\n  \"password\": \"Admin@123!\"\n}" }
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base}}/api/user/register",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"newuser@iga.local\",\n  \"password\": \"NewUser@1!\",\n  \"username\": \"newuser\"\n}" }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base}}/api/user/logout",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base}}/api/user/refresh",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Provision",
+      "item": [
+        {
+          "name": "CSV Preview",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/api/user/upload/create/view",
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "file", "type": "file", "src": "./sample-users.csv" }]
+            }
+          }
+        },
+        {
+          "name": "CSV Submit (async → 202)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const b = pm.response.json();",
+            "if (b.data?.requestId) pm.collectionVariables.set('requestId', b.data.requestId);",
+            "pm.test('Accepted 202', () => pm.expect(b.status).to.eql(202));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/api/user/upload/create/submit",
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "file", "type": "file", "src": "./sample-users.csv" }]
+            }
+          }
+        },
+        {
+          "name": "Single Provision (async → 202)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const b = pm.response.json();",
+            "pm.test('Accepted 202', () => pm.expect(b.status).to.eql(202));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base}}/api/user/provision",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"john@iga.local\",\n  \"username\": \"john\",\n  \"role\": \"viewer\"\n}" }
+          }
+        },
+        {
+          "name": "Deprovision User (async → 202)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/api/user/deprovision/user-abc-123"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Access Request",
+      "item": [
+        {
+          "name": "Create Access Request (async)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Accepted', () => pm.expect(pm.response.json().status).to.eql(202));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base}}/api/access/request",
+            "body": { "mode": "raw", "raw": "{\n  \"resourceId\": \"res-s3-prod\",\n  \"justification\": \"Quarterly report access\",\n  \"duration\": 7\n}" }
+          }
+        },
+        {
+          "name": "Update Access Request (async)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base}}/api/access/request/req-001",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"approved\",\n  \"reviewNote\": \"Approved by manager\"\n}" }
+          }
+        },
+        {
+          "name": "Get Access Request (sync)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200', () => pm.expect(pm.response.code).to.eql(200));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/api/access/request/req-001"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Time-Based Access",
+      "item": [
+        {
+          "name": "Create (async)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base}}/api/access/time",
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": \"user-abc-123\",\n  \"resourceId\": \"res-db-prod\",\n  \"startsAt\": \"2026-05-03T08:00:00Z\",\n  \"expiresAt\": \"2026-05-03T18:00:00Z\"\n}" }
+          }
+        },
+        {
+          "name": "Revoke (async)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/api/access/time/tba-001"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Access Certification",
+      "item": [
+        {
+          "name": "Create Campaign (async)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base}}/api/access/cert/campaign",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Q2-2026 Access Review\",\n  \"scope\": [\"res-s3-prod\", \"res-db-prod\"],\n  \"deadline\": \"2026-06-30T23:59:59Z\"\n}" }
+          }
+        },
+        {
+          "name": "Submit Decision (async)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base}}/api/access/cert/decision",
+            "body": { "mode": "raw", "raw": "{\n  \"campaignId\": \"camp-001\",\n  \"userId\": \"user-abc-123\",\n  \"resourceId\": \"res-s3-prod\",\n  \"decision\": \"revoke\",\n  \"reason\": \"No longer required\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recommendation",
+      "item": [
+        {
+          "name": "Run Engine (async)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('202', () => pm.expect(pm.response.json().status).to.eql(202));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base}}/api/recommendation/run",
+            "body": { "mode": "raw", "raw": "{\n  \"targetUserId\": \"user-abc-123\",\n  \"strategy\": \"peer-based\"\n}" }
+          }
+        },
+        {
+          "name": "Get Recommendations (sync)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base}}/api/recommendation/user-abc-123"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit & Reporting",
+      "item": [
+        {
+          "name": "Trigger Report (async → 202)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('202 async ack', () => pm.expect(pm.response.json().status).to.eql(202));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base}}/api/audit/report",
+            "body": { "mode": "raw", "raw": "{\n  \"type\": \"anomaly-detection\",\n  \"dateRange\": { \"from\": \"2026-04-01\", \"to\": \"2026-04-30\" },\n  \"resources\": [\"res-s3-prod\", \"res-db-prod\"]\n}" }
+          }
+        },
+        {
+          "name": "Query Audit Log (sync)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200', () => pm.expect(pm.response.code).to.eql(200));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base}}/api/audit/log?userId=user-abc-123&from=2026-04-01&to=2026-04-30&limit=50",
+              "query": [
+                { "key": "userId", "value": "user-abc-123" },
+                { "key": "from",   "value": "2026-04-01" },
+                { "key": "to",     "value": "2026-04-30" },
+                { "key": "limit",  "value": "50" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth Errors (negative)",
+      "item": [
+        {
+          "name": "Login – wrong password",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400 validation', () => pm.expect(pm.response.code).to.eql(400));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base}}/api/user/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@iga.local\",\n  \"password\": \"short\"\n}" }
+          }
+        },
+        {
+          "name": "Protected route – no token",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('401', () => pm.expect(pm.response.code).to.eql(401));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/audit/log"
+          }
+        },
+        {
+          "name": "Protected route – bad token",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('401', () => pm.expect(pm.response.code).to.eql(401));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer bad.token.here" }],
+            "url": "{{base}}/api/audit/log"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  gateway:
+    build:
+      context: ./nextGen-IGA-tool/gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - ACCESS_MGMT_URL=http://access-management:3001
+      - RECOMMENDATION_URL=http://recommendation:3002
+      - NATS_URL=nats://nats:4222
+      - DB_HOST=db
+      # Add other env vars as needed or use an .env file
+    depends_on:
+      - nats
+      - db
+
+  access-management:
+    build:
+      context: ./nextGen-IGA-tool/access-management
+    ports:
+      - "3001:3001"
+    environment:
+      - ACCESS_MGMT_PORT=3001
+      - NATS_URL=nats://nats:4222
+      - DB_HOST=db
+    depends_on:
+      - nats
+      - db
+
+  event-manager:
+    build:
+      context: ./nextGen-IGA-tool/event-manager
+    environment:
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - nats
+
+  notifications:
+    build:
+      context: ./nextGen-IGA-tool/notifications
+    environment:
+      - NATS_URL=nats://nats:4222
+      - DB_HOST=db
+    depends_on:
+      - nats
+      - db
+
+  recommendation:
+    build:
+      context: ./nextGen-IGA-tool/recommendation
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - NATS_URL=nats://nats:4222
+      - DB_HOST=db
+    depends_on:
+      - nats
+      - db
+
+  frontend:
+    build:
+      context: ./nextgen-iga-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
+
+  # Infrastructure
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=abhik_db
+      - MYSQL_USER=abhik
+      - MYSQL_PASSWORD=abhikSQL
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
