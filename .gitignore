@@ -54,3 +54,5 @@ temp/
 # Misc
 *.tgz
 *.bak
+
+.claude/
