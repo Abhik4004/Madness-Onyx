@@ -19,7 +19,6 @@ pids
 # Environment files
 .env
 .env.*
-!.env.example
 
 # Build folders
 dist/
