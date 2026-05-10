@@ -22,24 +22,46 @@ async function publishLdapEvent(action, { userId, resourceId, requestId }) {
 }
 
 async function revokeAccess(userId, resourceId, reason = "Revoked") {
-  await db.query(
-    "UPDATE user_access SET status = 'REVOKED', updated_at = NOW() WHERE user_id = ? AND application_id = ?",
-    [userId, resourceId]
-  );
-  await publishLdapEvent("revoke", { userId, resourceId, requestId: randomUUID() });
-  await logActivity("ACCESS_REVOKED", "SYSTEM", "SYSTEM", userId, { resourceId, reason });
+  const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+  const url = `${authUrl}/api/removeuser/group`;
+  console.log(`[sync] Revoking access: user=${userId}, group=${resourceId}, reason=${reason}`);
 
-  // Notify User
   try {
-    const { js } = getNats();
-    await js.publish("events.notify.email", jc.encode({
-      to: `${userId}@example.com`,
-      userId: userId,
-      subject: "Access Revoked",
-      body: `Your access to ${resourceId} has been revoked. Reason: ${reason}`,
-      type: "warning"
-    }));
-  } catch (err) { }
+    // 1. Direct LDAP Revocation
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: userId, groupCn: resourceId }),
+    });
+
+    if (response.ok) {
+      // 2. Local DB Update
+      await db.query(
+        "UPDATE user_access SET status = 'REVOKED', updated_at = NOW() WHERE user_id = ? AND application_id = ?",
+        [userId, resourceId]
+      );
+      
+      // 3. Audit & Events
+      await publishLdapEvent("revoke", { userId, resourceId, requestId: randomUUID() });
+      await logActivity("ACCESS_REVOKED", "SYSTEM", "SYSTEM", userId, { resourceId, reason });
+
+      // 4. Notify User
+      try {
+        const { js } = getNats();
+        await js.publish("events.notify.email", jc.encode({
+          to: `${userId}@example.com`,
+          userId: userId,
+          subject: "Access Revoked",
+          body: `Your access to ${resourceId} has been revoked. Reason: ${reason}`,
+          type: "warning"
+        }));
+      } catch (err) { }
+      return true;
+    }
+  } catch (e) {
+    console.error(`[sync] Revocation failed for ${userId}:`, e.message);
+  }
+  return false;
 }
 
 export async function logActivity(eventType, actorId, actorName, targetId, details = {}) {
@@ -1837,6 +1859,9 @@ export async function handleManualLdapSync(msg) {
   }
 }
 
+// Automated Revocation helper is now unified at the top of the file
+
+
 async function performLdapSync() {
   const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
   const url = `${authUrl}/api/users`;
@@ -1857,100 +1882,80 @@ async function performLdapSync() {
 
     const rawData = await res.json().catch(() => ({}));
     let users = Array.isArray(rawData) ? rawData : (rawData.data || []);
-      res.on("end", () => {
-        try {
-          const rawData = JSON.parse(body || "{}");
-          let users = Array.isArray(rawData) ? rawData : (rawData.data || []);
 
-          // If we got no users or garbage, inject high-quality test data to prove the system works
-          if (!users.length || rawData.stream === "LDAP_STREAM") {
-            console.log("[ldap-sync] Injecting high-quality test users for demonstration...");
-            users = [
-              { id: "jdoe", full_name: "John Doe", email: "jdoe@example.com", role_id: "end_user", status: "ACTIVE" },
-              { id: "asmith", full_name: "Alice Smith", email: "asmith@example.com", role_id: "supervisor", status: "ACTIVE" },
-              { id: "rwilson", full_name: "Robert Wilson", email: "rwilson@example.com", role_id: "end_user", status: "PENDING_APPROVAL" }
-            ];
-          }
+    // If we got no users or garbage, inject high-quality test data to prove the system works
+    if (!users.length || rawData.stream === "LDAP_STREAM") {
+      console.log("[ldap-sync] Injecting high-quality test users for demonstration...");
+      users = [
+        { id: "jdoe", full_name: "John Doe", email: "jdoe@example.com", role_id: "end_user", status: "ACTIVE" },
+        { id: "asmith", full_name: "Alice Smith", email: "asmith@example.com", role_id: "supervisor", status: "ACTIVE" },
+        { id: "rwilson", full_name: "Robert Wilson", email: "rwilson@example.com", role_id: "end_user", status: "PENDING_APPROVAL" }
+      ];
+    }
 
-          // Process users
-          (async () => {
-            for (const u of users) {
-              try {
-                const idRaw = u.id || u.uid || u.employee_id; if (!idRaw || String(idRaw) === "null") continue; const id = String(idRaw).toLowerCase();
-                const fullName = u.full_name || u.cn || id;
-                const email = u.email || u.mail || `${id}@example.com`;
-                const role = u.userType || u.role_id || u.role || 'end_user';
-                let manager = u.manager_id || u.manager || null;
-                if (manager && manager.includes('uid=')) {
-                  const match = manager.match(/uid=([^,]+)/i);
-                  manager = match ? match[1] : manager;
-                }
-                const status = (u.status || 'ACTIVE').toUpperCase();
-
-                // Authoritative check
-                const { rows: existingRows } = await db.query("SELECT manager_id FROM users_access WHERE id = ?", [id]);
-                const existing = existingRows[0];
-
-                await db.query(
-                  `INSERT INTO users_access (id, employee_id, full_name, email, role_id, manager_id, status, isApproved, last_synced)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, TRUE, NOW())
-                     ON DUPLICATE KEY UPDATE 
-                       full_name = VALUES(full_name), 
-                       email = VALUES(email), 
-                       role_id = CASE 
-                         WHEN VALUES(role_id) = 'end_user' AND role_id IS NOT NULL THEN role_id 
-                         ELSE VALUES(role_id) 
-                       END, 
-                       manager_id = COALESCE(VALUES(manager_id), manager_id),
-                       status = VALUES(status),
-                       isApproved = TRUE,
-                       last_synced = NOW()`,
-                  [id, id, fullName, email, role, manager || null, status]
-                );
-
-                // Propagation
-                if (existing && existing.manager_id !== manager) {
-                  await db.query(
-                    "UPDATE certification_items SET manager_id = ? WHERE user_id = ? AND decision = 'PENDING'",
-                    [manager, id]
-                  );
-                }
-
-                // Termination logic
-                if (status === 'TERMINATED' || status === 'INACTIVE' || status === 'SUSPENDED') {
-                  const { rows: currentAccess } = await db.query(
-                    "SELECT application_id FROM user_access WHERE user_id = ? AND status = 'ACTIVE'",
-                    [id]
-                  );
-                  for (const acc of currentAccess) {
-                    await revokeAccess(id, acc.application_id, `Authoritative LDAP Background Sync: User Status=${status}`);
-                  }
-                }
-              } catch (rowErr) {
-                console.error(`[ldap-sync] Row sync failure for ${u.id}:`, rowErr.message);
-              }
-            }
-            console.log(`[ldap-sync] Successfully synced ${users.length} users`);
-            resolve();
-          })();
-        } catch (e) {
-          console.error("[ldap-sync] JSON parse error:", e.message);
-          resolve();
+    // Process users
+    for (const u of users) {
+      try {
+        const idRaw = u.id || u.uid || u.employee_id;
+        if (!idRaw || String(idRaw) === "null") continue;
+        const id = String(idRaw).toLowerCase();
+        const fullName = u.full_name || u.cn || id;
+        const email = u.email || u.mail || `${id}@example.com`;
+        const role = u.userType || u.role_id || u.role || 'end_user';
+        let manager = u.manager_id || u.manager || null;
+        if (manager && manager.includes('uid=')) {
+          const match = manager.match(/uid=([^,]+)/i);
+          manager = match ? match[1] : manager;
         }
-      });
-    });
+        const status = (u.status || 'ACTIVE').toUpperCase();
 
-    req.on("error", (err) => {
-      console.error("[ldap-sync] Sync failed:", err.message);
-      resolve();
-    });
+        // Authoritative check
+        const { rows: existingRows } = await db.query("SELECT manager_id FROM users_access WHERE id = ?", [id]);
+        const existing = existingRows[0];
 
-    req.on("timeout", () => {
-      req.destroy();
-      console.error("[ldap-sync] Sync timed out");
-      resolve();
-    });
-  });
+        await db.query(
+          `INSERT INTO users_access (id, employee_id, full_name, email, role_id, manager_id, status, isApproved, last_synced)
+             VALUES (?, ?, ?, ?, ?, ?, ?, TRUE, NOW())
+             ON DUPLICATE KEY UPDATE 
+               full_name = VALUES(full_name), 
+               email = VALUES(email), 
+               role_id = CASE 
+                 WHEN VALUES(role_id) = 'end_user' AND role_id IS NOT NULL THEN role_id 
+                 ELSE VALUES(role_id) 
+               END, 
+               manager_id = COALESCE(VALUES(manager_id), manager_id),
+               status = VALUES(status),
+               isApproved = TRUE,
+               last_synced = NOW()`,
+          [id, id, fullName, email, role, manager || null, status]
+        );
+
+        // Propagation
+        if (existing && existing.manager_id !== manager) {
+          await db.query(
+            "UPDATE certification_items SET manager_id = ? WHERE user_id = ? AND decision = 'PENDING'",
+            [manager, id]
+          );
+        }
+
+        // Termination logic
+        if (status === 'TERMINATED' || status === 'INACTIVE' || status === 'SUSPENDED') {
+          const { rows: currentAccess } = await db.query(
+            "SELECT application_id FROM user_access WHERE user_id = ? AND status = 'ACTIVE'",
+            [id]
+          );
+          for (const acc of currentAccess) {
+            await revokeAccess(id, acc.application_id, `Authoritative LDAP Background Sync: User Status=${status}`);
+          }
+        }
+      } catch (rowErr) {
+        console.error(`[ldap-sync] Row sync failure for ${u.id || 'unknown'}:`, rowErr.message);
+      }
+    }
+    console.log(`[ldap-sync] Successfully synced ${users.length} users`);
+  } catch (e) {
+    console.error("[ldap-sync] Sync process error:", e.message);
+  }
 }
 
 
