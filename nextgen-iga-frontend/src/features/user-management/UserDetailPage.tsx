@@ -203,13 +203,13 @@ export function UserDetailPage() {
               <UserCheck size={16} style={{ marginRight: 6 }} /> Manager
             </span>
           </div>
-          {user.manager ? (
+          {user.manager_id || user.manager ? (
             <div className="user-detail-manager">
               <div className="user-card-manager-avatar" style={{ width: 44, height: 44, fontSize: '1rem' }}>
-                {user.manager[0]?.toUpperCase()}
+                {(user.manager_id || user.manager || "?")[0]?.toUpperCase()}
               </div>
               <div>
-                <div className="text-sm font-semibold">{user.manager}</div>
+                <div className="text-sm font-semibold">{user.manager_id || user.manager}</div>
                 <div className="text-xs text-muted">Direct Manager</div>
               </div>
             </div>

@@ -18,6 +18,7 @@ export interface User {
   status: string;
   isApproved: boolean;
   manager: string | null;
+  manager_id?: string | null;
   groups: string[];
   dn: string;
   additionalAttributes: Record<string, unknown>;
@@ -112,7 +113,7 @@ function normalizeUser(u: any): User {
 
   // Extract manager UID from LDAP DN string in 'manager' or 'member' field
   let manager: string | null = null;
-  const managerRaw = u.manager || u.member || attrs.manager;
+  const managerRaw = u.manager || u.manager_id || u.member || attrs.manager;
   if (managerRaw) {
     const match = String(managerRaw).match(/uid=([^,]+)/i);
     manager = match ? match[1] : String(managerRaw);
@@ -146,6 +147,7 @@ function normalizeUser(u: any): User {
     status: (u.status || 'ACTIVE') as string,
     isApproved: u.isApproved === true || u.isApproved === 1,
     manager,
+    manager_id: u.manager_id || manager,
     groups,
     dn: u.dn || u.entryDN || attrs.entryDN || `uid=${uid},ou=users,dc=example,dc=com`,
     additionalAttributes: { ...attrs, ssoTokens },

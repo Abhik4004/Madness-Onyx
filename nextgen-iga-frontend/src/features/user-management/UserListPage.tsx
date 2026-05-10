@@ -126,7 +126,7 @@ function UserCard({ user, managers }: {
         <div className="user-card-meta">
           <div className="user-card-meta-item">
             <UserCheck size={12} />
-            <span>{user.manager ?? 'No Manager'}</span>
+            <span>{user.manager_id || user.manager || 'Not Assigned'}</span>
           </div>
           <div className="user-card-meta-item">
             <Users size={12} />
@@ -247,12 +247,12 @@ function UserCard({ user, managers }: {
                 <UserCheck size={14} /> Manager
               </div>
               <div className="user-card-section-content">
-                {user.manager ? (
+                {user.manager_id || user.manager ? (
                   <div className="user-card-manager-chip">
                     <div className="user-card-manager-avatar">
-                      {user.manager[0]?.toUpperCase()}
+                      {(user.manager_id || user.manager || "?")[0]?.toUpperCase()}
                     </div>
-                    <span>{user.manager}</span>
+                    <span>{user.manager_id || user.manager}</span>
                   </div>
                 ) : (
                   <span className="text-muted text-xs">Not Assigned</span>

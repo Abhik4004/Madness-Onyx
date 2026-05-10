@@ -822,6 +822,7 @@ export async function handleUserList(msg) {
       mail: u.email || `${u.id}@example.com`,
       role: u.role_id || 'end_user',
       status: u.status || 'ACTIVE',
+      manager: u.manager_id,
       groups: [],
       isApproved: true
     }));

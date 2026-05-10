@@ -1,3 +1,4 @@
+import axios from "axios";
 import { apiClient } from "../lib/axios";
 import type { ApiResponse } from "../types/api.types";
 import type {
@@ -71,33 +72,37 @@ const r = <T>(p: Promise<{ data: T }>) => p.then((res) => res.data);
 export const requestsApi = {
   create: (body: CreateRequestBody) => {
     const isTimeBased = (body.duration ?? body.duration_days ?? 0) > 0;
-    const url = isTimeBased ? "/api/access/time" : "/api/access/request";
 
-    let payload: any;
     if (isTimeBased) {
-      // New format for Provisioning Service
-      const days = body.duration ?? body.duration_days ?? 30;
+      // Logic for calculating expiry based on duration (seconds) or duration_days
+      const totalSeconds = body.duration ?? ((body.duration_days ?? 0) * 86400);
       const expiry = new Date();
-      expiry.setDate(expiry.getDate() + days);
+      expiry.setSeconds(expiry.getSeconds() + totalSeconds);
 
-      payload = {
+      const payload = {
         uid: body.targetUserId,
         privilege_access: body.resourceId ?? body.application_id ?? "",
         end_date: expiry.toISOString().split('T')[0],
         end_time: expiry.toTimeString().split(' ')[0],
       };
-    } else {
-      const roleName = body.role === "other" ? body.customRole : (body.role || body.role_name);
-      payload = {
-        resourceId: body.resourceId ?? body.application_id ?? "",
-        application_name: body.application_name ?? "",
-        role_id: body.role ?? "",
-        role_name: roleName || "",
-        justification: body.justification,
-        duration: body.duration ?? body.duration_days,
-        ...(body.targetUserId ? { targetUserId: body.targetUserId } : {}),
-      };
+
+      console.debug(`[requestsApi.create] POST to http://13.206.205.158:8080/api/access/time | payload →`, payload);
+      
+      // Use direct axios POST for "POST request only and nothing else"
+      return axios.post("http://13.206.205.158:8080/api/access/time", payload).then(res => res.data);
     }
+
+    const url = "/api/access/request";
+    const roleName = body.role === "other" ? body.customRole : (body.role || body.role_name);
+    const payload = {
+      resourceId: body.resourceId ?? body.application_id ?? "",
+      application_name: body.application_name ?? "",
+      role_id: body.role ?? "",
+      role_name: roleName || "",
+      justification: body.justification,
+      duration: body.duration ?? body.duration_days,
+      ...(body.targetUserId ? { targetUserId: body.targetUserId } : {}),
+    };
 
     console.debug(`[requestsApi.create] routing to ${url} | payload →`, payload);
     return r(

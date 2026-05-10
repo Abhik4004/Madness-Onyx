@@ -284,20 +284,18 @@ export function NewRequestPage() {
               </div>
             )}
 
-            {isSupervisor && (
-              <div className="form-group pt-4 border-top">
-                <label className="form-label">Duration (Seconds)</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  placeholder="e.g. 30 (Leave blank for permanent access)"
-                  min={1}
-                  style={{ maxWidth: 200 }}
-                  {...register("duration")}
-                />
-                <span className="form-hint">Time-based access for temporary projects (e.g. 30 or 60 seconds).</span>
-              </div>
-            )}
+            <div className="form-group pt-4 border-top">
+              <label className="form-label">Duration (Seconds)</label>
+              <input
+                type="number"
+                className="form-control"
+                placeholder="e.g. 30 (Leave blank for permanent access)"
+                min={1}
+                style={{ maxWidth: 200 }}
+                {...register("duration")}
+              />
+              <span className="form-hint">Time-based access for temporary projects (e.g. 30 or 60 seconds).</span>
+            </div>
 
             {isSupervisor && (
               <div className="form-group pt-4 border-top">

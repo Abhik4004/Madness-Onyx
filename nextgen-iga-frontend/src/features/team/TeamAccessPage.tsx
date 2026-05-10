@@ -83,11 +83,11 @@ export function TeamAccessPage() {
   const filteredUsers = useMemo(() => {
     const raw = (data?.data ?? []) as User[];
     if (!search) return raw;
-    
+
     const q = search.toLowerCase();
-    return raw.filter(u => 
-      u.full_name?.toLowerCase().includes(q) || 
-      u.email?.toLowerCase().includes(q) || 
+    return raw.filter(u =>
+      u.full_name?.toLowerCase().includes(q) ||
+      u.email?.toLowerCase().includes(q) ||
       u.id?.toLowerCase().includes(q)
     );
   }, [data?.data, search]);
@@ -97,7 +97,7 @@ export function TeamAccessPage() {
     if (viewMode !== 'hierarchy' || !data?.data || !currentUser) return [];
 
     const allUsers = data.data as User[];
-    
+
     // 1. Create a map for quick lookup
     const userMap: Record<string, any> = {};
     allUsers.forEach(u => {
@@ -131,33 +131,34 @@ export function TeamAccessPage() {
   }, [data?.data, currentUser, viewMode]);
 
   const columns: Column<User>[] = [
-    { key: 'name', header: 'Name', render: u => (
-      <div className="flex items-center gap-3">
-        <div className="avatar-sm" style={{ background: 'var(--color-primary-light)', color: 'var(--color-primary)', fontWeight: 600 }}>
-          {u.full_name[0]}
+    {
+      key: 'name', header: 'Name', render: u => (
+        <div className="flex items-center gap-3">
+          <div className="avatar-sm" style={{ background: 'var(--color-primary-light)', color: 'var(--color-primary)', fontWeight: 600 }}>
+            {u.full_name[0]}
+          </div>
+          <span className="font-medium">{u.full_name}</span>
         </div>
-        <span className="font-medium">{u.full_name}</span>
-      </div>
-    ) },
+      )
+    },
     { key: 'email', header: 'Email', render: u => u.email },
     { key: 'role', header: 'Role', render: u => <StatusBadge status={u.role.replace('_', ' ').toUpperCase()} /> },
     { key: 'status', header: 'Status', render: u => <StatusBadge status={u.status} /> },
-    { key: 'actions', header: '', render: u => <Link to={`/supervisor/team/${u.id}`} className="btn btn-sm btn-secondary">View Access</Link>, width: '110px' },
   ];
 
   return (
     <div className="fade-in">
       <div className="flex items-center justify-between mb-6">
         <PageHeader title="My Team" subtitle="View and manage your direct reports' access" />
-        
+
         <div className="view-toggle">
-          <button 
+          <button
             className={`view-toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
             onClick={() => setViewMode('list')}
           >
             <List size={14} /> Users
           </button>
-          <button 
+          <button
             className={`view-toggle-btn ${viewMode === 'hierarchy' ? 'active' : ''}`}
             onClick={() => setViewMode('hierarchy')}
           >
