@@ -36,5 +36,6 @@ accessRouter.get("/active",            relayMiddleware);
 accessRouter.post("/managed-apps",      relayMiddleware);
 accessRouter.post("/managed-apps/sync", relayMiddleware);
 accessRouter.delete("/managed-apps/sync", relayMiddleware);
+accessRouter.post("/user/sync", relayMiddleware);
 
 export default accessRouter;

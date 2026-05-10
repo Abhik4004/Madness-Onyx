@@ -75,10 +75,10 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      <div className="grid-12" style={{ marginBottom: 32 }}>
+      {/* <div className="grid-12" style={{ marginBottom: 32 }}>
         <div className="span-6 glass" style={{ padding: 4, borderRadius: 24, background: 'rgba(37, 99, 235, 0.05)' }}><AIInsightsWidget /></div>
         <div className="span-6 glass" style={{ padding: 4, borderRadius: 24, background: 'rgba(239, 68, 68, 0.05)' }}><AIAnomaliesWidget /></div>
-      </div>
+      </div> */}
 
       <div className="grid-12" style={{ marginBottom: 32 }}>
         {/* Recent Audit Events */}

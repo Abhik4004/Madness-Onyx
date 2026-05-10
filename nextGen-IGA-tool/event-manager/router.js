@@ -96,10 +96,9 @@ export const ROUTES = [
   },
   {
     method: "POST",
-    pattern: /^\/api\/user\/sync$/,
+    pattern: /^\/api\/(access\/)?user\/sync\/?$/,
     mode: "sync",
     subject: "access.user.sync",
-    
   },
 
   // ── Provision / Deprovision ──────────────────────────────────────────────

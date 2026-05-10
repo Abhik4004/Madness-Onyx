@@ -1011,6 +1011,16 @@ export async function handleUserGroupAdd(msg) {
       [accessId, uid, groupCn]
     ).catch(e => console.error("[sync] DB error:", e.message));
 
+    // If the group added is a platform role, update the role_id in users_access immediately
+    const knownRoles = ['admin', 'supervisor', 'end_user'];
+    if (knownRoles.includes(groupCn.toLowerCase())) {
+      console.log(`[sync] User ${uid} promoted to ${groupCn}. Updating users_access.role_id...`);
+      await db.query(
+        "UPDATE users_access SET role_id = ? WHERE id = ?",
+        [groupCn.toLowerCase(), uid]
+      ).catch(e => console.error("[sync] Role sync error:", e.message));
+    }
+
     msg.respond(ok(resData.data || resData));
   } catch (e) {
     msg.respond(err(500, e.message));
