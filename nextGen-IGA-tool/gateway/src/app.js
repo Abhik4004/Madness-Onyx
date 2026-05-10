@@ -20,7 +20,7 @@ import notificationsRouter from "./router/notifications/notifications.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://localhost:3001";
+const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://127.0.0.1:3001";
 
 const getIdentityHeaders = (req) => ({
   "Content-Type": "application/json",
@@ -261,7 +261,8 @@ app.post("/api/access/cert/campaign", async (req, res) => {
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+    console.error("[gateway] Request create bypass error:", err.message);
+    res.status(502).json({ ok: false, message: `Access management service unreachable: ${err.message}` });
   }
 });
 
@@ -273,7 +274,8 @@ app.get("/api/access/cert/campaign", async (req, res) => {
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+    console.error("[gateway] Request create bypass error:", err.message);
+    res.status(502).json({ ok: false, message: `Access management service unreachable: ${err.message}` });
   }
 });
 
@@ -285,7 +287,8 @@ app.get("/api/access/cert/campaign/:id", async (req, res) => {
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+    console.error("[gateway] Request create bypass error:", err.message);
+    res.status(502).json({ ok: false, message: `Access management service unreachable: ${err.message}` });
   }
 });
 
@@ -298,7 +301,8 @@ app.get("/api/access/cert/campaign/:id/items", async (req, res) => {
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+    console.error("[gateway] Request create bypass error:", err.message);
+    res.status(502).json({ ok: false, message: `Access management service unreachable: ${err.message}` });
   }
 });
 
@@ -311,7 +315,8 @@ app.get("/api/access/cert/items", async (req, res) => {
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+    console.error("[gateway] Request create bypass error:", err.message);
+    res.status(502).json({ ok: false, message: `Access management service unreachable: ${err.message}` });
   }
 });
 
@@ -325,7 +330,8 @@ app.put("/api/access/cert/decision", async (req, res) => {
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+    console.error("[gateway] Request create bypass error:", err.message);
+    res.status(502).json({ ok: false, message: `Access management service unreachable: ${err.message}` });
   }
 });
 
@@ -337,7 +343,8 @@ app.get("/api/access/cert/history", async (req, res) => {
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+    console.error("[gateway] Request create bypass error:", err.message);
+    res.status(502).json({ ok: false, message: `Access management service unreachable: ${err.message}` });
   }
 });
 
@@ -349,7 +356,8 @@ app.get("/api/access/cert/campaign/:id/report", async (req, res) => {
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+    console.error("[gateway] Request create bypass error:", err.message);
+    res.status(502).json({ ok: false, message: `Access management service unreachable: ${err.message}` });
   }
 });
 
@@ -363,13 +371,14 @@ app.post("/api/access/cert/item/update", async (req, res) => {
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+    console.error("[gateway] Request create bypass error:", err.message);
+    res.status(502).json({ ok: false, message: `Access management service unreachable: ${err.message}` });
   }
 });
 
 app.get("/api/recommendation/audit", async (req, res) => {
   try {
-    const response = await fetch(`http://localhost:3002/api/recommendation/audit`, {
+    const response = await fetch(`http://127.0.0.1:3002/api/recommendation/audit`, {
       headers: getIdentityHeaders(req)
     });
     const data = await response.json();
@@ -406,11 +415,29 @@ app.post("/api/access/request", async (req, res) => {
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+    console.error("[gateway] Request create bypass error:", err.message);
+    res.status(502).json({ ok: false, message: `Access management service unreachable: ${err.message}` });
+  }
+});
+
+app.put("/api/access/request/:id", async (req, res) => {
+  try {
+    console.log(`[gateway] BYPASS: Direct Access Request Update -> ${req.params.id}`);
+    const response = await fetch(`${ACCESS_MGMT_URL}/api/access/request/${req.params.id}`, {
+      method: "PUT",
+      headers: getIdentityHeaders(req),
+      body: JSON.stringify(req.body)
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error("[gateway] Request update bypass error:", err.message);
+    res.status(502).json({ ok: false, message: `Access management service unreachable: ${err.message}` });
   }
 });
 
 app.get("/api/admin/dashboard", async (req, res) => {
+
   try {
     console.log(`[gateway] BYPASS: Direct Dashboard Stats`);
     const response = await fetch(`${ACCESS_MGMT_URL}/api/dashboard/stats`, {

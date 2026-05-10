@@ -144,6 +144,28 @@ async function main() {
       )
     `);
 
+    // Column patches for existing tables
+    const columns = [
+      ["duration_seconds", "INT NULL"],
+      ["submitted_at", "TIMESTAMP NULL"],
+      ["approved_at", "TIMESTAMP NULL"],
+      ["decided_at", "TIMESTAMP NULL"],
+      ["review_note", "TEXT NULL"]
+    ];
+
+    for (const [col, type] of columns) {
+      try {
+        await db.query(`ALTER TABLE access_requests ADD COLUMN ${col} ${type}`);
+        console.log(`[db] Added missing column: ${col} to access_requests`);
+      } catch (e) {
+        // Ignore "Duplicate column name" error (1060)
+        if (!e.message.includes("Duplicate column name")) {
+          console.warn(`[db] Failed to add column ${col}:`, e.message);
+        }
+      }
+    }
+
+
     // 2. User extensions
     await db.query(`
       CREATE TABLE IF NOT EXISTS users_access (
@@ -998,6 +1020,36 @@ async function main() {
       await handleUserGet(msg);
     } catch (err) {
       res.status(500).json({ ok: false, message: err.message });
+    }
+  });
+
+  app.put("/api/access/request/:id", async (req, res) => {
+    console.log(`[access-management] HTTP: PUT /api/access/request/${req.params.id} hit`);
+    try {
+      const { handleRequestUpdate } = await import("./handlers/async.js");
+      const { userId, role } = getIdentity(req);
+      const msg = {
+        data: jc.encode({ 
+          userId, 
+          role,
+          path: req.originalUrl || `/api/access/request/${req.params.id}`,
+          body: req.body 
+        }),
+        respond: (payload) => {
+          const result = jc.decode(payload);
+          res.status(result.status || 200).json(result);
+        },
+        ack: () => {
+          if (!res.headersSent) res.status(200).json({ ok: true, message: "Request updated" });
+        },
+        nak: () => {
+          if (!res.headersSent) res.status(500).json({ ok: false, message: "Update failed" });
+        }
+      };
+      await handleRequestUpdate(msg);
+    } catch (err) {
+      console.error("[access-management] HTTP Request Update error:", err.message);
+      if (!res.headersSent) res.status(500).json({ ok: false, message: err.message });
     }
   });
 
