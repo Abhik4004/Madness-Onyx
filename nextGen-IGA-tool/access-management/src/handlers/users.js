@@ -44,7 +44,8 @@ export async function handleUserCreated(msg) {
     // 2. Provision in LDAP (Requirement: Consolidate to single backend flow)
     try {
       console.log(`[users] Provisioning user ${userId} in LDAP...`);
-      const provRes = await fetch(`${process.env.EXTERNAL_AUTH_URL}/api/users`, {
+      const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+      const provRes = await fetch(`${authUrl}/api/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -176,7 +177,8 @@ export async function handleUserSync(msg) {
     let resolvedManagerId = manager_id ?? null;
     if (!resolvedManagerId) {
       try {
-        const extRes = await fetch(`${process.env.EXTERNAL_AUTH_URL}/api/user/details`, {
+        const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+        const extRes = await fetch(`${authUrl}/api/user/details`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ uid: normalizedId })
@@ -312,7 +314,8 @@ export async function handleUserApprove(msg) {
     const targetId = user?.id || userId;
 
     // Use the login page with pre-filled UID for the MFA activation flow
-    const finalMfaLink = `${process.env.EXTERNAL_AUTH_URL}/login?uid=${targetId}`;
+    const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+    const finalMfaLink = `${authUrl}/login?uid=${targetId}`;
 
     console.log(`[users] Approving user: searchId=${userId}, targetId=${targetId}`);
 
@@ -384,7 +387,8 @@ export async function mfaSetupLogic(data, headers = {}) {
 
   // 2. Call external MFA service
   try {
-    const extRes = await fetch(`${process.env.EXTERNAL_AUTH_URL}/api/mfa/setup`, {
+    const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+    const extRes = await fetch(`${authUrl}/api/mfa/setup`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": headers.authorization || headers.Authorization || "" },
       body: JSON.stringify({ uid })
@@ -460,7 +464,8 @@ export async function mfaVerifyLogic(data, token = null, headers = {}) {
 
   // 2. Call external MFA service
   try {
-    const extRes = await fetch(`${process.env.EXTERNAL_AUTH_URL}/api/mfa/verify`, {
+    const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+    const extRes = await fetch(`${authUrl}/api/mfa/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": authHeader },
       body: JSON.stringify({ uid, code })

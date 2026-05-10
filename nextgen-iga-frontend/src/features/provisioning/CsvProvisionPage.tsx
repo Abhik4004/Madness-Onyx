@@ -55,6 +55,8 @@ export function CsvProvisionPage() {
   const [preview, setPreview] = useState<CsvProvisionPreview | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
+  const [results, setResults] = useState<Record<string, { status: string; message: string }>>({});
+
   const previewMutation = useMutation({
     mutationFn: (f: File) => provisionApi.previewCsv(f, (percent) => setUploadProgress(percent)),
     onSuccess: (res) => {
@@ -80,19 +82,30 @@ export function CsvProvisionPage() {
   const submitMutation = useMutation({
     mutationFn: (users: any[]) => provisionApi.submitCsv(users),
     onSuccess: (res: any) => {
-      // Check for the specific "provision" action or "results" array from the Gateway
-      const isSuccess = res.action === "provision" || res.results?.length > 0;
+      const isOk = res.statusCode === 200 || res.statusCode === 207 || res.ok;
+      
+      if (isOk) {
+        const resData = res.data || res.results || [];
+        const resultMap: Record<string, any> = {};
+        let successCount = 0;
+        
+        resData.forEach((item: any) => {
+          resultMap[item.uid] = item;
+          if (item.status === 'SUCCESS' || item.message?.toLowerCase().includes('created')) {
+            successCount++;
+          }
+        });
+        
+        setResults(resultMap);
 
-      if (isSuccess) {
-        const result = res.results?.[0];
-        const count = preview?.valid_rows || 0;
-
-        toast.success(
-          result?.message ||
-            `${count} user${count !== 1 ? "s" : ""} processed successfully`,
-        );
+        if (res.statusCode === 207) {
+          toast.success(`Partial Success: ${successCount} user(s) created`);
+        } else {
+          toast.success(res.message || "Provisioning completed successfully");
+          // Only navigate away on full success if desired, but user wants to see ticks
+          // setTimeout(() => navigate("/admin/users"), 2000);
+        }
         qc.invalidateQueries({ queryKey: ["admin", "users"] });
-        navigate("/admin/users");
       } else {
         toast.error(res.message || "Submission failed");
       }
@@ -498,25 +511,47 @@ export function CsvProvisionPage() {
                         })}
 
                         <td>
-                          {row.status === "valid" || !row.error ? (
-                            <CheckCircle
-                              size={15}
-                              color="var(--color-success)"
-                            />
-                          ) : (
-                            <span
-                              title={row.error}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 4,
-                                color: "var(--color-danger)",
-                                fontSize: "0.75rem",
-                              }}
-                            >
-                              <AlertTriangle size={13} /> {row.error}
-                            </span>
-                          )}
+                          {(() => {
+                            const rowUid = row.uid || row.username || row.email;
+                            const result = results[rowUid];
+                            
+                            if (result) {
+                              const isSuccess = result.status === 'SUCCESS' || result.message?.toLowerCase().includes('created');
+                              if (isSuccess) {
+                                return (
+                                  <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--color-success)', fontSize: '0.75rem', fontWeight: 600 }}>
+                                    <CheckCircle size={15} /> Created
+                                  </span>
+                                );
+                              } else {
+                                return (
+                                  <span title={result.message} style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--color-danger)', fontSize: '0.75rem' }}>
+                                    <AlertTriangle size={13} /> Failed
+                                  </span>
+                                );
+                              }
+                            }
+
+                            return (row.status === "valid" || !row.error) ? (
+                              <CheckCircle
+                                size={15}
+                                color="var(--color-success)"
+                              />
+                            ) : (
+                              <span
+                                title={row.error}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 4,
+                                  color: "var(--color-danger)",
+                                  fontSize: "0.75rem",
+                                }}
+                              >
+                                <AlertTriangle size={13} /> {row.error}
+                              </span>
+                            );
+                          })()}
                         </td>
                       </tr>
                     ))}

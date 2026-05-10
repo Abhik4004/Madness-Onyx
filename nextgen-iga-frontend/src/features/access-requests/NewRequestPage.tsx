@@ -102,16 +102,16 @@ export function NewRequestPage() {
   const applications = appsData?.data ?? [];
 
   const filtered = applications.filter(
-    (r) =>
+    (r: any) =>
       !search ||
-      r.app_name.toLowerCase().includes(search.toLowerCase()) ||
-      (r.category && r.category.toLowerCase().includes(search.toLowerCase())),
+      r.name?.toLowerCase().includes(search.toLowerCase()) ||
+      r.id?.toLowerCase().includes(search.toLowerCase()),
   );
 
   const selectResource = (id: string) => {
     setResourceId(id);
-    const app = applications.find((r) => r.id === id);
-    setResourceName(app?.app_name ?? "");
+    const app: any = applications.find((r: any) => r.id === id);
+    setResourceName(app?.name || app?.id || "");
     setCustomInput("");
   };
   const canProceedStep1 = resourceId.length > 0;
@@ -186,18 +186,19 @@ export function NewRequestPage() {
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                     <Globe size={18} className="text-primary" />
-                    <span className="app-card-category">{r.category || "General"}</span>
+                    <span className="text-xs text-muted font-mono">{r.id}</span>
                     {resourceId === r.id && <Check size={14} className="text-primary ml-auto" />}
                   </div>
-                  <div className="app-card-name">{r.app_name}</div>
-                  <div className="app-card-desc">{r.description || "Access to this application."}</div>
-                  <div className="text-xs text-muted mt-2 font-mono">{r.id}</div>
+                  <div className="app-card-name" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {r.name || r.id}
+                  </div>
+                  <div className="app-card-desc">{r.description || "Managed application resource."}</div>
                 </div>
               ))
             )}
           </div>
 
-          <div className="mt-8 pt-6 border-top">
+          {/* <div className="mt-8 pt-6 border-top">
             <label className="form-label flex items-center gap-2">
               <Lock size={14} /> Custom Resource ID
             </label>
@@ -213,7 +214,7 @@ export function NewRequestPage() {
               }}
             />
             <span className="form-hint">Enter a custom ID if the resource is not listed above.</span>
-          </div>
+          </div> */}
 
           <div className="flex justify-end mt-6">
             <button className="btn btn-primary" disabled={!canProceedStep1} onClick={() => setStep(2)}>
@@ -229,7 +230,7 @@ export function NewRequestPage() {
             <span className="card-title text-xl">Configure Access Details</span>
             <p className="text-muted text-sm mt-1">Specify your role and provide a justification for resource: <code className="text-primary">{resourceId}</code></p>
           </div>
-          
+
           <form onSubmit={handleSubmit(() => setStep(3))} className="space-y-6">
             <div className="form-group">
               <label className="form-label required">Requested Role / Access Level</label>
@@ -246,7 +247,7 @@ export function NewRequestPage() {
             {selectedRole === "other" && (
               <div className="form-group fade-in">
                 <label className="form-label required">Custom Role Name</label>
-                <input 
+                <input
                   className={`form-control ${errors.customRole ? "error" : ""}`}
                   placeholder="e.g. Data Auditor, Support Lead..."
                   {...register("customRole")}
@@ -257,8 +258,8 @@ export function NewRequestPage() {
 
             <div className="form-group">
               <label className="form-label required">Justification Reason</label>
-              <select 
-                className={`form-control ${errors.justification ? "error" : ""}`} 
+              <select
+                className={`form-control ${errors.justification ? "error" : ""}`}
                 {...register("justification")}
               >
                 <option value="">Select a reason...</option>
@@ -270,7 +271,7 @@ export function NewRequestPage() {
               </select>
               {errors.justification && <span className="form-error">{errors.justification.message}</span>}
             </div>
-            
+
             {watch("justification") === "Other" && (
               <div className="form-group fade-in">
                 <label className="form-label required">Detailed Justification</label>
@@ -284,61 +285,63 @@ export function NewRequestPage() {
               </div>
             )}
 
-            <div className="form-group pt-4 border-top">
-              <label className="form-label">Duration (Seconds)</label>
-              <input
-                type="number"
-                className="form-control"
-                placeholder="e.g. 30 (Leave blank for permanent access)"
-                min={1}
-                style={{ maxWidth: 200 }}
-                {...register("duration")}
-              />
-              <span className="form-hint">Time-based access for temporary projects (e.g. 30 or 60 seconds).</span>
-            </div>
+            {user?.role !== 'end_user' && (
+              <div className="form-group pt-4 border-top">
+                <label className="form-label">Duration (Seconds)</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="e.g. 30 (Leave blank for permanent access)"
+                  min={1}
+                  style={{ maxWidth: 200 }}
+                  {...register("duration")}
+                />
+                <span className="form-hint">Time-based access for temporary projects (e.g. 30 or 60 seconds).</span>
+              </div>
+            )}
 
             {isSupervisor && (
               <div className="form-group pt-4 border-top">
                 <label className="form-label flex items-center gap-2">
-                  <UserCheck size={16} className="text-primary" /> 
+                  <UserCheck size={16} className="text-primary" />
                   <span className="font-semibold text-lg">Requestee (Target User)</span>
                 </label>
                 <p className="text-sm text-muted mb-4">Select who this access is being requested for.</p>
-                  <div className="search-input-wrap mb-3">
-                    <Search size={13} />
-                    <input
-                      className="form-control"
-                      placeholder="Search users..."
-                      value={userSearch}
-                      onChange={(e) => setUserSearch(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="user-picker-list border rounded-lg max-h-40 overflow-y-auto">
-                    <div className={`user-picker-item ${!targetUserId ? 'active shadow-sm' : ''}`} onClick={() => setValue("targetUserId", "")}>
-                      <div className="avatar-xs mr-3 bg-primary text-white">{user?.full_name?.[0]}</div>
-                      <div className="flex-1">
-                        <div className="text-sm font-semibold">Myself (You)</div>
-                        <div className="text-xs text-muted">{user?.full_name} — {user?.email}</div>
-                      </div>
-                      {!targetUserId && <Check size={14} className="text-primary" />}
-                    </div>
-
-                    {userList.map((u) => (
-                      <div key={u.id} className={`user-picker-item ${targetUserId === u.id ? 'active' : ''}`} onClick={() => setValue("targetUserId", u.id)}>
-                        <div className="avatar-xs mr-3">{u.full_name?.[0]}</div>
-                        <div className="flex-1">
-                          <div className="text-sm font-medium">{u.full_name}</div>
-                          <div className="text-xs text-muted">{u.email}</div>
-                        </div>
-                        {targetUserId === u.id && <Check size={14} className="text-primary" />}
-                      </div>
-                    ))}
-                  </div>
+                <div className="search-input-wrap mb-3">
+                  <Search size={13} />
+                  <input
+                    className="form-control"
+                    placeholder="Search users..."
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                  />
                 </div>
-              )}
 
-             <div className="flex justify-between mt-8">
+                <div className="user-picker-list border rounded-lg max-h-40 overflow-y-auto">
+                  <div className={`user-picker-item ${!targetUserId ? 'active shadow-sm' : ''}`} onClick={() => setValue("targetUserId", "")}>
+                    <div className="avatar-xs mr-3 bg-primary text-white">{user?.full_name?.[0]}</div>
+                    <div className="flex-1">
+                      <div className="text-sm font-semibold">Myself (You)</div>
+                      <div className="text-xs text-muted">{user?.full_name} — {user?.email}</div>
+                    </div>
+                    {!targetUserId && <Check size={14} className="text-primary" />}
+                  </div>
+
+                  {userList.map((u) => (
+                    <div key={u.id} className={`user-picker-item ${targetUserId === u.id ? 'active' : ''}`} onClick={() => setValue("targetUserId", u.id)}>
+                      <div className="avatar-xs mr-3">{u.full_name?.[0]}</div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">{u.full_name}</div>
+                        <div className="text-xs text-muted">{u.email}</div>
+                      </div>
+                      {targetUserId === u.id && <Check size={14} className="text-primary" />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-between mt-8">
               <button type="button" className="btn btn-secondary" onClick={() => setStep(1)}>← Back</button>
               <button type="submit" className="btn btn-primary">Review →</button>
             </div>
@@ -376,7 +379,7 @@ export function NewRequestPage() {
                 "{justificationType === "other" || justificationType === "Other" ? watch("customJustification") : justificationType}"
               </span>
             </div>
-            {watch("duration") && (
+            {user?.role !== 'end_user' && watch("duration") && (
               <div className="detail-row fade-in">
                 <span className="detail-label">Duration</span>
                 <span className="detail-value text-amber-600 font-bold">{watch("duration")} Seconds</span>
@@ -386,9 +389,9 @@ export function NewRequestPage() {
 
           <div className="flex justify-between">
             <button className="btn btn-secondary" onClick={() => setStep(2)} disabled={submit.isPending}>← Back</button>
-            <button 
-              className="btn btn-primary" 
-              disabled={submit.isPending} 
+            <button
+              className="btn btn-primary"
+              disabled={submit.isPending}
               onClick={handleSubmit((d) => submit.mutate(d))}
             >
               {submit.isPending ? "Submitting..." : "Confirm & Submit"}

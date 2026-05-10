@@ -633,10 +633,11 @@ async function main() {
     console.log("[access-management] HTTP: GET /api/access/request/list hit");
     try {
       const { handleRequestList } = await import("./handlers/sync.js");
+      const { userId, role } = getIdentity(req);
       const msg = {
         data: jc.encode({ 
-          userId: "admin", 
-          role: "admin",
+          userId, 
+          role,
           query: req.query 
         }),
         respond: (payload) => {

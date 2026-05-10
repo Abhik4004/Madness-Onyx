@@ -633,7 +633,8 @@ export async function handleGroupCreate(msg) {
 
     // Standardized infrastructure settings
     const channelName = "NATS";
-    const externalUrl = `${process.env.EXTERNAL_AUTH_URL}/api/create/group`;
+    const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+    const externalUrl = `${authUrl}/api/create/group`;
 
     const payload = {
       groupCn,
@@ -734,10 +735,10 @@ export async function handleApplicationsList(msg) {
     const { search } = envelope.query ?? {};
 
     let query = `
-      SELECT a.id, a.app_name, a.app_type, 
+      SELECT a.id, a.app_name AS name, 
              a.risk_level, u.full_name AS owner_name,
              (SELECT count(*) FROM user_access WHERE application_id = a.id) AS access_count,
-             'active' AS connector_status
+             'CONNECTED' AS connector_status
       FROM applications a
       LEFT JOIN users_access u ON a.owner_id = u.id
     `;
@@ -761,7 +762,7 @@ export async function handleApplicationsList(msg) {
 export async function handleApplicationCreate(msg) {
   try {
     const envelope = jc.decode(msg.data);
-    const { name, description, appType = 'BUSINESS', riskLevel = 'MEDIUM', ownerId } = envelope.body ?? {};
+    const { name, description, riskLevel = 'MEDIUM', ownerId } = envelope.body ?? {};
 
     if (!name) {
       return msg.respond(err(400, "Application name is required"));
@@ -770,13 +771,13 @@ export async function handleApplicationCreate(msg) {
     const id = name.toLowerCase().replace(/\s+/g, '-');
 
     await db.query(
-      `INSERT INTO applications (id, app_name, app_type, description, risk_level, owner_id)
-       VALUES (?, ?, ?, ?, ?, ?)
+      `INSERT INTO applications (id, app_name, description, risk_level, owner_id)
+       VALUES (?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE app_name = VALUES(app_name)`,
-      [id, name, appType, description ?? "", riskLevel, ownerId ?? null]
+      [id, name, description ?? "", riskLevel, ownerId ?? null]
     );
 
-    await logActivity("APPLICATION_CREATED", envelope.userId, envelope.userId, id, { name, appType });
+    await logActivity("APPLICATION_CREATED", envelope.userId, envelope.userId, id, { name });
 
     msg.respond(ok({ id, name, status: 'CREATED' }, 201));
   } catch (e) {
@@ -905,7 +906,8 @@ export async function handleUserGet(msg) {
     return msg.respond(err(400, "User ID (uid) is required"));
   }
 
-  const url = `${process.env.EXTERNAL_AUTH_URL}/api/user/details`;
+  const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+  const url = `${authUrl}/api/user/details`;
   console.log(`[sync] Fetching user details from external API: ${uid} (POST)`);
 
   try {
@@ -966,7 +968,8 @@ export async function handleUserGroupAdd(msg) {
     return msg.respond(err(400, "Missing uid or groupCn"));
   }
 
-  const url = `${process.env.EXTERNAL_AUTH_URL}/api/adduser/group`;
+  const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+  const url = `${authUrl}/api/adduser/group`;
   try {
     const response = await fetch(url, {
       method: "POST",
@@ -1002,7 +1005,8 @@ export async function handleUserGroupRemove(msg) {
     return msg.respond(err(400, "Missing uid or groupCn in request body"));
   }
 
-  const url = `${process.env.EXTERNAL_AUTH_URL}/api/removeuser/group`;
+  const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+  const url = `${authUrl}/api/removeuser/group`;
   console.log(`[sync] Revoking access: user=${uid}, group=${groupCn}`);
 
   try {
@@ -1048,7 +1052,8 @@ export async function handleTimeProvision(msg) {
     end_time
   };
 
-  const externalUrl = `${process.env.EXTERNAL_AUTH_URL}/api/provision/time`;
+  const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+  const externalUrl = `${authUrl}/api/provision/time`;
   console.log(`[async] Calling time-based access API for user: ${uid}`);
   console.log(`[async] Payload:`, JSON.stringify(body));
 
@@ -1833,26 +1838,25 @@ export async function handleManualLdapSync(msg) {
 }
 
 async function performLdapSync() {
-  return new Promise((resolve) => {
-    const options = {
-      hostname: "18.60.129.12",
-      port: 8080,
-      path: "/api/users",
-      method: "GET",
+  const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+  const url = `${authUrl}/api/users`;
+  console.log(`[ldap-sync] Calling authoritative LDAP sync: ${url}`);
+
+  try {
+    const res = await fetch(url, {
       headers: {
         "User-Agent": "Node-IGA-Backend",
         "Accept": "application/json"
       },
-      timeout: 30000,
-      family: 4
-    };
+      signal: AbortSignal.timeout(30000)
+    });
 
-    console.log(`[ldap-sync] Native HTTP calling: http://${options.hostname}:${options.port}${options.path}`);
+    if (!res.ok) {
+      throw new Error(`LDAP Service returned ${res.status}`);
+    }
 
-    const req = http.get(options, (res) => {
-      console.log(`[ldap-sync] External response status: ${res.statusCode}`);
-      let body = "";
-      res.on("data", (chunk) => { body += chunk; });
+    const rawData = await res.json().catch(() => ({}));
+    let users = Array.isArray(rawData) ? rawData : (rawData.data || []);
       res.on("end", () => {
         try {
           const rawData = JSON.parse(body || "{}");
@@ -1967,14 +1971,15 @@ export async function startBackgroundLdapSync() {
 async function performLdapReconciliation() {
   try {
     const { rows: dbUsers } = await db.query('SELECT id, full_name, email FROM users_access');
-    const res = await fetch(`${process.env.EXTERNAL_AUTH_URL}/api/users`);
+    const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+    const res = await fetch(`${authUrl}/api/users`);
     const ldapData = await res.json();
     const ldapUsers = Array.isArray(ldapData) ? ldapData : (ldapData.data || []);
     const ldapUids = new Set(ldapUsers.map(u => String(u.uid || u.id).toLowerCase()));
     const missing = dbUsers.filter(u => !ldapUids.has(String(u.id).toLowerCase()));
     if (missing.length === 0) return;
     console.log('[reconcile] Found ' + missing.length + ' users in DB missing from LDAP. Attempting reconciliation...');
-    const PROVISION_URL = `${process.env.EXTERNAL_AUTH_URL}/api/provision/users`;
+    const PROVISION_URL = `${authUrl}/api/provision/users`;
     const provRes = await fetch(PROVISION_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

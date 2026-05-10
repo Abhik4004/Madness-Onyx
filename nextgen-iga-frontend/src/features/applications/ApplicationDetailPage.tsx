@@ -27,7 +27,6 @@ export function ApplicationDetailPage() {
         <div className="card">
           <div className="card-header"><span className="card-title">Details</span></div>
           {[
-            { label: 'Category', value: app.category },
             { label: 'Owner', value: app.owner_name },
             { label: 'Connector Status', value: <StatusBadge status={app.connector_status} /> },
             { label: 'Active Users', value: app.access_count },

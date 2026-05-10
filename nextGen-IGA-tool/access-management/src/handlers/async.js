@@ -6,7 +6,8 @@ import { SUBJECTS } from "../../../event-manager/constants.js";
 import { logActivity } from "./sync.js";
 
 async function callExternalAddUser(userId, groupCn) {
-  const url = `${process.env.EXTERNAL_AUTH_URL}/api/adduser/group`;
+  const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
+  const url = `${authUrl}/api/adduser/group`;
 
   const payload = { uid: userId, groupCn: groupCn };
 

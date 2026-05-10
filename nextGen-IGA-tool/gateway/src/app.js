@@ -149,7 +149,7 @@ app.post("/api/user/details", async (req, res) => {
 // ── Create Group ──────────────────────────────────────────────────────────────
 app.post("/api/create/group", async (req, res) => {
   try {
-    const { groupCn, owner } = req.body;
+    const { groupCn, owner, appName } = req.body;
     if (!groupCn || !owner) {
       return res.status(400).json({ ok: false, message: "groupCn and owner are required" });
     }
@@ -164,13 +164,13 @@ app.post("/api/create/group", async (req, res) => {
     const data = await upstream.json().catch(() => ({}));
     
     if (upstream.ok) {
-      console.log(`[gateway] CREATE GROUP: Syncing ${groupCn} to local DB...`);
+      console.log(`[gateway] CREATE GROUP: Syncing ${groupCn} (${appName || groupCn}) to local DB...`);
       try {
         await db.query(
-          `INSERT INTO applications (id, app_name, app_type, risk_level, owner_id)
-           VALUES (?, ?, 'infrastructure', 'MEDIUM', ?)
+          `INSERT INTO applications (id, app_name, risk_level, owner_id)
+           VALUES (?, ?, 'MEDIUM', ?)
            ON DUPLICATE KEY UPDATE app_name = VALUES(app_name), owner_id = VALUES(owner_id)`,
-          [groupCn, groupCn, owner]
+          [groupCn, appName || groupCn, owner]
         );
         console.log(`[gateway] CREATE GROUP: ${groupCn} synced successfully`);
       } catch (dbErr) {

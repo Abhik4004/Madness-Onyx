@@ -53,12 +53,12 @@ export function CreateUserPage() {
       const names = data.full_name.trim().split(/\s+/);
       const givenName = names[0];
       const sn = names.slice(1).join(' ') || 'User';
-      
+
       // UID generation rule: first letter of firstname + rest from title (lowercase)
       const firstLetter = givenName.charAt(0).toLowerCase();
       const titleLower = data.title.toLowerCase().replace(/\s+/g, '');
       const uid = `${firstLetter}${titleLower}`;
-      
+
       return provisionApi.provision({
         uid,
         givenName,
@@ -71,14 +71,23 @@ export function CreateUserPage() {
       });
     },
     onSuccess: (res: any) => {
-      const isSuccess = res.action === 'provision' || res.results?.length > 0;
-      if (!isSuccess) {
+      const isOk = res.statusCode === 200 || res.statusCode === 207 || res.ok;
+      if (!isOk) {
         toast.error(res.message || "Failed to create account");
         return;
       }
-      toast.success("User account creation initiated");
-      qc.invalidateQueries({ queryKey: ["admin", "users"] });
-      navigate("/admin/users");
+
+      const resData = res.data || res.results || [];
+      const result = resData[0];
+      const isSuccess = result?.status === 'SUCCESS' || result?.message?.toLowerCase().includes('created');
+
+      if (isSuccess) {
+        toast.success(result?.message || "User account created successfully");
+        qc.invalidateQueries({ queryKey: ["admin", "users"] });
+        navigate("/admin/users");
+      } else {
+        toast.error(result?.message || "User creation failed");
+      }
     },
     onError: (err: { response?: { data?: { message?: string } } }) =>
       toast.error(err.response?.data?.message ?? "Failed to create account"),

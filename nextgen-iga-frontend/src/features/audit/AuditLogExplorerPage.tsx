@@ -35,9 +35,9 @@ export function AuditLogExplorerPage() {
   const filtered = useMemo(() => {
     if (!search) return logs;
     const q = search.toLowerCase();
-    return logs.filter(l => 
-      l.event_type?.toLowerCase().includes(q) || 
-      l.actor_name?.toLowerCase().includes(q) || 
+    return logs.filter(l =>
+      l.event_type?.toLowerCase().includes(q) ||
+      l.actor_name?.toLowerCase().includes(q) ||
       l.target_id?.toLowerCase().includes(q)
     );
   }, [logs, search]);
@@ -70,25 +70,24 @@ export function AuditLogExplorerPage() {
     { key: 'actor', header: 'Actor', render: l => l.actor_name || l.actor_id || 'System' },
     { key: 'target', header: 'Target', render: l => l.target_id || '—' },
     { key: 'time', header: 'Time', render: l => formatRelative(l.created_at) },
-    { key: 'actions', header: '', render: l => <button className="btn btn-sm btn-secondary" onClick={() => setExpandedId(expandedId === l.id ? null : l.id)}>Details</button>, width: '80px' },
   ];
 
   return (
     <div>
-      <PageHeader
+      {/* <PageHeader
         title="Audit Logs"
         subtitle="Real-time activity and security trail"
         actions={<button className="btn btn-secondary" onClick={exportCsv}><Download size={14} /> Export CSV</button>}
-      />
+      /> */}
 
       <div className="filters-bar" style={{ marginBottom: 20 }}>
         <div className="search-input-wrap" style={{ flex: 1 }}>
           <Search size={14} />
-          <input 
-            className="form-control" 
-            placeholder="Search by event, actor or target…" 
-            value={search} 
-            onChange={e => setSearch(e.target.value)} 
+          <input
+            className="form-control"
+            placeholder="Search by event, actor or target…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
           />
         </div>
         <button className="btn btn-secondary btn-sm" onClick={() => { setSearch(''); setEventType(''); setUserId(''); setFrom(''); setTo(''); }}>Clear</button>
