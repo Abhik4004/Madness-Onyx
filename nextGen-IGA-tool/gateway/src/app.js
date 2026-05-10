@@ -253,7 +253,6 @@ app.post("/api/users/update", async (req, res) => {
 
 app.post("/api/access/cert/campaign", async (req, res) => {
   try {
-    console.log(`[gateway] BYPASS: Direct Campaign Create to ${ACCESS_MGMT_URL}/api/access/cert/campaign`);
     const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/campaign`, {
       method: "POST",
       headers: getIdentityHeaders(req),
@@ -262,73 +261,62 @@ app.post("/api/access/cert/campaign", async (req, res) => {
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    console.error("[gateway] Campaign Create Bypass Error:", err.message);
     res.status(502).json({ ok: false, message: "Access management service unreachable" });
   }
 });
 
-app.get("/api/access/cert/campaign/list", async (req, res) => {
+app.get("/api/access/cert/campaign", async (req, res) => {
   try {
-    console.log(`[gateway] BYPASS: Direct Cert List to ${ACCESS_MGMT_URL}/api/access/cert/campaign/list`);
     const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/campaign/list`, {
       headers: getIdentityHeaders(req)
     });
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    console.error("[gateway] Cert List Bypass Error:", err.message);
     res.status(502).json({ ok: false, message: "Access management service unreachable" });
   }
 });
 
-app.get("/api/access/cert/history/list", async (req, res) => {
+app.get("/api/access/cert/campaign/:id", async (req, res) => {
   try {
-    console.log(`[gateway] BYPASS: Direct Cert History to ${ACCESS_MGMT_URL}/api/access/cert/history/list`);
-    const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/history/list`, {
+    const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/campaign/${req.params.id}`, {
       headers: getIdentityHeaders(req)
     });
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    console.error("[gateway] Cert History Bypass Error:", err.message);
     res.status(502).json({ ok: false, message: "Access management service unreachable" });
   }
 });
 
-app.get("/api/access/cert/items/list", async (req, res) => {
+app.get("/api/access/cert/campaign/:id/items", async (req, res) => {
   try {
     const qs = new URLSearchParams(req.query).toString();
-    console.log(`[gateway] BYPASS: Direct Cert Items to ${ACCESS_MGMT_URL}/api/access/cert/items/list?${qs}`);
+    const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/campaign/${req.params.id}/items/list?${qs}`, {
+      headers: getIdentityHeaders(req)
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+  }
+});
+
+app.get("/api/access/cert/items", async (req, res) => {
+  try {
+    const qs = new URLSearchParams(req.query).toString();
     const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/items/list?${qs}`, {
       headers: getIdentityHeaders(req)
     });
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    console.error("[gateway] Cert Items Bypass Error:", err.message);
     res.status(502).json({ ok: false, message: "Access management service unreachable" });
   }
 });
 
-app.get("/api/access/cert/campaign/:id/items/list", async (req, res) => {
+app.put("/api/access/cert/decision", async (req, res) => {
   try {
-    const { id } = req.params;
-    const qs = new URLSearchParams(req.query).toString();
-    console.log(`[gateway] BYPASS: Direct Campaign Items to ${ACCESS_MGMT_URL}/api/access/cert/campaign/${id}/items/list?${qs}`);
-    const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/campaign/${id}/items/list?${qs}`, {
-      headers: getIdentityHeaders(req)
-    });
-    const data = await response.json();
-    res.status(response.status).json(data);
-  } catch (err) {
-    console.error("[gateway] Campaign Items Bypass Error:", err.message);
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
-  }
-});
-
-app.post("/api/access/cert/item/update", async (req, res) => {
-  try {
-    console.log(`[gateway] BYPASS: Direct Item Update to ${ACCESS_MGMT_URL}/api/access/cert/item/update`);
     const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/item/update`, {
       method: "POST",
       headers: getIdentityHeaders(req),
@@ -337,8 +325,57 @@ app.post("/api/access/cert/item/update", async (req, res) => {
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
-    console.error("[gateway] Item Update Bypass Error:", err.message);
     res.status(502).json({ ok: false, message: "Access management service unreachable" });
+  }
+});
+
+app.get("/api/access/cert/history", async (req, res) => {
+  try {
+    const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/history/list`, {
+      headers: getIdentityHeaders(req)
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+  }
+});
+
+app.get("/api/access/cert/campaign/:id/report", async (req, res) => {
+  try {
+    const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/campaign/${req.params.id}/report`, {
+      headers: getIdentityHeaders(req)
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+  }
+});
+
+app.post("/api/access/cert/item/update", async (req, res) => {
+  try {
+    const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/item/update`, {
+      method: "POST",
+      headers: getIdentityHeaders(req),
+      body: JSON.stringify(req.body)
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+  }
+});
+
+app.get("/api/recommendation/audit", async (req, res) => {
+  try {
+    const response = await fetch(`http://localhost:3002/api/recommendation/audit`, {
+      headers: getIdentityHeaders(req)
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(502).json({ ok: false, message: "Recommendation service unreachable" });
   }
 });
 
@@ -516,78 +553,6 @@ app.get("/api/recommendation/team/:uid", async (req, res) => {
     res.status(response.status).json(data);
   } catch (err) {
     res.status(502).json({ ok: false, message: "Recommendation service unreachable" });
-  }
-});
-
-// ── CERTIFICATIONS BYPASS ───────────────────────────────────────────────────
-app.get("/api/access/cert/campaign", async (req, res) => {
-  try {
-    console.log(`[gateway] BYPASS: Direct Cert Campaigns`);
-    const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/campaign/list`, {
-      headers: getIdentityHeaders(req)
-    });
-    const data = await response.json();
-    res.status(response.status).json(data);
-  } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
-  }
-});
-
-app.get("/api/access/cert/history", async (req, res) => {
-  try {
-    console.log(`[gateway] BYPASS: Direct Cert History`);
-    const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/history/list`, {
-      headers: getIdentityHeaders(req)
-    });
-    const data = await response.json();
-    res.status(response.status).json(data);
-  } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
-  }
-});
-
-// ── RECOMMENDATION / AI BYPASS ──────────────────────────────────────────────
-app.get("/api/recommendation/audit", async (req, res) => {
-  try {
-    console.log(`[gateway] BYPASS: Direct AI Audit`);
-    // AI service is usually on 3002
-    const response = await fetch(`http://localhost:3002/api/recommendation/audit`, {
-      headers: getIdentityHeaders(req)
-    });
-    const data = await response.json();
-    res.status(response.status).json(data);
-  } catch (err) {
-    res.status(502).json({ ok: false, message: "Recommendation service unreachable" });
-  }
-});
-
-app.get("/api/access/cert/items", async (req, res) => {
-  try {
-    const qs = new URLSearchParams(req.query).toString();
-    const targetUrl = `${ACCESS_MGMT_URL}/api/access/cert/items/list${qs ? "?" + qs : ""}`;
-    console.log(`[gateway] BYPASS: Direct Cert Items -> ${targetUrl}`);
-    const response = await fetch(targetUrl, {
-      headers: getIdentityHeaders(req)
-    });
-    const data = await response.json();
-    res.status(response.status).json(data);
-  } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
-  }
-});
-
-app.get("/api/access/cert/campaign/:id/items", async (req, res) => {
-  try {
-    const qs = new URLSearchParams(req.query).toString();
-    const targetUrl = `${ACCESS_MGMT_URL}/api/access/cert/campaign/${req.params.id}/items/list${qs ? "?" + qs : ""}`;
-    console.log(`[gateway] BYPASS: Direct Cert Campaign Items -> ${targetUrl}`);
-    const response = await fetch(targetUrl, {
-      headers: getIdentityHeaders(req)
-    });
-    const data = await response.json();
-    res.status(response.status).json(data);
-  } catch (err) {
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
   }
 });
 

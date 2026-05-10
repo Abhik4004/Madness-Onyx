@@ -10,7 +10,7 @@ import { usePagination } from '../../hooks/usePagination';
 import { formatDate } from '../../lib/utils';
 import type { AccessRequest } from '../../types/request.types';
 
-const STATUSES = ['ALL', 'PENDING', 'APPROVED', 'PROVISIONED', 'REJECTED', 'CANCELLED', 'EXPIRED'];
+const STATUSES = ['ALL', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'EXPIRED'];
 
 export function RequestListPage() {
   const { page, perPage, setPage } = usePagination();
@@ -80,14 +80,6 @@ export function RequestListPage() {
       key: 'submitted',
       header: 'Submitted',
       render: (r) => formatDate(r.submitted_at),
-    },
-    {
-      key: 'actions',
-      header: '',
-      render: (r) => (
-        <Link to={`/requests/${r.id}`} className="btn btn-sm btn-secondary">View</Link>
-      ),
-      width: '80px',
     },
   ];
 

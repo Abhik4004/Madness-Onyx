@@ -37,7 +37,6 @@ export function RoleListPage() {
     { key: 'desc', header: 'Description', render: r => r.description },
     { key: 'perms', header: 'Permissions', render: r => r.permissions?.length ?? 0 },
     { key: 'users', header: 'Users', render: r => r.user_count ?? 0 },
-    { key: 'actions', header: '', render: r => <Link to={`/admin/roles/${r.id}`} className="btn btn-sm btn-secondary">View</Link>, width: '70px' },
   ];
 
   return (

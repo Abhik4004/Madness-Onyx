@@ -92,7 +92,7 @@ export function CertificationListPage() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
-                    <Link to={`/admin/certifications/${cert.id}`} className="btn btn-secondary btn-sm">View</Link>
+
                   </div>
                 </div>
               </div>

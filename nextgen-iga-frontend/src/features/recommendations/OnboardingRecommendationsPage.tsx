@@ -109,7 +109,7 @@ export function OnboardingRecommendationsPage() {
                   >
                     Grant All Access
                   </button>
-                  <Link to={`/admin/users/${member.userId}`} className="btn btn-outline btn-sm">View Profile</Link>
+
                 </div>
               </div>
 

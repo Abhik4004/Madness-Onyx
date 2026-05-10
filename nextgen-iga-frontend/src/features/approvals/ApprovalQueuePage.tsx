@@ -84,7 +84,7 @@ export function ApprovalQueuePage() {
       header: 'Actions',
       render: (r) => (
         <div style={{ display: 'flex', gap: 6 }}>
-          <Link to={`/supervisor/approvals/${r.id}`} className="btn btn-sm btn-secondary">View</Link>
+
           <button
             className="btn btn-sm btn-primary"
             disabled={approve.isPending && actionId === r.id}

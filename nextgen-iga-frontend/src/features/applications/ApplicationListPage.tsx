@@ -34,7 +34,6 @@ export function ApplicationListPage() {
     { key: 'owner', header: 'Owner', render: a => a.owner_name },
     { key: 'access', header: 'Active Users', render: a => a.access_count },
     { key: 'connector', header: 'Connector', render: a => <StatusBadge status={a.connector_status} /> },
-    { key: 'actions', header: '', render: a => <Link to={`/admin/applications/${a.id}`} className="btn btn-sm btn-secondary">View</Link>, width: '70px' },
   ];
 
   return (

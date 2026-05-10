@@ -26,7 +26,6 @@ export function ApprovalHistoryPage() {
     { key: 'app', header: 'Application', render: r => r.application_name },
     { key: 'status', header: 'Decision', render: r => <StatusBadge status={r.status} /> },
     { key: 'decided', header: 'Decided', render: r => r.decided_at ? formatDate(r.decided_at) : '—' },
-    { key: 'actions', header: '', render: r => <Link to={`/supervisor/approvals/${r.id}`} className="btn btn-sm btn-secondary">View</Link>, width: '70px' },
   ];
 
   return (

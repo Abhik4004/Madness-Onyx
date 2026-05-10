@@ -937,6 +937,52 @@ async function main() {
     }
   });
 
+  app.get("/api/access/cert/campaign/:id", async (req, res) => {
+    console.log(`[access-management] HTTP: GET /api/access/cert/campaign/${req.params.id} hit`);
+    try {
+      const { handleCertificationGet } = await import("./handlers/sync.js");
+      const { userId, role } = getIdentity(req);
+      const msg = {
+        data: jc.encode({ 
+          userId, 
+          role,
+          path: req.originalUrl,
+          params: req.params 
+        }),
+        respond: (payload) => {
+          const result = jc.decode(payload);
+          res.status(result.status || 200).json(result);
+        }
+      };
+      await handleCertificationGet(msg);
+    } catch (err) {
+      res.status(500).json({ ok: false, message: err.message });
+    }
+  });
+
+  app.get("/api/access/cert/campaign/:id/report", async (req, res) => {
+    console.log(`[access-management] HTTP: GET /api/access/cert/campaign/${req.params.id}/report hit`);
+    try {
+      const { handleCertificationReport } = await import("./handlers/sync.js");
+      const { userId, role } = getIdentity(req);
+      const msg = {
+        data: jc.encode({ 
+          userId, 
+          role,
+          path: req.originalUrl,
+          params: req.params 
+        }),
+        respond: (payload) => {
+          const result = jc.decode(payload);
+          res.status(result.status || 200).json(result);
+        }
+      };
+      await handleCertificationReport(msg);
+    } catch (err) {
+      res.status(500).json({ ok: false, message: err.message });
+    }
+  });
+
 
   app.get("/api/users/:uid", async (req, res) => {
     try {

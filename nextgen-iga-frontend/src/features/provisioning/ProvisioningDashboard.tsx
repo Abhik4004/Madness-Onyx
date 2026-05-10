@@ -40,7 +40,7 @@ export function ProvisioningDashboard() {
       key: 'actions', header: '',
       render: j => (
         <div style={{ display: 'flex', gap: 6 }}>
-          <Link to={`/admin/provisioning/${j.id}`} className="btn btn-sm btn-secondary">View</Link>
+
           {j.status === 'FAILED' && (
             <button className="btn btn-sm btn-primary" disabled={retry.isPending} onClick={() => retry.mutate(j.id)}>
               <RefreshCw size={12} /> Retry

@@ -94,7 +94,7 @@ export function CampaignDetailPage() {
       <PageHeader
         title={cert?.name ?? '…'}
         breadcrumbs={[{ label: 'Certifications', to: '/admin/certifications' }, { label: cert?.name ?? '' }]}
-        actions={cert?.status === 'COMPLETED' ? <Link to={`/admin/certifications/${id}/report`} className="btn btn-primary">View Report</Link> : undefined}
+        actions={undefined}
       />
 
       {cert && (

@@ -223,13 +223,7 @@ function UserCard({ user, managers }: {
             </button>
           )}
 
-          <Link
-            to={`/admin/users/${user.uid}`}
-            className="btn btn-sm btn-secondary"
-            onClick={e => e.stopPropagation()}
-          >
-            View
-          </Link>
+
 
           <button className="btn btn-sm btn-ghost" aria-label="Toggle details">
             {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
