@@ -104,14 +104,14 @@ export function NewRequestPage() {
   const filtered = applications.filter(
     (r: any) =>
       !search ||
-      r.name?.toLowerCase().includes(search.toLowerCase()) ||
+      r.app_name?.toLowerCase().includes(search.toLowerCase()) ||
       r.id?.toLowerCase().includes(search.toLowerCase()),
   );
 
   const selectResource = (id: string) => {
     setResourceId(id);
     const app: any = applications.find((r: any) => r.id === id);
-    setResourceName(app?.name || app?.id || "");
+    setResourceName(app?.app_name || app?.id || "");
     setCustomInput("");
   };
   const canProceedStep1 = resourceId.length > 0;
@@ -190,7 +190,7 @@ export function NewRequestPage() {
                     {resourceId === r.id && <Check size={14} className="text-primary ml-auto" />}
                   </div>
                   <div className="app-card-name" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {r.name || r.id}
+                    {r.app_name || r.id}
                   </div>
                   <div className="app-card-desc">{r.description || "Managed application resource."}</div>
                 </div>
