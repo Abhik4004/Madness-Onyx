@@ -55,4 +55,6 @@ temp/
 *.tgz
 *.bak
 
+# Claude
 .claude/
+**/.claude/
