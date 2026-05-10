@@ -3,7 +3,7 @@ import { db } from "../db/client.js";
 import http from "http";
 import { randomUUID } from "crypto";
 import { evaluateRules } from "../rules/engine.js";
-import { SUBJECTS } from "../../../event-manager/constants.js";
+import { SUBJECTS } from "../constants.js";
 
 function ok(data, status = 200) {
   if (data && typeof data === 'object' && 'ok' in data) {

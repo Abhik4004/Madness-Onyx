@@ -2,7 +2,7 @@ import { jc, getNats } from "../nats/connector.js";
 import { db } from "../db/client.js";
 import { randomUUID } from "crypto";
 import { evaluateRules } from "../rules/engine.js";
-import { SUBJECTS } from "../../../event-manager/constants.js";
+import { SUBJECTS } from "../constants.js";
 import { logActivity } from "./sync.js";
 
 async function callExternalAddUser(userId, groupCn) {
