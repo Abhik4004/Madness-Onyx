@@ -11,12 +11,12 @@ services:
       - PORT=3000
       - ACCESS_MGMT_URL=http://access-management:3001
       - RECOMMENDATION_URL=http://recommendation:3002
-      - NATS_URL=nats://nats:4222
-      - DB_HOST=db
+      - NATS_URL=${NATS_URL:-nats://54.224.250.252:4222}
+      - DB_HOST=${DB_HOST:-13.206.205.158}
+      - DB_USER=${DB_USER:-abhik}
+      - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
+      - DB_NAME=${DB_NAME:-abhik_db}
       - EXTERNAL_AUTH_URL=${EXTERNAL_AUTH_URL:-http://18.60.129.12:8080}
-    depends_on:
-      - nats
-      - db
 
   access-management:
     build:
@@ -26,34 +26,29 @@ services:
       - "3001:3001"
     environment:
       - ACCESS_MGMT_PORT=3001
-      - NATS_URL=nats://nats:4222
-      - DB_HOST=db
+      - NATS_URL=${NATS_URL:-nats://54.224.250.252:4222}
+      - DB_HOST=${DB_HOST:-13.206.205.158}
       - DB_USER=${DB_USER:-abhik}
       - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
       - DB_NAME=${DB_NAME:-abhik_db}
-    depends_on:
-      - nats
-      - db
 
   event-manager:
     build:
       context: ./nextGen-IGA-tool/event-manager
     restart: always
     environment:
-      - NATS_URL=nats://nats:4222
-    depends_on:
-      - nats
+      - NATS_URL=${NATS_URL:-nats://54.224.250.252:4222}
 
   notifications:
     build:
       context: ./nextGen-IGA-tool/notifications
     restart: always
     environment:
-      - NATS_URL=nats://nats:4222
-      - DB_HOST=db
-    depends_on:
-      - nats
-      - db
+      - NATS_URL=${NATS_URL:-nats://54.224.250.252:4222}
+      - DB_HOST=${DB_HOST:-13.206.205.158}
+      - DB_USER=${DB_USER:-abhik}
+      - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
+      - DB_NAME=${DB_NAME:-abhik_db}
 
   recommendation:
     build:
@@ -63,11 +58,11 @@ services:
       - "3002:3002"
     environment:
       - PORT=3002
-      - NATS_URL=nats://nats:4222
-      - DB_HOST=db
-    depends_on:
-      - nats
-      - db
+      - NATS_URL=${NATS_URL:-nats://54.224.250.252:4222}
+      - DB_HOST=${DB_HOST:-13.206.205.158}
+      - DB_USER=${DB_USER:-abhik}
+      - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
+      - DB_NAME=${DB_NAME:-abhik_db}
 
   frontend:
     build:
@@ -79,28 +74,3 @@ services:
       - VITE_API_BASE_URL=http://${PUBLIC_IP:-localhost}:3000
     depends_on:
       - gateway
-
-  # Infrastructure
-  nats:
-    image: nats:latest
-    restart: always
-    command: ["-js"] # Enable JetStream for async events
-    ports:
-      - "4222:4222"
-      - "8222:8222"
-
-  db:
-    image: mysql:8.0
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
-      - MYSQL_DATABASE=${DB_NAME:-abhik_db}
-      - MYSQL_USER=${DB_USER:-abhik}
-      - MYSQL_PASSWORD=${DB_PASSWORD:-abhikSQL}
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
-
-volumes:
-  db_data:
