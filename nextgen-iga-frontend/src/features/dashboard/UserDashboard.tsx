@@ -170,7 +170,7 @@ export function UserDashboard() {
                   <Link to="/supervisor/certifications/history" className="text-sm font-bold text-primary">View All History →</Link>
                 </div>
                 <div className="grid-12">
-                  {certifications.data!.data.map((cert) => {
+                  {(certifications.data?.data || []).map((cert) => {
                     const pct = cert.total_items > 0 ? Math.round(((cert.certified_count + cert.revoked_count) / cert.total_items) * 100) : 0;
                     return (
                       <div key={cert.id} className="span-6 card glass" style={{ border: "1px solid var(--color-primary-light)", padding: 24, borderRadius: 20 }}>
