@@ -280,7 +280,7 @@ export function NewRequestPage() {
           <form onSubmit={handleSubmit(() => setStep(3))} className="space-y-6">
             {user?.role !== 'end_user' && (
               <div className="form-group">
-                <label className="form-label required">Requested Role / Access Level</label>
+                <label className="form-label required">Requested Entitlement / Access Level</label>
                 <select className={`form-control ${errors.role ? "error" : ""}`} {...register("role")}>
                   <option value="">Select a role...</option>
                   <option value="viewer">Viewer / Read-Only</option>
@@ -423,7 +423,7 @@ export function NewRequestPage() {
               <span className="detail-value font-mono">{resourceId} ({resourceName})</span>
             </div>
             <div className="detail-row">
-              <span className="detail-label">Requested Role</span>
+              <span className="detail-label">Requested Entitlement</span>
               <span className="detail-value capitalize text-primary font-bold">
                 {selectedRole}
               </span>

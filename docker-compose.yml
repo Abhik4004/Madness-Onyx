@@ -17,6 +17,7 @@ services:
       - DB_USER=${DB_USER:-abhik}
       - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
       - DB_NAME=${DB_NAME:-abhik_db}
+      - EXTERNAL_AUTH_URL=${EXTERNAL_AUTH_URL:-http://18.60.129.12:8080}
     healthcheck:
       disable: true  # Disable healthcheck if not needed, or implement a proper one
     networks:
@@ -39,6 +40,7 @@ services:
       - DB_USER=${DB_USER:-abhik}
       - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
       - DB_NAME=${DB_NAME:-abhik_db}
+      - EXTERNAL_AUTH_URL=${EXTERNAL_AUTH_URL:-http://18.60.129.12:8080}
     healthcheck:
       # Polls /health every 10s — gateway waits for this to pass before starting
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3002/health', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"]
@@ -68,6 +70,7 @@ services:
       - DB_USER=${DB_USER:-abhik}
       - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
       - DB_NAME=${DB_NAME:-abhik_db}
+      - EXTERNAL_AUTH_URL=${EXTERNAL_AUTH_URL:-http://18.60.129.12:8080}
       - EXTERNAL_AUTH_URL=${EXTERNAL_AUTH_URL:-http://18.60.129.12:8080}  # External auth server
       - PUBLIC_URL=${PUBLIC_URL:-http://54.167.248.162:3000}
     depends_on:
@@ -102,6 +105,7 @@ services:
       - DB_USER=${DB_USER:-abhik}
       - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
       - DB_NAME=${DB_NAME:-abhik_db}
+      - EXTERNAL_AUTH_URL=${EXTERNAL_AUTH_URL:-http://18.60.129.12:8080}
     networks:
       - iga-network
 

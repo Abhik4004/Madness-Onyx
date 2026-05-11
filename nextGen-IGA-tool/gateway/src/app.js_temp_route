@@ -1,0 +1,35 @@
+app.post("/api/removeuser/group", async (req, res) => {
+  try {
+    const { uid, groupCn } = req.body;
+    if (!uid || !groupCn) {
+      return res.status(400).json({ ok: false, message: "uid and groupCn are required" });
+    }
+
+    console.log(`[gateway] REMOVE USER: Relay request for ${uid} from ${groupCn}...`);
+
+    const upstream = await fetch(`http://18.60.129.12:8080/api/removeuser/group`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid, groupCn }),
+      signal: AbortSignal.timeout(15000)
+    });
+
+    const data = await upstream.json().catch(() => ({}));
+    console.log(`[gateway] REMOVE USER: Upstream responded with status ${upstream.status}`, data);
+
+    if (upstream.ok || upstream.status === 200) {
+      publish("events.access.remove.local", { userId: uid, applicationId: groupCn }, req);
+      return res.status(200).json({ ok: true, message: "User removed successfully", data });
+    }
+    
+    res.status(upstream.status || 500).json({
+      ok: false,
+      message: data.message || "Failed to remove user from group via upstream",
+      error: data
+    });
+  } catch (err) {
+    console.error("[gateway] REMOVE USER FROM GROUP error:", err.message);
+    res.status(502).json({ ok: false, message: "Auth service unreachable or request failed" });
+  }
+});
+ Broadway/

@@ -1,3 +1,4 @@
+import axios from "axios";
 import { jc, getNats } from "../nats/connector.js";
 import { db } from "../db/client.js";
 import { randomUUID } from "crypto";
@@ -13,15 +14,12 @@ async function callExternalAddUser(userId, groupCn) {
 
   console.log(`[external-api] Adding user '${userId}' to group '${groupCn}'...`);
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await response.json().catch(() => ({}));
-    console.log(`[external-api] Response for ${userId}:`, JSON.stringify(data));
+    const response = await axios.post(url, payload);
+    const data = response.data;
+    console.log(`[external-api] Success: ${data.message || 'User added'}. Status: ${data.statusCode || response.status}`);
   } catch (e) {
-    console.error(`[external-api] Failed to add user ${userId} to ${groupCn}:`, e.message);
+    const errorData = e.response?.data;
+    console.error(`[external-api] Failed to add user ${userId} to ${groupCn}:`, errorData?.message || e.message);
   }
 }
 

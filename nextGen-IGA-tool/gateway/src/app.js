@@ -206,15 +206,19 @@ app.post("/api/removeuser/group", async (req, res) => {
       return res.status(400).json({ ok: false, message: "uid and groupCn are required" });
     }
 
+    console.log(`[gateway] REMOVE USER: Relay request for ${uid} from ${groupCn}...`);
+
     const upstream = await fetch(`http://18.60.129.12:8080/api/removeuser/group`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uid, groupCn, groupCN: groupCn }),
+      body: JSON.stringify({ uid, groupCn }),
       signal: AbortSignal.timeout(15000)
     });
 
     const data = await upstream.json().catch(() => ({}));
-    if (upstream.ok) {
+    console.log(`[gateway] REMOVE USER: Upstream responded with status ${upstream.status}`, data);
+
+    if (upstream.ok || upstream.status === 200) {
       publish("events.access.remove.local", { userId: uid, applicationId: groupCn }, req);
     }
     res.status(upstream.status).json(data);
