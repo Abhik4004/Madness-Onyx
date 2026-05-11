@@ -1289,8 +1289,8 @@ export async function handleCertificationGet(msg) {
     let itemParams = [certId];
 
     if (requestorRole !== "admin") {
-      itemQuery += " AND (i.manager_id = ? OR i.manager_id LIKE ?)";
-      itemParams.push(requestorId, `uid=${requestorId},%`);
+      itemQuery += " AND (i.manager_id = ? OR i.manager_id = ? OR i.manager_id LIKE ? OR i.manager_id LIKE ?)";
+      const bareUid = requestorId.includes("=") ? (requestorId.match(/uid=([^,]+)/i)?.[1] || requestorId) : requestorId; itemParams.push(requestorId, bareUid, `uid=${bareUid},%`, `%,uid=${bareUid},%`);
     }
 
     const { rows: items } = await db.query(itemQuery, itemParams);
@@ -1359,8 +1359,8 @@ export async function handleCertificationItemsList(msg) {
     }
 
     if (requestorRole !== "admin") {
-      itemQuery += " AND (i.manager_id = ? OR i.manager_id LIKE ?)";
-      itemParams.push(requestorId, `uid=${requestorId},%`);
+      itemQuery += " AND (i.manager_id = ? OR i.manager_id = ? OR i.manager_id LIKE ? OR i.manager_id LIKE ?)";
+      const bareUid = requestorId.includes("=") ? (requestorId.match(/uid=([^,]+)/i)?.[1] || requestorId) : requestorId; itemParams.push(requestorId, bareUid, `uid=${bareUid},%`, `%,uid=${bareUid},%`);
     }
 
     // Support for PENDING filter if needed (Frontend filter is client-side, but let's be safe)
