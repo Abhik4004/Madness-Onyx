@@ -102,6 +102,8 @@ export function Sidebar() {
             </NavLink>
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/team"><Users size={16} /> My Team</NavLink>
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/certifications/my-tasks"><Award size={16} /> Cert Tasks</NavLink>
+            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/ai-audit"><Sparkles size={16} /> AI Audit & Report</NavLink>
+            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/ai-assistant"><MessageSquare size={16} /> AI Assistant</NavLink>
           </>
         )}
 
@@ -141,7 +143,6 @@ export function Sidebar() {
             </div>
             <div className={`sidebar-dropdown ${expanded.manageEntitlements ? 'open' : ''}`}>
               <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/applications">Add Entitlement</NavLink>
-              <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/access">Remove Entitlement</NavLink>
             </div>
             {/* Collapsible Provisioning */}
             <div
