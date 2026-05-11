@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { useAuthStore } from "../stores/auth.store";
 
 const AUTH_URL = "/";
-const AI_BASE_URL = import.meta.env.VITE_AI_BASE_URL || "/";
+const AI_BASE_URL = "http://13.234.90.97/api/v1/";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/";
 const KC_BASE = import.meta.env.VITE_KEYCLOAK_URL || "http://localhost:8080";
 const REALM = import.meta.env.VITE_KEYCLOAK_REALM || "iga-realm";
