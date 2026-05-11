@@ -12,6 +12,7 @@ async function boot() {
   logger.info('=== NextGen IGA — Access Recommendation Engine ===');
     
   // database update or recreate the recomputed table (role name , manager_name , total_people , access_type , access_user)
+  app.use(require('cors')());
   app.use(express.json());
   app.use('/api/access-requests', require('./routes/accessRequests'));
   app.use('/api/v1', require('./routes/ai'));

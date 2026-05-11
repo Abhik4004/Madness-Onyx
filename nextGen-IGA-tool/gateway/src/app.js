@@ -20,7 +20,8 @@ import notificationsRouter from "./router/notifications/notifications.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://access-management:3001";;
+const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://access-management:3001";
+const RECOMMENDATION_URL = process.env.RECOMMENDATION_URL || "http://recommendation:3002";
 
 const getIdentityHeaders = (req) => ({
   "Content-Type": "application/json",
@@ -389,7 +390,7 @@ app.post("/api/access/cert/item/update", async (req, res) => {
 
 app.get("/api/recommendation/audit", async (req, res) => {
   try {
-    const response = await fetch(`http://recommendation:3002/api/recommendation/audit`, {
+    const response = await fetch(`${RECOMMENDATION_URL}/api/recommendation/audit`, {
       headers: getIdentityHeaders(req)
     });
     const data = await response.json();
@@ -571,7 +572,7 @@ app.get("/api/notifications", async (req, res) => {
 app.get("/api/recommendation/onboarding/:uid", async (req, res) => {
   try {
     const { uid } = req.params;
-    const targetUrl = `http://recommendation:3002/api/access-requests/onboarding/${uid}`;
+    const targetUrl = `${RECOMMENDATION_URL}/api/access-requests/onboarding/${uid}`;
     console.log(`[gateway] BYPASS: Rec Onboarding -> ${targetUrl}`);
     const response = await fetch(targetUrl, {
       headers: getIdentityHeaders(req)
@@ -586,7 +587,7 @@ app.get("/api/recommendation/onboarding/:uid", async (req, res) => {
 app.get("/api/recommendation/team/:uid", async (req, res) => {
   try {
     const { uid } = req.params;
-    const targetUrl = `http://recommendation:3002/api/access-requests/team/${uid}`;
+    const targetUrl = `${RECOMMENDATION_URL}/api/access-requests/team/${uid}`;
     console.log(`[gateway] BYPASS: Rec Team -> ${targetUrl}`);
     const response = await fetch(targetUrl, {
       headers: getIdentityHeaders(req)

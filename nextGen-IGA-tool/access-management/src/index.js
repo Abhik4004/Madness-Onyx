@@ -523,8 +523,11 @@ async function main() {
   startLdapReconciliationJob();
 
   // ── HTTP API for direct communication (Bypass NATS for Auth) ────────────────
-  const app = (await import("express")).default();
-  app.use((await import("express")).json());
+  const express = (await import("express")).default;
+  const cors = (await import("cors")).default;
+  const app = express();
+  app.use(cors());
+  app.use(express.json());
 
   app.post("/api/login", async (req, res) => {
     try {

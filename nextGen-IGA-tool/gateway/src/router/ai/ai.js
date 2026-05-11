@@ -43,7 +43,7 @@ aiRouter.post("/reports/generate", async (req, res) => {
       console.error("[ai-s3] S3 upload failed:", s3Err.message);
     }
 
-    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const baseUrl = process.env.PUBLIC_URL || `http://localhost:${process.env.PORT || 3000}`;
     res.json({
       ok: true,
       status: 201,
@@ -80,7 +80,7 @@ aiRouter.get("/reports/:id", async (req, res) => {
     
     // Add a fresh download URL
     const downloadUrl = await getPresignedDownloadUrl(s3Key);
-    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const baseUrl = process.env.PUBLIC_URL || `http://localhost:${process.env.PORT || 3000}`;
     data.download_url = downloadUrl || `${baseUrl}/api/v1/reports/${id}/download`;
 
     res.json({ ok: true, status: 200, data });

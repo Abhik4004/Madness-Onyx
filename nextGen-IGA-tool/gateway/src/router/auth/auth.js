@@ -30,7 +30,7 @@ async function validateAndRelay(req, res) {
     );
   }
   
-  const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://localhost:3001";
+  const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://access-management:3001";
   try {
     const response = await fetch(`${ACCESS_MGMT_URL}/api/login`, {
       method: "POST",
