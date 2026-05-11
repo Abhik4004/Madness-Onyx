@@ -117,6 +117,9 @@ async function main() {
                 <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                   <h2 style="color: #333;">${subject}</h2>
                   <p style="font-size: 16px; color: #555;">${body.replace(/\n/g, '<br>')}</p>
+                  <div style="margin-top: 25px; margin-bottom: 25px;">
+                    <a href="http://54.167.248.162/login" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Login to Dashboard</a>
+                  </div>
                   <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
                   <p style="font-size: 12px; color: #999;">This is an automated message from Onyx IGA Platform.</p>
                 </div>

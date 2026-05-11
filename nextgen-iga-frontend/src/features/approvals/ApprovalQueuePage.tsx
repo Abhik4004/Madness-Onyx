@@ -109,9 +109,7 @@ export function ApprovalQueuePage() {
       <PageHeader
         title="Approval Queue"
         subtitle="Requests pending your decision"
-        actions={
-          <Link to="/supervisor/approvals/history" className="btn btn-secondary btn-sm">View History</Link>
-        }
+        actions={null}
       />
 
       <div className="filters-bar">

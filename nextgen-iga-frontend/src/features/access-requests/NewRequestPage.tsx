@@ -236,6 +236,7 @@ export function NewRequestPage() {
             <button className="btn btn-primary" disabled={!canProceedStep1} onClick={() => {
               const app: any = applications.find((r: any) => r.id === resourceId);
               setValue("isHighRisk", app?.risk_level?.toUpperCase() === 'HIGH');
+              if (user?.role === 'end_user') setValue("role", "viewer");
               setStep(2);
             }}>
               Continue →
@@ -252,16 +253,18 @@ export function NewRequestPage() {
           </div>
 
           <form onSubmit={handleSubmit(() => setStep(3))} className="space-y-6">
-            <div className="form-group">
-              <label className="form-label required">Requested Role / Access Level</label>
-              <select className={`form-control ${errors.role ? "error" : ""}`} {...register("role")}>
-                <option value="">Select a role...</option>
-                <option value="viewer">Viewer / Read-Only</option>
-                <option value="editor">Editor / Read-Write</option>
-                <option value="admin">Administrator / Full Control</option>
-              </select>
-              {errors.role && <span className="form-error">{errors.role.message}</span>}
-            </div>
+            {user?.role !== 'end_user' && (
+              <div className="form-group">
+                <label className="form-label required">Requested Role / Access Level</label>
+                <select className={`form-control ${errors.role ? "error" : ""}`} {...register("role")}>
+                  <option value="">Select a role...</option>
+                  <option value="viewer">Viewer / Read-Only</option>
+                  <option value="editor">Editor / Read-Write</option>
+                  <option value="admin">Administrator / Full Control</option>
+                </select>
+                {errors.role && <span className="form-error">{errors.role.message}</span>}
+              </div>
+            )}
 
 
             <div className="form-group">
