@@ -102,7 +102,7 @@ export function CertificationHistoryPage() {
                     <td className="text-xs text-muted">{formatDate(item.created_at)}</td>
                     <td>
                       <Link 
-                        to={isAdmin ? `/admin/certifications/${item.campaign_id}` : `/supervisor/certifications/my-tasks`} 
+                        to={isAdmin ? `/admin/certifications/${item.campaign_id}` : `/supervisor/certifications/my-tasks/${item.campaign_id}`} 
                         className="btn btn-secondary btn-sm"
                       >
                         Details

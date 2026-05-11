@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 import { X, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '../../components/layout/PageHeader';
@@ -13,6 +14,7 @@ import { AIChatbot } from '../ai/AIChatbot';
 
 export function MyCertificationTasksPage() {
   const { user } = useAuth();
+  const { campaignId } = useParams<{ campaignId: string }>();
   const { page, perPage, setPage } = usePagination();
   const [revokeTarget, setRevokeTarget] = useState<CertificationItem | null>(null);
   const [revokeReason, setRevokeReason] = useState('');
@@ -28,8 +30,8 @@ export function MyCertificationTasksPage() {
   const certId = activeCert?.id;
 
   const itemsQuery = useQuery({
-    queryKey: ['certItems', { reviewer_id: user?.id, page }],
-    queryFn: () => certificationApi.listItems(undefined, { reviewer_id: user!.id, page, per_page: perPage }),
+    queryKey: ['certItems', { reviewer_id: user?.id, campaignId, page }],
+    queryFn: () => certificationApi.listItems(campaignId, { reviewer_id: user!.id, page, per_page: perPage }),
     enabled: !!user,
   });
 
@@ -159,7 +161,7 @@ export function MyCertificationTasksPage() {
   return (
     <div>
       <PageHeader 
-        title="My Certification Tasks" 
+        title={campaignId ? "Campaign Review Details" : "My Certification Tasks"} 
         subtitle={
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             <span>Reviewing {itemsQuery.data?.meta?.total || pendingItems.length} pending items</span>

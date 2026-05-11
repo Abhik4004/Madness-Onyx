@@ -131,7 +131,7 @@ export const router = createBrowserRouter([
         element: <RoleGuard required="supervisor"><TeamMemberDetailPage /></RoleGuard>,
       },
       {
-        path: 'supervisor/certifications/my-tasks',
+        path: 'supervisor/certifications/my-tasks/:campaignId?',
         element: <RoleGuard required="supervisor"><MyCertificationTasksPage /></RoleGuard>,
       },
       {
