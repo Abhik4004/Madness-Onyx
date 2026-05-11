@@ -1238,8 +1238,18 @@ export async function handleCertificationList(msg) {
     let params = [];
 
     if (requestorRole !== "admin") {
-      where += " AND (certification_owner_id = ? OR id IN (SELECT certification_id FROM certification_items WHERE manager_id = ? OR manager_id LIKE ?))";
-      params.push(requestorId, requestorId, `uid=${requestorId},%`);
+      const bareUid = requestorId.includes("=") ? (requestorId.match(/uid=([^,]+)/i)?.[1] || requestorId) : requestorId;
+      where += ` AND (
+        certification_owner_id = ? 
+        OR id IN (
+          SELECT certification_id FROM certification_items 
+          WHERE LOWER(manager_id) = LOWER(?) 
+             OR LOWER(manager_id) = LOWER(?) 
+             OR LOWER(manager_id) LIKE LOWER(?) 
+             OR LOWER(manager_id) LIKE LOWER(?)
+        )
+      )`;
+      params.push(requestorId, requestorId, bareUid, `uid=${bareUid},%`, `%uid=${bareUid},%`);
     }
 
     if (status) {
@@ -1266,12 +1276,20 @@ export async function handleCertificationGet(msg) {
     const { userId: requestorId, role: requestorRole } = envelope;
 
     // Robust extraction: /api/access/cert/campaign/:id
-    const pathWithoutQuery = envelope.path.split("?")[0];
-    const parts = pathWithoutQuery.split("/").filter(Boolean);
-    const campaignIdx = parts.indexOf("campaign");
-    const certId = campaignIdx >= 0 ? parts[campaignIdx + 1] : parts[parts.length - 1];
+    // First try params (from HTTP routes), then fallback to path parsing
+    let certId = envelope.params?.id;
+    if (!certId && envelope.path) {
+      const pathWithoutQuery = envelope.path.split("?")[0];
+      const parts = pathWithoutQuery.split("/").filter(Boolean);
+      const campaignIdx = parts.indexOf("campaign");
+      certId = campaignIdx >= 0 ? parts[campaignIdx + 1] : parts[parts.length - 1];
+    }
 
-    console.log(`[cert] handleCertificationGet: certId=${certId}, requestor=${requestorId}`);
+    console.log(`[cert] handleCertificationGet: certId=${certId}, requestor=${requestorId}, role=${requestorRole}`);
+
+    if (!certId) {
+      return msg.respond(err(400, "Campaign ID is required"));
+    }
 
     const { rows: certs } = await db.query("SELECT * FROM access_certifications WHERE id = ?", [certId]);
     if (!certs.length) {
@@ -1279,8 +1297,11 @@ export async function handleCertificationGet(msg) {
       return msg.respond(err(404, "Certification not found"));
     }
 
+    // Always fetch items — for non-admins, filter by manager_id
     let itemQuery = `
-      SELECT i.*, COALESCE(u.full_name, i.user_id) AS user_name, a.app_name as application_name
+      SELECT i.*, COALESCE(u.full_name, i.user_id) AS user_name, 
+             COALESCE(a.app_name, i.application_id) as application_name,
+             COALESCE(a.risk_score, i.risk_score, 0) as risk_score
       FROM certification_items i
       LEFT JOIN users_access u ON i.user_id = u.id
       LEFT JOIN applications a ON i.application_id = a.id
@@ -1289,14 +1310,32 @@ export async function handleCertificationGet(msg) {
     let itemParams = [certId];
 
     if (requestorRole !== "admin") {
-      itemQuery += " AND (i.manager_id = ? OR i.manager_id = ? OR i.manager_id LIKE ? OR i.manager_id LIKE ?)";
-      const bareUid = requestorId.includes("=") ? (requestorId.match(/uid=([^,]+)/i)?.[1] || requestorId) : requestorId; itemParams.push(requestorId, bareUid, `uid=${bareUid},%`, `%,uid=${bareUid},%`);
+      const bareUid = requestorId.includes("=") ? (requestorId.match(/uid=([^,]+)/i)?.[1] || requestorId) : requestorId;
+      itemQuery += ` AND (
+        LOWER(i.manager_id) = LOWER(?) 
+        OR LOWER(i.manager_id) = LOWER(?) 
+        OR LOWER(i.manager_id) LIKE LOWER(?) 
+        OR LOWER(i.manager_id) LIKE LOWER(?)
+      )`;
+      itemParams.push(requestorId, bareUid, `uid=${bareUid},%`, `%uid=${bareUid},%`);
+      console.log(`[cert] Supervisor filter: requestorId=${requestorId}, bareUid=${bareUid}`);
     }
 
     const { rows: items } = await db.query(itemQuery, itemParams);
-    console.log(`[cert] Found ${items.length} items for cert ${certId}`);
+    console.log(`[cert] Found ${items.length} items for cert ${certId} (requestor=${requestorId})`);
 
-    // Dynamic KPI calculation
+    // If supervisor found no items via manager_id, try broader search to check data
+    if (requestorRole !== "admin" && items.length === 0) {
+      const { rows: allItems } = await db.query(
+        "SELECT id, manager_id FROM certification_items WHERE certification_id = ? LIMIT 5", [certId]
+      );
+      console.log(`[cert] DEBUG: Total items in campaign: ${allItems.length}, sample manager_ids:`, 
+        allItems.map(i => i.manager_id));
+    }
+
+    // Dynamic KPI calculation — for admin use all items, for supervisor use their filtered items
+    // but show campaign-level totals from the certification record
+    const certRecord = certs[0];
     const summary = {
       total: items.length,
       pending: items.filter(i => i.decision === 'PENDING').length,
@@ -1308,12 +1347,13 @@ export async function handleCertificationGet(msg) {
       ok: true,
       status: 200,
       data: {
-        ...certs[0],
+        ...certRecord,
         items,
-        pending_count: summary.pending,
-        certified_count: summary.certified,
-        revoked_count: summary.revoked,
-        total_items: summary.total
+        // Use campaign-level counts if admin, otherwise use filtered counts
+        pending_count: requestorRole === "admin" ? (certRecord.pending_count ?? summary.pending) : summary.pending,
+        certified_count: requestorRole === "admin" ? (certRecord.certified_count ?? summary.certified) : summary.certified,
+        revoked_count: requestorRole === "admin" ? (certRecord.revoked_count ?? summary.revoked) : summary.revoked,
+        total_items: requestorRole === "admin" ? (certRecord.total_items ?? summary.total) : summary.total
       }
     }));
   } catch (e) {
@@ -1327,7 +1367,7 @@ export async function handleCertificationItemsList(msg) {
     const envelope = jc.decode(msg.data);
     // Robust extraction: /api/access/cert/campaign/:id/items OR /api/access/cert/items
     const pathWithoutQuery = (envelope.path || "/api/access/cert/items").split("?")[0];
-    const parts = pathWithoutQuery.split("/").filter(Boolean);
+    const parts = pathWithoutQuery.split("/").filter(p => p && p !== "list"); // Remove "list" suffix
     const itemsIdx = parts.indexOf("items");
 
     // Only extract certId if it's a campaign-specific route
@@ -1341,7 +1381,7 @@ export async function handleCertificationItemsList(msg) {
     }
 
     const { userId: requestorId, role: requestorRole } = envelope;
-    console.log(`[cert] handleCertificationItemsList: certId=${certId}, path=${envelope.path}, requestor=${requestorId}`);
+    console.log(`[cert] handleCertificationItemsList: certId=${certId}, path=${envelope.path}, requestor=${requestorId}, role=${requestorRole}`);
 
     let itemQuery = `
       SELECT i.*, COALESCE(u.full_name, i.user_id) as user_name, COALESCE(a.app_name, i.application_id) as application_name,
@@ -1359,8 +1399,15 @@ export async function handleCertificationItemsList(msg) {
     }
 
     if (requestorRole !== "admin") {
-      itemQuery += " AND (i.manager_id = ? OR i.manager_id = ? OR i.manager_id LIKE ? OR i.manager_id LIKE ?)";
-      const bareUid = requestorId.includes("=") ? (requestorId.match(/uid=([^,]+)/i)?.[1] || requestorId) : requestorId; itemParams.push(requestorId, bareUid, `uid=${bareUid},%`, `%,uid=${bareUid},%`);
+      const bareUid = requestorId.includes("=") ? (requestorId.match(/uid=([^,]+)/i)?.[1] || requestorId) : requestorId;
+      itemQuery += ` AND (
+        LOWER(i.manager_id) = LOWER(?) 
+        OR LOWER(i.manager_id) = LOWER(?) 
+        OR LOWER(i.manager_id) LIKE LOWER(?) 
+        OR LOWER(i.manager_id) LIKE LOWER(?)
+      )`;
+      itemParams.push(requestorId, bareUid, `uid=${bareUid},%`, `%uid=${bareUid},%`);
+      console.log(`[cert] Supervisor items filter: requestorId=${requestorId}, bareUid=${bareUid}`);
     }
 
     // Support for PENDING filter if needed (Frontend filter is client-side, but let's be safe)
@@ -1370,6 +1417,16 @@ export async function handleCertificationItemsList(msg) {
 
     const { rows: items } = await db.query(itemQuery, itemParams);
     console.log(`[cert] Found ${items.length} items in DB for manager ${requestorId} in cert ${certId}`);
+
+    // Debug: if supervisor found 0, show what manager_ids exist
+    if (requestorRole !== "admin" && items.length === 0) {
+      const debugQuery = certId 
+        ? "SELECT DISTINCT manager_id FROM certification_items WHERE certification_id = ? LIMIT 10"
+        : "SELECT DISTINCT manager_id FROM certification_items LIMIT 10";
+      const debugParams = certId ? [certId] : [];
+      const { rows: debugRows } = await db.query(debugQuery, debugParams);
+      console.log(`[cert] DEBUG: Available manager_ids in DB:`, debugRows.map(r => r.manager_id));
+    }
 
     msg.respond(jc.encode({
       ok: true,
