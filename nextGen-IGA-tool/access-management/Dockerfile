@@ -18,7 +18,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install only production dependencies (skip devDependencies)
-RUN npm install --omit=dev
+RUN npm install 
 
 # Copy rest of source code
 COPY . .
