@@ -1286,7 +1286,8 @@ export async function handleCertificationItemsList(msg) {
     console.log(`[cert] handleCertificationItemsList: certId=${certId}, path=${envelope.path}, requestor=${requestorId}`);
 
     let itemQuery = `
-      SELECT i.*, COALESCE(u.full_name, i.user_id) as user_name, COALESCE(a.app_name, i.application_id) as application_name
+      SELECT i.*, COALESCE(u.full_name, i.user_id) as user_name, COALESCE(a.app_name, i.application_id) as application_name,
+             COALESCE(a.risk_score, i.risk_score, 0) as risk_score
       FROM certification_items i
       LEFT JOIN users_access u ON i.user_id = u.id
       LEFT JOIN applications a ON i.application_id = a.id

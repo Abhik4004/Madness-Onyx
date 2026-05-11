@@ -78,6 +78,6 @@ export const routeAIRequest = async (query: string, history: any[], userId?: str
   }
 
   // 6. Default: Chat
-  const data = await aiApi.chat({ message: query, history });
+  const data = await aiApi.chat({ message: query, history }, userId);
   return { phase: 'CHAT', data, text: data.response_text };
 };

@@ -188,8 +188,16 @@ export function NewRequestPage() {
                     <span className="text-xs text-muted font-mono">{r.id}</span>
                     {resourceId === r.id && <Check size={14} className="text-primary ml-auto" />}
                   </div>
-                  <div className="app-card-name" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {r.app_name || r.id}
+                  <div className="app-card-name" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                    <span>{r.app_name || r.id}</span>
+                    <span className={`badge badge-${r.risk_level?.toLowerCase() || 'medium'}`} style={{ fontSize: '0.6rem', padding: '2px 6px' }}>
+                      {r.risk_level || 'MEDIUM'}
+                    </span>
+                  </div>
+                  <div style={{ marginBottom: 10 }}>
+                    <div className="progress-bar" style={{ height: 3 }}>
+                      <div className={`progress-bar-fill ${r.risk_level?.toLowerCase() || 'medium'}`} style={{ width: `${r.risk_score || 0}%` }} />
+                    </div>
                   </div>
                   <div className="app-card-desc">{r.description || "Managed application resource."}</div>
                 </div>

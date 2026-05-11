@@ -42,6 +42,7 @@ export interface AIChatMessage {
 export interface AIChatRequest {
   message: string;
   history?: AIChatMessage[];
+  user_id?: string;
 }
 
 export interface AIChatResponse {
@@ -122,9 +123,9 @@ export interface AIHealthStatus {
 
 export const aiApi = {
   // Chat Assistant
-  chat: (body: AIChatRequest): Promise<AIChatResponse> =>
+  chat: (body: AIChatRequest, userId?: string): Promise<AIChatResponse> =>
     aiClient
-      .post<any>("/api/v1/assistant/chat", body)
+      .post<any>("/api/v1/assistant/chat", { ...body, user_id: userId })
       .then((r) => r.data.data || r.data),
 
   // Insights & Anomalies
