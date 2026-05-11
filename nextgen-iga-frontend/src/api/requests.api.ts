@@ -174,11 +174,16 @@ export const requestsApi = {
     r(
       apiClient.get<ApiResponse<AppRole[]>>(`/api/applications/${appId}/roles`),
     ),
-  removeRequest: (uid: string, groupCn: string) =>
-    r(
-      apiClient.post<{ statusCode: number; message: string }>(
+  removeRequest: (uid: string, groupCn: string) => {
+    if (!uid || !groupCn) {
+      console.error("[requestsApi.removeRequest] Missing required parameters:", { uid, groupCn });
+      return Promise.reject(new Error("Missing user ID or entitlement ID"));
+    }
+    return r(
+      apiClient.post<{ statusCode: number; message: string; ok?: boolean }>(
         "/api/removeuser/group",
         { uid, groupCn },
       ),
-    ),
+    );
+  },
 };

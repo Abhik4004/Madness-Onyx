@@ -33,12 +33,13 @@ export function RemoveRequestPage() {
 
   const removeMutation = useMutation({
     mutationFn: (target: any) => requestsApi.removeRequest(target.user_id, target.application_id),
-    onSuccess: (res) => {
-      if (res.statusCode === 200) {
-        toast.success(res.message || 'User removed from group successfully');
+    onSuccess: (res: any) => {
+      // Check for multiple success indicators (statusCode 200 or ok: true)
+      if (res?.statusCode === 200 || res?.ok === true || res?.status === 'success') {
+        toast.success(res.message || 'Removal request processed successfully');
         qc.invalidateQueries({ queryKey: ['activeAccess'] });
       } else {
-        toast.error(res.message || 'Failed to remove user');
+        toast.error(res?.message || 'Failed to remove user');
       }
       setRemoveTarget(null);
     },
