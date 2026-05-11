@@ -123,7 +123,7 @@ export function Sidebar() {
             </div>
             <div className={`sidebar-dropdown ${expanded.adminUsers ? 'open' : ''}`}>
               <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/users" end>User List</NavLink>
-              <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/users/new"><UserPlus size={16} /> Manual Provisioning</NavLink>
+              <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/users/new"><UserPlus size={16} /> Create Account</NavLink>
             </div>
 
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/roles"><Shield size={16} /> Roles</NavLink>

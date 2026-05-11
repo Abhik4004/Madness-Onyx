@@ -98,7 +98,7 @@ export function CreateUserPage() {
   return (
     <div>
       <PageHeader
-        title="Manual Provisioning"
+        title="Create User Account"
         subtitle="Provision a new user account manually. Only admins can initiate this process."
         breadcrumbs={[
           { label: "Users", to: "/admin/users" },

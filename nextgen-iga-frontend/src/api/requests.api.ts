@@ -176,7 +176,7 @@ export const requestsApi = {
     ),
   removeRequest: (uid: string, groupCn: string) =>
     r(
-      apiClient.post<ApiResponse<{ statusCode: number; message: string }>>(
+      apiClient.post<{ statusCode: number; message: string }>(
         "/api/removeuser/group",
         { uid, groupCn },
       ),
