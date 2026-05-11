@@ -5,8 +5,10 @@ import { PageHeader } from '../../components/layout/PageHeader';
 import { StatusBadge } from '../../components/shared/StatusBadge';
 import { certificationApi } from '../../api/certification.api';
 import { formatDate } from '../../lib/utils';
+import { useAuth } from '../../hooks/useAuth';
 
 export function CertificationHistoryPage() {
+  const { isAdmin, isSupervisor } = useAuth();
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['certifications', 'history'],
     queryFn: () => certificationApi.getHistory(),
@@ -20,10 +22,16 @@ export function CertificationHistoryPage() {
         title="Campaign History"
         subtitle="Track and audit past certification campaigns"
         actions={
-          <div style={{ display: 'flex', gap: 10 }}>
-            <Link to="/admin/certifications" className="btn btn-secondary">Active Campaigns</Link>
-            <Link to="/admin/certifications/new" className="btn btn-primary"><Plus size={16} /> New Campaign</Link>
-          </div>
+          isAdmin ? (
+            <div style={{ display: 'flex', gap: 10 }}>
+              <Link to="/admin/certifications" className="btn btn-secondary">Active Campaigns</Link>
+              <Link to="/admin/certifications/new" className="btn btn-primary"><Plus size={16} /> New Campaign</Link>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: 10 }}>
+              <Link to="/supervisor/certifications/my-tasks" className="btn btn-primary">Go to My Tasks</Link>
+            </div>
+          )
         }
       />
 
@@ -93,7 +101,12 @@ export function CertificationHistoryPage() {
                     </td>
                     <td className="text-xs text-muted">{formatDate(item.created_at)}</td>
                     <td>
-                      <Link to={`/admin/certifications/${item.campaign_id}`} className="btn btn-secondary btn-sm">Details</Link>
+                      <Link 
+                        to={isAdmin ? `/admin/certifications/${item.campaign_id}` : `/supervisor/certifications/my-tasks`} 
+                        className="btn btn-secondary btn-sm"
+                      >
+                        Details
+                      </Link>
                     </td>
                   </tr>
                 );

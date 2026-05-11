@@ -135,6 +135,10 @@ export const router = createBrowserRouter([
         element: <RoleGuard required="supervisor"><MyCertificationTasksPage /></RoleGuard>,
       },
       {
+        path: 'supervisor/certifications/history',
+        element: <RoleGuard required="supervisor"><CertificationHistoryPage /></RoleGuard>,
+      },
+      {
         path: 'supervisor/ai-audit',
         element: <RoleGuard required="supervisor"><AIAuditPage /></RoleGuard>,
       },

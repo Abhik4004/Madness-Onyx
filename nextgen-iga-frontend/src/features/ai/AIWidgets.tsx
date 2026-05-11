@@ -17,11 +17,11 @@ export function AIInsightsWidget() {
 
   return (
     <div className="card">
-      <div className="card-header">
+      {/* <div className="card-header">
         <span className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Sparkles size={16} color="var(--color-primary)" /> AI Risk Insights
         </span>
-      </div>
+      </div> */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {insightsList.slice(0, 3).map(insight => (
           <div key={insight.id} style={{ padding: 12, background: 'var(--color-gray-50)', borderRadius: 8, border: '1px solid var(--color-gray-100)' }}>
