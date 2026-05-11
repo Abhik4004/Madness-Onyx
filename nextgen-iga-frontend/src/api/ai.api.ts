@@ -125,20 +125,20 @@ export const aiApi = {
   // Chat Assistant
   chat: (body: AIChatRequest, userId?: string): Promise<AIChatResponse> =>
     aiClient
-      .post<any>("/api/v1/assistant/chat", { ...body, user_id: userId })
+      .post<any>("assistant/chat", { ...body, user_id: userId })
       .then((r) => r.data.data || r.data),
 
   // Insights & Anomalies
   getInsights: (): Promise<AIInsight[]> =>
-    aiClient.get<any>("/api/v1/insights").then((r) => r.data.data || r.data),
+    aiClient.get<any>("insights").then((r) => r.data.data || r.data),
 
   getAnomalies: (): Promise<AIAnomaly[]> =>
-    aiClient.get<any>("/api/v1/anomalies").then((r) => r.data.data || r.data),
+    aiClient.get<any>("anomalies").then((r) => r.data.data || r.data),
 
   // Reports
   generateReport: (query: string, userId?: string): Promise<AIReport> =>
     aiClient
-      .post<any>("/api/v1/reports/generate", { query, user_id: userId })
+      .post<any>("reports/generate", { query, user_id: userId })
       .then((r) => {
         const raw = r.data.data || r.data;
         // Map report_id to id if backend uses report_id
@@ -150,7 +150,7 @@ export const aiApi = {
       }),
 
   listReports: (): Promise<AIReportHistoryItem[]> =>
-    aiClient.get<any>("/api/v1/reports").then((r) => {
+    aiClient.get<any>("reports").then((r) => {
       const data = r.data.reports || r.data.data || r.data;
       return (Array.isArray(data) ? data : []).map((item: any) => ({
         ...item,
@@ -159,7 +159,7 @@ export const aiApi = {
     }),
 
   getReport: (id: string): Promise<AIReport> =>
-    aiClient.get<any>(`/api/v1/reports/${id}`).then((r) => {
+    aiClient.get<any>(`reports/${id}`).then((r) => {
       const raw = r.data.data || r.data;
       const report = raw.report || raw;
       return {
@@ -170,7 +170,7 @@ export const aiApi = {
 
   downloadReport: (id: string): Promise<Blob> =>
     aiClient
-      .get(`/api/v1/reports/${id}/download`, { responseType: "blob" })
+      .get(`reports/${id}/download`, { responseType: "blob" })
       .then((r) => r.data), // Blobs are usually direct
 
   // Audit Logs
@@ -182,17 +182,17 @@ export const aiApi = {
     to?: string;
   }): Promise<AIAuditLog[]> =>
     aiClient
-      .get<any>("/api/v1/audit/logs", { params })
+      .get<any>("audit/logs", { params })
       .then((r) => r.data.data || r.data),
 
   // Health Check
   getHealth: (): Promise<AIHealthStatus> =>
-    aiClient.get<any>("/api/v1/health").then((r) => r.data.data || r.data),
+    aiClient.get<any>("health").then((r) => r.data.data || r.data),
 
   // Recommendation Insight for a user
   getRecommendationInsight: (userId: string): Promise<{ summary: string; peer_comparison: string; risk_flags: string[] } | null> =>
     aiClient
-      .get<any>(`/api/v1/insights/recommendation/${userId}`)
+      .get<any>(`insights/recommendation/${userId}`)
       .then((r) => r.data.data || r.data)
       .catch(() => null),
 };
