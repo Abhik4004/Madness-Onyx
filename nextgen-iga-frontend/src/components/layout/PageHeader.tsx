@@ -6,7 +6,7 @@ interface Crumb { label: string; to?: string; }
 
 interface Props {
   title: string;
-  subtitle?: string;
+  subtitle?: ReactNode;
   breadcrumbs?: Crumb[];
   actions?: ReactNode;
 }

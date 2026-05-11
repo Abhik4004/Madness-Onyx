@@ -18,7 +18,7 @@ function HierarchyNode({ node }: { node: any }) {
   return (
     <div className="hierarchy-node">
       {/* Card */}
-      <Link to={`/supervisor/team/${node.id}`} className="hierarchy-card-link">
+      <div className="hierarchy-card-link">
         <div className={`hierarchy-card role-${role}`}>
           <div className="hierarchy-avatar">
             {node.full_name?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
@@ -32,29 +32,14 @@ function HierarchyNode({ node }: { node: any }) {
               </div>
             )}
           </div>
-          <ChevronRight size={14} style={{ color: 'var(--color-gray-400)', flexShrink: 0 }} />
         </div>
-      </Link>
+      </div>
 
       {/* Children */}
       {hasChildren && (
         <>
-          {/* Vertical stub down from card */}
           <div className="hierarchy-connector-down" />
-          {/* Horizontal bar + children */}
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-start' }}>
-            {/* Horizontal connector line across all children midpoints */}
-            {node.reports.length > 1 && (
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: `calc(100% - 260px)`,
-                height: 2,
-                background: 'var(--color-gray-300)',
-              }} />
-            )}
+          <div className="hierarchy-children">
             {node.reports.map((child: any) => (
               <div key={child.id} className="hierarchy-child-wrap">
                 <div className="hierarchy-child-stub" />
@@ -87,36 +72,26 @@ export function TeamAccessPage() {
     if (viewMode !== 'hierarchy' || !data?.data || !currentUser) return [];
 
     const allUsers = data.data as User[];
-
-    // 1. Create a map for quick lookup
     const userMap: Record<string, any> = {};
-    allUsers.forEach(u => {
-      userMap[u.uid] = { ...u, reports: [] };
-    });
+    allUsers.forEach(u => { userMap[u.uid] = { ...u, reports: [] }; });
 
-    // 2. Build the tree
     const roots: any[] = [];
+    const childIds = new Set<string>();
+
     allUsers.forEach(u => {
       const node = userMap[u.uid];
       if (u.manager && userMap[u.manager]) {
         userMap[u.manager].reports.push(node);
-      } else if (u.uid === currentUser.id || u.id === currentUser.id) {
-        // If this is the current user and they don't have a manager in the list, or they are the top
-        roots.push(node);
+        childIds.add(u.uid);
       }
     });
 
-    // If we didn't find the current user as a root, maybe they are not in the list 
-    // but their reports are. In that case, anyone whose manager is the current user 
-    // and wasn't added to another node should be a root.
-    if (roots.length === 0) {
-      allUsers.forEach(u => {
-        if (u.manager === currentUser.id) {
-          roots.push(userMap[u.uid]);
-        }
-      });
-    }
+    if (userMap[currentUser.id]) roots.push(userMap[currentUser.id]);
+    else allUsers.forEach(u => { if (u.manager === currentUser.id) roots.push(userMap[u.uid]); });
 
+    if (roots.length === 0) {
+      allUsers.forEach(u => { if (!childIds.has(u.uid)) roots.push(userMap[u.uid]); });
+    }
     return roots;
   }, [data?.data, currentUser, viewMode]);
 
