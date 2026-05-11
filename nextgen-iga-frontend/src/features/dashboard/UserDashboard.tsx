@@ -18,12 +18,17 @@ export function UserDashboard() {
 
   const pendingReqs = useQuery({
     queryKey: ['requests', { status: 'PENDING', page: 1 }],
-    queryFn: () => requestsApi.list({ per_page: 5 }),
+    queryFn: () => requestsApi.list({ status: 'PENDING', per_page: 1 }),
   });
 
   const recentReqs = useQuery({
-    queryKey: ['requests', { page: 1 }],
+    queryKey: ['requests', 'recent', { page: 1 }],
     queryFn: () => requestsApi.list({ page: 1, per_page: 5 }),
+  });
+
+  const activeReqs = useQuery({
+    queryKey: ['requests', { status: 'PROVISIONED', page: 1 }],
+    queryFn: () => requestsApi.list({ status: 'PROVISIONED', per_page: 1 }),
   });
 
   const notifications = useQuery({
@@ -53,9 +58,7 @@ export function UserDashboard() {
   const teamRecs = (teamRecommendations.data as any)?.team_recommendations || [];
 
   const pendingCount = pendingReqs.data?.meta?.total ?? 0;
-  const activeCount = Array.isArray(recentReqs.data?.data)
-    ? recentReqs.data.data.filter((r) => r.status === 'PROVISIONED').length
-    : 0;
+  const activeCount = activeReqs.data?.meta?.total ?? 0;
   const unreadNotifs = Array.isArray(notifications.data?.data)
     ? notifications.data.data.filter((n) => !n.read).length
     : 0;
