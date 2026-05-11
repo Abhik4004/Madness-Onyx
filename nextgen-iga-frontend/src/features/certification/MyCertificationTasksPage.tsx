@@ -84,9 +84,7 @@ export function MyCertificationTasksPage() {
   });
 
   const items = itemsQuery.data?.data ?? [];
-  const pendingItems = items.filter(i => i.decision === 'PENDING');
-  // When viewing a specific campaign, show ALL items; otherwise only pending
-  const displayItems = isCampaignDetail ? items : pendingItems;
+  const displayItems = items;
 
   const bulkCertify = async () => {
     for (const id of selected) {
@@ -179,8 +177,8 @@ export function MyCertificationTasksPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             <span>
               {isCampaignDetail 
-                ? `${items.length} total items — ${pendingItems.length} pending review`
-                : `Reviewing ${itemsQuery.data?.meta?.total || pendingItems.length} pending items`
+                ? `${items.length} total items`
+                : `Reviewing ${itemsQuery.data?.meta?.total || items.length} total items`
               }
             </span>
             {!isCampaignDetail && activeCert && (
