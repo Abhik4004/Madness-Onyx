@@ -63,6 +63,17 @@ userRouter.get("/",                      relayMiddleware);
 userRouter.get("/:id",                   relayMiddleware);
 userRouter.put("/:id/role",              relayMiddleware);
 userRouter.put("/:id/deactivate",        relayMiddleware);
-userRouter.get("/:id/access",            relayMiddleware);
+userRouter.get("/:id/access", async (req, res) => {
+  try {
+    const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://access-management:3001";
+    const { id } = req.params;
+    const response = await fetch(`${ACCESS_MGMT_URL}/api/user/${id}/access`);
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error("[gateway] user access fetch error:", err.message);
+    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+  }
+});
 
 export default userRouter;

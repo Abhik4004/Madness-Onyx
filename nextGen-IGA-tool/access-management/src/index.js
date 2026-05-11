@@ -1096,6 +1096,26 @@ async function main() {
     }
   });
 
+  app.get("/api/user/:userId/access", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { rows } = await db.query(
+        `SELECT ua.id, ua.user_id, ua.application_id, 
+                a.app_name AS application_name, ua.role_name,
+                ua.valid_from AS granted_at, ua.valid_to AS expires_at, ua.status
+         FROM user_access ua
+         LEFT JOIN applications a ON ua.application_id = a.id
+         WHERE ua.user_id = ?
+         ORDER BY ua.valid_from DESC`,
+        [userId],
+      );
+      res.json({ ok: true, data: rows });
+    } catch (e) {
+      console.error("[api] user access fetch error:", e.message);
+      res.status(500).json({ ok: false, message: "DB error" });
+    }
+  });
+
   const HTTP_PORT = process.env.ACCESS_MGMT_PORT || 3001;
 
 
