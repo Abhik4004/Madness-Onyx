@@ -314,8 +314,8 @@ export async function handleUserApprove(msg) {
     const targetId = user?.id || userId;
 
     // Use the login page with pre-filled UID for the MFA activation flow
-    const authUrl = process.env.EXTERNAL_AUTH_URL || "http://18.60.129.12:8080";
-    const finalMfaLink = `${authUrl}/login?uid=${targetId}`;
+    const frontendUrl = process.env.FRONTEND_URL || "http://54.167.248.162";
+    const finalMfaLink = `${frontendUrl}/login?uid=${targetId}`;
 
     console.log(`[users] Approving user: searchId=${userId}, targetId=${targetId}`);
 
