@@ -675,7 +675,7 @@ export async function handleActiveAccessList(msg) {
       FROM user_access ua
       LEFT JOIN users_access u ON ua.user_id = u.id
       LEFT JOIN applications a ON ua.application_id = a.id
-      WHERE ua.status IN ('ACTIVE', 'REMOVED') AND ua.access_type != 'TIME_BASED'
+      WHERE ua.status IN ('ACTIVE', 'REMOVED') AND (ua.access_type IS NULL OR ua.access_type != 'TIME_BASED')
     `;
     let vals = [];
 
@@ -1229,9 +1229,9 @@ export async function handleCertificationList(msg) {
   try {
     const envelope = jc.decode(msg.data);
     const { userId: requestorId, role: requestorRole, query = {} } = envelope;
-    const { search } = query;
+    const { search, status } = query;
 
-    console.log(`[cert] handleCertificationList: requestor=${requestorId}, role=${requestorRole}, search=${search}`);
+    console.log(`[cert] handleCertificationList: requestor=${requestorId}, role=${requestorRole}, search=${search}, status=${status}`);
 
     let baseQuery = "SELECT * FROM access_certifications";
     let where = " WHERE 1=1";
@@ -1240,6 +1240,11 @@ export async function handleCertificationList(msg) {
     if (requestorRole !== "admin") {
       where += " AND (certification_owner_id = ? OR id IN (SELECT certification_id FROM certification_items WHERE manager_id = ?))";
       params.push(requestorId, requestorId);
+    }
+
+    if (status) {
+      where += " AND status = ?";
+      params.push(status);
     }
 
     if (search) {
@@ -1850,7 +1855,7 @@ export async function handleCertificationGenerate(msg) {
       FROM user_access ua
       JOIN users_access u ON ua.user_id = u.id
       JOIN applications a ON ua.application_id = a.id
-      WHERE ua.status = 'ACTIVE'
+      WHERE ua.status = 'ACTIVE' AND ua.access_type != 'TIME_BASED'
     `;
     let accessParams = [];
 

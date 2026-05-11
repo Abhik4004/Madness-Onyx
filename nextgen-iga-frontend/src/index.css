@@ -395,6 +395,26 @@ button {
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
+.btn-secondary {
+  background: white;
+  border: 1px solid var(--color-gray-200);
+  color: var(--color-gray-700);
+}
+
+.btn-secondary:hover {
+  background: var(--color-gray-50);
+}
+
+.btn-danger {
+  background: var(--color-danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}
+
 /* Modals */
 .modal-overlay {
   background: rgba(15, 23, 42, 0.6);

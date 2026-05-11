@@ -44,11 +44,11 @@ export function RequestListPage() {
     {
       key: 'application',
       header: 'Application',
-      render: (r) => <span className="font-medium">{r.application_name}</span>,
+      render: (r) => <span className="font-medium">Open DS</span>,
     },
     {
       key: 'role',
-      header: 'Role',
+      header: 'Entitlement',
       render: (r) => r.role_name,
     },
     {

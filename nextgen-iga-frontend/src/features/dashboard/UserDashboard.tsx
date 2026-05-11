@@ -205,7 +205,7 @@ export function UserDashboard() {
                 {(Array.isArray(recentReqs.data?.data) ? recentReqs.data.data : []).map((r) => (
                   <div key={r.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid var(--color-gray-100)' }}>
                     <div>
-                      <div className="font-bold text-sm" style={{ color: 'var(--color-gray-900)' }}>{r.application_name}</div>
+                      <div className="font-bold text-sm" style={{ color: 'var(--color-gray-900)' }}>Open DS</div>
                       <div className="text-xs text-muted mt-1">{r.role_name} · {formatDate(r.submitted_at)}</div>
                     </div>
                     <StatusBadge status={r.status} />

@@ -48,9 +48,9 @@ export function MyCertificationTasksPage() {
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['certItems'] });
-      toast.success('Item certified');
+      toast.success('Item kept');
     },
-    onError: () => toast.error('Failed to certify'),
+    onError: () => toast.error('Failed to keep'),
   });
 
   const revokeItem = useMutation({
@@ -86,7 +86,7 @@ export function MyCertificationTasksPage() {
       }
     }
     qc.invalidateQueries({ queryKey: ['certItems'] });
-    toast.success(`${selected.length} items certified`);
+    toast.success(`${selected.length} items kept`);
     setSelected([]);
   };
 
@@ -143,7 +143,7 @@ export function MyCertificationTasksPage() {
             onClick={() => certify.mutate(i)} 
             disabled={certify.isPending && certify.variables?.user_id === i.user_id && certify.variables?.application_id === i.application_id}
           >
-            {certify.isPending && certify.variables?.user_id === i.user_id && certify.variables?.application_id === i.application_id ? <span className="spinner spinner-sm" /> : 'Certify'}
+            {certify.isPending && certify.variables?.user_id === i.user_id && certify.variables?.application_id === i.application_id ? <span className="spinner spinner-sm" /> : 'Keep'}
           </button>
           <button 
             className="btn btn-sm btn-danger" 
@@ -182,7 +182,7 @@ export function MyCertificationTasksPage() {
       {pendingItems.length > 0 && selected.length > 0 && (
         <div className="alert alert-info" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{selected.length} item(s) selected</span>
-          <button className="btn btn-sm btn-primary" onClick={bulkCertify}>Bulk Certify Selected</button>
+          <button className="btn btn-sm btn-primary" onClick={bulkCertify}>Bulk Keep Selected</button>
         </div>
       )}
 

@@ -19,7 +19,7 @@ export function RemoveRequestPage() {
     queryFn: () => provisionApi.listActiveAccess(),
   });
 
-  const activeAccess = (data?.data ?? []) as any[];
+  const activeAccess = (data?.data ?? []).filter((a: any) => a.access_type !== 'TIME_BASED') as any[];
 
   const filtered = useMemo(() => {
     if (!search) return activeAccess;
@@ -50,10 +50,11 @@ export function RemoveRequestPage() {
   const columns: Column<any>[] = [
     { key: 'user', header: 'User', render: a => a.user_name },
     { key: 'app', header: 'Entitlement', render: a => a.application_name },
+    { key: 'status', header: 'Status', render: a => <StatusBadge status={a.status} /> },
     { key: 'granted', header: 'Granted At', render: a => formatDate(a.granted_at) },
     {
       key: 'actions', header: '', width: '120px',
-      render: a => (
+      render: a => a.status === 'ACTIVE' ? (
         <button 
           className="btn btn-sm btn-danger btn-full" 
           onClick={() => setRemoveTarget(a)}
@@ -61,7 +62,7 @@ export function RemoveRequestPage() {
         >
           <Trash2 size={14} style={{ marginRight: 6 }} /> Request Removal
         </button>
-      )
+      ) : <span className="text-xs text-muted" style={{ display: 'block', textAlign: 'center' }}>Revoked</span>
     }
   ];
 
