@@ -28,6 +28,7 @@ const step2Schema = z.object({
   duration: z.string().optional(),
   targetUserId: z.string().optional(),
   role: z.string().min(1, "Please select a role"),
+  isHighRisk: z.boolean().optional(),
 }).refine(data => {
   if (data.justification === "Other" && (!data.customJustification || data.customJustification.length < 10)) {
     return false;
@@ -36,6 +37,14 @@ const step2Schema = z.object({
 }, {
   message: "Detailed justification must be at least 10 characters",
   path: ["customJustification"],
+}).refine(data => {
+  if (data.isHighRisk && (!data.duration || data.duration.trim() === "")) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Time duration is mandatory for high-risk applications",
+  path: ["duration"],
 });
 type Step2Data = z.infer<typeof step2Schema>;
 
@@ -224,7 +233,11 @@ export function NewRequestPage() {
           </div> */}
 
           <div className="flex justify-end mt-6">
-            <button className="btn btn-primary" disabled={!canProceedStep1} onClick={() => setStep(2)}>
+            <button className="btn btn-primary" disabled={!canProceedStep1} onClick={() => {
+              const app: any = applications.find((r: any) => r.id === resourceId);
+              setValue("isHighRisk", app?.risk_level?.toUpperCase() === 'HIGH');
+              setStep(2);
+            }}>
               Continue →
             </button>
           </div>
@@ -282,15 +295,16 @@ export function NewRequestPage() {
 
             {user?.role !== 'end_user' && (
               <div className="form-group pt-4 border-top">
-                <label className="form-label">Duration (Seconds)</label>
+                <label className={`form-label ${watch("isHighRisk") ? "required" : ""}`}>Duration (Seconds)</label>
                 <input
                   type="number"
-                  className="form-control"
-                  placeholder="e.g. 30 (Leave blank for permanent access)"
+                  className={`form-control ${errors.duration ? "error" : ""}`}
+                  placeholder={watch("isHighRisk") ? "Enter duration (Mandatory for high-risk)" : "e.g. 30 (Leave blank for permanent access)"}
                   min={1}
                   style={{ maxWidth: 200 }}
                   {...register("duration")}
                 />
+                {errors.duration && <span className="form-error">{errors.duration.message}</span>}
                 <span className="form-hint">Time-based access for temporary projects (e.g. 30 or 60 seconds).</span>
               </div>
             )}
