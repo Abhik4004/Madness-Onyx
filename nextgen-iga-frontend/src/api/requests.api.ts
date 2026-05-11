@@ -174,4 +174,11 @@ export const requestsApi = {
     r(
       apiClient.get<ApiResponse<AppRole[]>>(`/api/applications/${appId}/roles`),
     ),
+  removeRequest: (uid: string, groupCn: string) =>
+    r(
+      apiClient.post<ApiResponse<{ statusCode: number; message: string }>>(
+        "/api/removeuser/group",
+        { uid, groupCn },
+      ),
+    ),
 };

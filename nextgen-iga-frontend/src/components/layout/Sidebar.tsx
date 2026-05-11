@@ -4,7 +4,7 @@ import {
   LayoutDashboard, FileText, Plus,
   CheckSquare, Users, Shield, Award, Building2,
   Activity, ClipboardList, Lock, Cpu, Database,
-  LogOut, Sparkles, UserPlus, Upload,
+  LogOut, Sparkles, UserPlus, Upload, Trash2,
   ChevronDown, ChevronRight, History as HistoryIcon, MessageSquare
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
@@ -84,6 +84,7 @@ export function Sidebar() {
         <div className={`sidebar-dropdown ${expanded.requests ? 'open' : ''}`}>
           <NavLink className={({ isActive }) => navCls(isActive, true)} to="/requests" end>All Requests</NavLink>
           <NavLink className={({ isActive }) => navCls(isActive, true)} to="/requests/new"><Plus size={16} /> New Request</NavLink>
+          <NavLink className={({ isActive }) => navCls(isActive, true)} to="/requests/remove"><Trash2 size={16} /> Remove Request</NavLink>
         </div>
 
 

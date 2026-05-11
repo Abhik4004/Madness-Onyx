@@ -198,6 +198,29 @@ app.post("/api/create/group", async (req, res) => {
   }
 });
 
+// ── Remove User from Group ────────────────────────────────────────────────────
+app.post("/api/removeuser/group", async (req, res) => {
+  try {
+    const { uid, groupCn } = req.body;
+    if (!uid || !groupCn) {
+      return res.status(400).json({ ok: false, message: "uid and groupCn are required" });
+    }
+
+    const upstream = await fetch(`http://18.60.129.12:8080/api/removeuser/group`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid, groupCn }),
+      signal: AbortSignal.timeout(15000)
+    });
+
+    const data = await upstream.json().catch(() => ({}));
+    res.status(upstream.status).json(data);
+  } catch (err) {
+    console.error("[gateway] REMOVE USER FROM GROUP error:", err.message);
+    res.status(502).json({ ok: false, message: "Auth service unreachable" });
+  }
+});
+
 // ── JWT Protected Routes ─────────────────────────────────────────────────────
 app.use(jwtMiddleware);
 

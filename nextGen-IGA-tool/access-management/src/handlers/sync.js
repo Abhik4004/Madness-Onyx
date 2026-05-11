@@ -666,16 +666,34 @@ export async function handleUserAccessList(msg) {
 // ── access.active.list ──────────────────────────────────────────────────────
 export async function handleActiveAccessList(msg) {
   try {
-    const { rows } = await db.query(
-      `SELECT ua.id, ua.user_id, COALESCE(u.full_name, ua.user_id) AS user_name, ua.application_id, 
-              a.app_name as application_name, ua.access_type, ua.status, ua.granted_at
-       FROM user_access ua
-       LEFT JOIN users_access u ON ua.user_id = u.id
-       LEFT JOIN applications a ON ua.application_id = a.id
-       WHERE ua.status = 'ACTIVE'
-       ORDER BY ua.granted_at DESC LIMIT 100`,
-      []
-    );
+    const envelope = jc.decode(msg.data);
+    const { userId, role } = envelope || {};
+
+    let query = `
+      SELECT ua.id, ua.user_id, COALESCE(u.full_name, ua.user_id) AS user_name, ua.application_id, 
+             a.app_name as application_name, ua.access_type, ua.status, ua.granted_at
+      FROM user_access ua
+      LEFT JOIN users_access u ON ua.user_id = u.id
+      LEFT JOIN applications a ON ua.application_id = a.id
+      WHERE ua.status = 'ACTIVE'
+    `;
+    let vals = [];
+
+    if (role === 'admin') {
+      // Admin sees everything
+    } else if (role === 'supervisor') {
+      // Supervisor sees self and reportees
+      query += ` AND (ua.user_id = ? OR u.manager_id = ?)`;
+      vals.push(userId, userId);
+    } else {
+      // Standard user sees only self
+      query += ` AND ua.user_id = ?`;
+      vals.push(userId);
+    }
+
+    query += ` ORDER BY ua.granted_at DESC LIMIT 100`;
+
+    const { rows } = await db.query(query, vals);
     msg.respond(ok(rows));
   } catch (e) {
     console.error("[sync] active.access.list error:", e.message);

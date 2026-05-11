@@ -18,6 +18,7 @@ import { AdminDashboard } from '../features/dashboard/AdminDashboard';
 import { RequestListPage } from '../features/access-requests/RequestListPage';
 import { NewRequestPage } from '../features/access-requests/NewRequestPage';
 import { RequestDetailPage } from '../features/access-requests/RequestDetailPage';
+import { RemoveRequestPage } from '../features/access-requests/RemoveRequestPage';
 
 // Approvals
 import { ApprovalQueuePage } from '../features/approvals/ApprovalQueuePage';
@@ -101,6 +102,7 @@ export const router = createBrowserRouter([
       { path: 'dashboard', element: <UserDashboard /> },
       { path: 'requests', element: <RequestListPage /> },
       { path: 'requests/new', element: <NewRequestPage /> },
+      { path: 'requests/remove', element: <RemoveRequestPage /> },
       { path: 'requests/:id', element: <RequestDetailPage /> },
       { path: 'notifications', element: <NotificationsPage /> },
       { path: 'profile', element: <ProfilePage /> },
