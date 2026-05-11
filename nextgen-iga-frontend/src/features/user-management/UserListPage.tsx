@@ -30,7 +30,7 @@ function UserAccessTable({ uid }: { uid: string }) {
         <thead>
           <tr>
             <th>Application</th>
-            <th>Role</th>
+            <th>Entitlement</th>
             <th>Status</th>
             <th>Granted</th>
             <th>Expires</th>
@@ -39,8 +39,8 @@ function UserAccessTable({ uid }: { uid: string }) {
         <tbody>
           {items.map(a => (
             <tr key={a.id}>
+              <td>Open DS</td>
               <td>{a.application_name}</td>
-              <td>{a.role_name}</td>
               <td><StatusBadge status={a.status} /></td>
               <td>{formatDate(a.granted_at)}</td>
               <td>{a.expires_at ? formatDate(a.expires_at) : 'Never'}</td>

@@ -85,8 +85,8 @@ export function UserDetailPage() {
   const user = userQuery.data?.data;
 
   const accessColumns: Column<UserAccess>[] = [
-    { key: 'app', header: 'Application', render: a => a.application_name },
-    { key: 'role', header: 'Role', render: a => a.role_name },
+    { key: 'app', header: 'Application', render: () => 'Open DS' },
+    { key: 'role', header: 'Entitlement', render: a => a.application_name },
     { key: 'status', header: 'Status', render: a => <StatusBadge status={a.status} /> },
     { key: 'granted', header: 'Granted', render: a => formatDate(a.granted_at) },
     { key: 'expires', header: 'Expires', render: a => a.expires_at ? formatDate(a.expires_at) : 'Never' },
