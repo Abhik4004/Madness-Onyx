@@ -192,7 +192,6 @@ export function AdminDashboard() {
                 <tr>
                   <th>User</th>
                   <th>Application</th>
-                  <th>Role</th>
                   <th>Status</th>
                   <th>Granted</th>
                 </tr>
@@ -202,14 +201,13 @@ export function AdminDashboard() {
                   <tr key={access.id || idx}>
                     <td className="font-medium">{access.user_name}</td>
                     <td>{access.application_name}</td>
-                    <td>{access.role_name}</td>
                     <td><StatusBadge status={access.status} /></td>
                     <td className="text-muted text-xs">{formatDate(access.granted_at)}</td>
                   </tr>
                 ))}
                 {(activeAccess?.data ?? []).length === 0 && (
                   <tr>
-                    <td colSpan={5} className="text-center py-8 text-muted">No active access records found.</td>
+                    <td colSpan={4} className="text-center py-8 text-muted">No active access records found.</td>
                   </tr>
                 )}
               </tbody>
