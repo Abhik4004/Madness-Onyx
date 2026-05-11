@@ -1,42 +1,15 @@
-version: '3.8'
-
 services:
-
-  # ─── GATEWAY ────────────────────────────────────────────────────────────────
-  # Public-facing API gateway. All frontend requests go through here.
-  # Routes to access-management and recommendation internally.
-  gateway:
-    build:
-      context: ./nextGen-IGA-tool/gateway
-    restart: always                          # Auto-restart if container crashes
-    ports:
-      - "3000:3000"                          # Expose to host — frontend calls this
-    environment:
-      - PORT=3000
-      - ACCESS_MGMT_URL=http://access-management:3001      # Internal Docker DNS
-      - RECOMMENDATION_URL=http://recommendation:3002      # Internal Docker DNS
-      - NATS_URL=${NATS_URL:-nats://54.224.250.252:4222}   # External NATS broker
-      - DB_HOST=${DB_HOST:-13.206.205.158}                 # External MySQL EC2
-      - DB_USER=${DB_USER:-abhik}
-      - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
-      - DB_NAME=${DB_NAME:-abhik_db}
-      - EXTERNAL_AUTH_URL=${EXTERNAL_AUTH_URL:-http://18.60.129.12:8080}
-      - PUBLIC_URL=${PUBLIC_URL:-http://54.167.248.162:3000}
-    networks:
-      - iga-network
-    depends_on:
-      - access-management                    # Start these before gateway
-      - recommendation
 
   # ─── ACCESS MANAGEMENT ──────────────────────────────────────────────────────
   # Handles user roles, permissions, and access control.
   # Called by gateway, also subscribes to NATS events.
+  # Must be healthy before gateway starts.
   access-management:
     build:
       context: ./nextGen-IGA-tool/access-management
     restart: always
     ports:
-      - "3001:3001"                          # Exposed for direct debugging if needed
+      - "3001:3001"
     environment:
       - ACCESS_MGMT_PORT=3001
       - NATS_URL=${NATS_URL:-nats://54.224.250.252:4222}
@@ -44,16 +17,79 @@ services:
       - DB_USER=${DB_USER:-abhik}
       - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
       - DB_NAME=${DB_NAME:-abhik_db}
+    healthcheck:
+      # Polls /health every 10s — gateway waits for this to pass before starting
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s      # Give service 30s to boot before healthcheck kicks in
+    networks:
+      - iga-network
+
+  # ─── RECOMMENDATION ─────────────────────────────────────────────────────────
+  # Generates access/role recommendations.
+  # Called by gateway internally, also uses NATS and MySQL.
+  # Must be healthy before gateway starts.
+  recommendation:
+    build:
+      context: ./nextGen-IGA-tool/recommendation
+    restart: always
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - NATS_URL=${NATS_URL:-nats://54.224.250.252:4222}
+      - DB_HOST=${DB_HOST:-13.206.205.158}
+      - DB_USER=${DB_USER:-abhik}
+      - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
+      - DB_NAME=${DB_NAME:-abhik_db}
+    healthcheck:
+      # Polls /health every 10s — gateway waits for this to pass before starting
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3002/health', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - iga-network
+
+  # ─── GATEWAY ────────────────────────────────────────────────────────────────
+  # Public-facing API gateway. All frontend requests go through here.
+  # Routes to access-management (3001) and recommendation (3002) internally.
+  # Waits for both services to be healthy before starting.
+  gateway:
+    build:
+      context: ./nextGen-IGA-tool/gateway
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - ACCESS_MGMT_URL=http://access-management:3001      # Internal Docker DNS — never use localhost/127.0.0.1
+      - RECOMMENDATION_URL=http://recommendation:3002      # Internal Docker DNS
+      - NATS_URL=${NATS_URL:-nats://54.224.250.252:4222}   # External NATS broker EC2
+      - DB_HOST=${DB_HOST:-13.206.205.158}                 # External MySQL EC2
+      - DB_USER=${DB_USER:-abhik}
+      - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
+      - DB_NAME=${DB_NAME:-abhik_db}
+      - EXTERNAL_AUTH_URL=${EXTERNAL_AUTH_URL:-http://18.60.129.12:8080}  # External auth server
+      - PUBLIC_URL=${PUBLIC_URL:-http://54.167.248.162:3000}
+    depends_on:
+      access-management:         # Wait until access-management healthcheck passes
+        condition: service_healthy
+      recommendation:            # Wait until recommendation healthcheck passes
+        condition: service_healthy
     networks:
       - iga-network
 
   # ─── EVENT MANAGER ──────────────────────────────────────────────────────────
   # Stateless event processor. Subscribes to NATS and routes events.
-  # No HTTP port — purely NATS-driven.
+  # No HTTP port — purely NATS-driven, no healthcheck needed.
   event-manager:
     build:
       context: ./nextGen-IGA-tool/event-manager
-    restart: always
+    restart: always              # Will auto-restart if NATS not ready yet
     environment:
       - NATS_URL=${NATS_URL:-nats://54.224.250.252:4222}
     networks:
@@ -76,48 +112,27 @@ services:
     networks:
       - iga-network
 
-  # ─── RECOMMENDATION ─────────────────────────────────────────────────────────
-  # Generates access/role recommendations.
-  # Called by gateway internally, also uses NATS and MySQL.
-  recommendation:
-    build:
-      context: ./nextGen-IGA-tool/recommendation
-    restart: always
-    ports:
-      - "3002:3002"                          # Exposed for direct debugging if needed
-    environment:
-      - PORT=3002
-      - NATS_URL=${NATS_URL:-nats://54.224.250.252:4222}
-      - DB_HOST=${DB_HOST:-13.206.205.158}
-      - DB_USER=${DB_USER:-abhik}
-      - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
-      - DB_NAME=${DB_NAME:-abhik_db}
-    networks:
-      - iga-network
-
   # ─── FRONTEND ───────────────────────────────────────────────────────────────
   # React/Vite SPA served by Nginx on port 80.
-  # VITE_API_BASE_URL must be passed as build ARG (not just env) —
-  # Vite bakes it into the JS bundle at build time.
+  # VITE_* vars must be build ARGs — Vite bakes them into JS bundle at build time.
+  # Changing env at runtime does nothing — must rebuild if IP changes.
   frontend:
     build:
       context: ./nextgen-iga-frontend
       args:
-        # This passes the IP into the Dockerfile ARG → ENV → npm run build
-        # Change this IP if your EC2 public IP changes
-        - VITE_API_BASE_URL=http://54.167.248.162:3000
-        - VITE_KEYCLOAK_URL=http://18.60.129.12:8080
+        - VITE_API_BASE_URL=http://54.167.248.162:3000   # Baked into JS bundle at build time
+        - VITE_KEYCLOAK_URL=http://18.60.129.12:8080     # Baked into JS bundle at build time
     restart: always
     ports:
-      - "80:80"                              # Public HTTP port
+      - "80:80"
     depends_on:
-      - gateway                              # Wait for gateway before starting
+      - gateway                  # Start after gateway (not service_healthy — nginx doesn't need it)
     networks:
       - iga-network
 
-# ─── NETWORKS ─────────────────────────────────────────────────────────────────
-# Explicit bridge network — all services can reach each other by service name
-# e.g. gateway can call http://access-management:3001 directly
+# ─── NETWORKS ───────────────────────────────────────────────────────────────
+# Explicit bridge network — all services resolve each other by service name
+# e.g. gateway → http://access-management:3001, http://recommendation:3002
 networks:
   iga-network:
     driver: bridge
