@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { FileText, CheckCircle, Bell, Lightbulb, AlertTriangle, Sparkles, Download, Clock } from 'lucide-react';
+import { FileText, CheckCircle, Bell, Lightbulb, AlertTriangle, Sparkles, Download, Clock, ClipboardList } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { StatusBadge } from '../../components/shared/StatusBadge';
@@ -137,77 +137,98 @@ export function UserDashboard() {
               </div>
             )}
 
-                        {/* -- Team Request Status Boxes -- */}
-            <div className="grid-12" style={{ marginBottom: 40 }}>
-              <div className="span-6 card glass" style={{ background: "rgba(245, 158, 11, 0.05)", border: "1px solid rgba(245, 158, 11, 0.2)", padding: 24, borderRadius: 20 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                  <span style={{ fontWeight: 800, color: "var(--color-amber-600)", display: "flex", alignItems: "center", gap: 8 }}>
-                    <Clock size={20} /> Pending Approval
-                  </span>
-                  <span className="badge" style={{ background: "var(--color-amber-500)", color: "#fff" }}>{pendingCount} Tasks</span>
-                </div>
-                <div className="text-sm text-muted mb-4">Requests requiring your immediate review and decision</div>
-                <Link to="/requests" className="btn btn-sm btn-primary" style={{ background: "var(--color-amber-500)", border: "none" }}>Review Now →</Link>
+            {/* -- Supervisor KPI Grid -- */}
+            <div className="kpi-grid" style={{ marginBottom: 40 }}>
+              <div className="kpi-card">
+                <div className="kpi-icon blue"><FileText size={24} /></div>
+                <div className="kpi-label">Pending Approval</div>
+                <div className="kpi-value">{pendingReqs.isLoading ? "-" : pendingCount}</div>
               </div>
-              <div className="span-6 card glass" style={{ background: "rgba(34, 197, 94, 0.05)", border: "1px solid rgba(34, 197, 94, 0.2)", padding: 24, borderRadius: 20 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                  <span style={{ fontWeight: 800, color: "var(--color-success)", display: "flex", alignItems: "center", gap: 8 }}>
-                    <CheckCircle size={20} /> Approved Requests
-                  </span>
-                  <span className="badge" style={{ background: "var(--color-success)", color: "#fff" }}>{activeCount} Total</span>
-                </div>
-                <div className="text-sm text-muted mb-4">Summary of successfully provisioned access for your team</div>
-                <Link to="/requests" className="text-sm font-bold" style={{ color: "var(--color-success)" }}>View History →</Link>
+              <div className="kpi-card">
+                <div className="kpi-icon green"><CheckCircle size={24} /></div>
+                <div className="kpi-label">Approved Requests</div>
+                <div className="kpi-value">{recentReqs.isLoading ? "-" : activeCount}</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-icon amber"><Bell size={24} /></div>
+                <div className="kpi-label">Unread Notifications</div>
+                <div className="kpi-value">{notifications.isLoading ? "-" : unreadNotifs}</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-icon blue"><Lightbulb size={24} /></div>
+                <div className="kpi-label">AI Recommendations</div>
+                <div className="kpi-value">{recommendations.isLoading ? "-" : recs.length}</div>
               </div>
             </div>
 
             {(certifications.data?.data?.length ?? 0) > 0 && (
-              <div className="card" style={{ 
-                background: "var(--grad-primary)", 
-                color: "white", 
-                border: "none",
-                padding: 30,
-                borderRadius: 24,
-                marginBottom: 40,
-                boxShadow: "0 15px 35px rgba(37, 99, 235, 0.25)",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center"
-              }}>
-                <div>
-                  <h3 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.5px" }}>Certification Campaign Active</h3>
-                  <p style={{ opacity: 0.9, marginTop: 6, fontSize: "1rem" }}>You have {certifications.data?.data?.length ?? 0} campaign(s) requiring your review.</p>
+              <div style={{ marginBottom: 40 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                  <h3 style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--color-gray-900)", display: "flex", alignItems: "center", gap: 10 }}>
+                    <ClipboardList size={24} className="text-primary" /> Active Certifications
+                  </h3>
+                  <Link to="/supervisor/certifications/history" className="text-sm font-bold text-primary">View All History →</Link>
                 </div>
-                <Link to="/supervisor/certifications/my-tasks" className="btn btn-lg" style={{ background: "white", color: "var(--color-primary)", fontWeight: 700, padding: "12px 30px", borderRadius: 12 }}>
-                  Perform Reviews →
-                </Link>
+                <div className="grid-12">
+                  {certifications.data!.data.map((cert) => {
+                    const pct = cert.total_items > 0 ? Math.round(((cert.certified_count + cert.revoked_count) / cert.total_items) * 100) : 0;
+                    return (
+                      <div key={cert.id} className="span-6 card glass" style={{ border: "1px solid var(--color-primary-light)", padding: 24, borderRadius: 20 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                          <div>
+                            <div className="font-bold text-lg" style={{ color: "var(--color-gray-900)" }}>{cert.name}</div>
+                            <div className="text-xs text-muted mt-1">Deadline: {formatDate(cert.end_date)}</div>
+                          </div>
+                          <StatusBadge status={cert.status} />
+                        </div>
+                        <div style={{ marginBottom: 20 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                            <span className="text-xs font-semibold text-muted">Completion</span>
+                            <span className="text-xs font-bold text-primary">{pct}%</span>
+                          </div>
+                          <div className="progress-bar" style={{ height: 6, background: "var(--color-gray-100)", borderRadius: 3 }}>
+                            <div className="progress-bar-fill" style={{ width: `${pct}%`, background: "var(--color-primary)", height: "100%", borderRadius: 3 }} />
+                          </div>
+                          <div className="text-xs text-muted" style={{ marginTop: 6 }}>
+                            {cert.pending_count} pending · {cert.certified_count + cert.revoked_count} completed
+                          </div>
+                        </div>
+                        <Link to={`/supervisor/certifications/my-tasks/${cert.id}`} className="btn btn-sm btn-primary w-full" style={{ justifyContent: "center" }}>
+                          Review Tasks
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </>
         )}
 
-        <div className="kpi-grid">
-          <div className="kpi-card">
-            <div className="kpi-icon blue"><FileText size={24} /></div>
-            <div className="kpi-label">Pending Requests</div>
-            <div className="kpi-value">{pendingReqs.isLoading ? "-" : pendingCount}</div>
+        {!isSupervisor && (
+          <div className="kpi-grid">
+            <div className="kpi-card">
+              <div className="kpi-icon blue"><FileText size={24} /></div>
+              <div className="kpi-label">Pending Requests</div>
+              <div className="kpi-value">{pendingReqs.isLoading ? "-" : pendingCount}</div>
+            </div>
+            <div className="kpi-card">
+              <div className="kpi-icon green"><CheckCircle size={24} /></div>
+              <div className="kpi-label">Active Access</div>
+              <div className="kpi-value">{recentReqs.isLoading ? "-" : activeCount}</div>
+            </div>
+            <div className="kpi-card">
+              <div className="kpi-icon amber"><Bell size={24} /></div>
+              <div className="kpi-label">Unread Notifications</div>
+              <div className="kpi-value">{notifications.isLoading ? "-" : unreadNotifs}</div>
+            </div>
+            <div className="kpi-card">
+              <div className="kpi-icon blue"><Lightbulb size={24} /></div>
+              <div className="kpi-label">AI Recommendations</div>
+              <div className="kpi-value">{recommendations.isLoading ? "-" : recs.length}</div>
+            </div>
           </div>
-          <div className="kpi-card">
-            <div className="kpi-icon green"><CheckCircle size={24} /></div>
-            <div className="kpi-label">Active Access</div>
-            <div className="kpi-value">{recentReqs.isLoading ? "-" : activeCount}</div>
-          </div>
-          <div className="kpi-card">
-            <div className="kpi-icon amber"><Bell size={24} /></div>
-            <div className="kpi-label">Unread Notifications</div>
-            <div className="kpi-value">{notifications.isLoading ? "-" : unreadNotifs}</div>
-          </div>
-          <div className="kpi-card">
-            <div className="kpi-icon blue"><Lightbulb size={24} /></div>
-            <div className="kpi-label">AI Recommendations</div>
-            <div className="kpi-value">{recommendations.isLoading ? "-" : recs.length}</div>
-          </div>
-        </div>
+        )}
 
         {/* Personal Recommendations */}
         {recs.length > 0 && (

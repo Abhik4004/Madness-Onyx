@@ -5,7 +5,7 @@ import {
   CheckSquare, Users, Shield, Award, Building2,
   Activity, ClipboardList, Lock, Cpu, Database,
   LogOut, Sparkles, UserPlus, Upload, Trash2,
-  ChevronDown, ChevronRight, History as HistoryIcon, MessageSquare
+  ChevronDown, ChevronRight, History as HistoryIcon, MessageSquare, User
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -69,6 +69,7 @@ export function Sidebar() {
         {/* ── End User ── */}
         <div className="sidebar-section-label">My Workspace</div>
         <NavLink className={({ isActive }) => navCls(isActive)} to="/dashboard"><LayoutDashboard size={16} /> Dashboard</NavLink>
+        <NavLink className={({ isActive }) => navCls(isActive)} to="/profile"><User size={16} /> My Profile</NavLink>
 
         {/* Collapsible Requests */}
         <div
