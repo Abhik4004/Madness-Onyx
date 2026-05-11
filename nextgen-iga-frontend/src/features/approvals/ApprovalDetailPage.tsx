@@ -90,7 +90,7 @@ export function ApprovalDetailPage() {
               {[
                 { label: 'Requester', value: req.user_name },
                 { label: 'Application', value: req.application_name },
-                { label: 'Role', value: req.role_name },
+                { label: 'Entitlement', value: req.role_name },
                 { label: 'Justification', value: req.justification },
                 { label: 'Submitted', value: formatDate(req.submitted_at) },
                 { 

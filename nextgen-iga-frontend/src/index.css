@@ -430,6 +430,9 @@ button {
   overflow: hidden;
   max-width: 500px;
   width: 90%;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Selection Lists (AIAuditPage) */
@@ -2508,6 +2511,7 @@ tbody td {
 .badge-failed     { background: var(--color-danger-light);  color: #991b1b; }
 .badge-in_progress { background: var(--color-info-light); color: #164e63; }
 .badge-pending_approval { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.badge-high                {
 .badge-high       { background: var(--color-danger-light); color: #991b1b; }
 .badge-medium     { background: var(--color-warning-light); color: #92400e; }
 .badge-low        { background: var(--color-success-light); color: #14532d; }
