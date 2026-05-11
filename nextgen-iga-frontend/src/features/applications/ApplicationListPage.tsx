@@ -28,7 +28,7 @@ export function ApplicationListPage() {
   }, [apps, search]);
 
   const columns: Column<Application>[] = [
-    { key: 'name', header: 'Application', render: a => <Link to={`/admin/applications/${a.id}`} className="font-medium" style={{ color: 'var(--color-primary)' }}>{a.name || a.id}</Link> },
+    { key: 'name', header: 'Entitlement', render: a => <Link to={`/admin/applications/${a.id}`} className="font-medium" style={{ color: 'var(--color-primary)' }}>{a.name || a.id}</Link> },
     { key: 'owner', header: 'Owner', render: a => a.owner_name },
     { 
       key: 'risk', header: 'Risk Score', 
@@ -47,17 +47,17 @@ export function ApplicationListPage() {
 
   return (
     <div>
-      <PageHeader title="Applications" subtitle="Manage registered applications and connectors" actions={<Link to="/admin/applications/new" className="btn btn-primary"><Plus size={16} /> Register App</Link>} />
+      <PageHeader title="Entitlements" subtitle="Manage registered entitlements and connectors" actions={<Link to="/admin/applications/new" className="btn btn-primary"><Plus size={16} /> Add entitlement</Link>} />
       <div className="filters-bar">
         <div className="search-input-wrap">
           <Search size={14} />
-          <input className="form-control" placeholder="Search applications…" value={search} onChange={e => setSearch(e.target.value)} />
+          <input className="form-control" placeholder="Search entitlements…" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
       </div>
       {isError ? (
         <div className="error-state"><div className="error-state-title">Failed to load applications</div><button className="btn btn-secondary" onClick={() => refetch()}>Retry</button></div>
       ) : (
-        <DataTable columns={columns} data={filtered} loading={isLoading} emptyTitle="No applications registered" emptyAction={<Link to="/admin/applications/new" className="btn btn-primary"><Plus size={14} /> Register App</Link>} />
+        <DataTable columns={columns} data={filtered} loading={isLoading} emptyTitle="No entitlements registered" emptyAction={<Link to="/admin/applications/new" className="btn btn-primary"><Plus size={14} /> Add entitlement</Link>} />
       )}
     </div>
   );

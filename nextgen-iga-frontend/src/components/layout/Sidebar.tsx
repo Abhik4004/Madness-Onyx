@@ -20,12 +20,12 @@ export function Sidebar() {
   const { isSupervisor, isAdmin } = usePermissions();
   const location = useLocation();
 
-  // State for collapsible sections
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
     requests: location.pathname.startsWith('/requests'),
     adminUsers: location.pathname.startsWith('/admin/users'),
     provisioning: location.pathname.startsWith('/admin/provisioning'),
     certifications: location.pathname.startsWith('/admin/certifications'),
+    manageEntitlements: location.pathname.startsWith('/admin/applications') || location.pathname.startsWith('/admin/access'),
   });
 
   const toggle = (key: string) => {
@@ -126,7 +126,22 @@ export function Sidebar() {
             </div>
 
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/roles"><Shield size={16} /> Roles</NavLink>
-            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/applications"><Building2 size={16} /> Entitlements</NavLink>
+
+            {/* Collapsible Manage Entitlements */}
+            <div
+              className={`sidebar-item ${expanded.manageEntitlements ? 'parent-active' : ''}`}
+              onClick={() => toggle('manageEntitlements')}
+              style={{ cursor: 'pointer', justifyContent: 'space-between' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Building2 size={16} /> Manage Entitlements
+              </div>
+              <ChevronDown size={14} style={{ transform: expanded.manageEntitlements ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.2s' }} />
+            </div>
+            <div className={`sidebar-dropdown ${expanded.manageEntitlements ? 'open' : ''}`}>
+              <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/applications">Add Entitlement</NavLink>
+              <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/access">Remove Entitlement</NavLink>
+            </div>
             {/* Collapsible Provisioning */}
             <div
               className={`sidebar-item ${expanded.provisioning ? 'parent-active' : ''}`}
@@ -142,7 +157,6 @@ export function Sidebar() {
               {/*avLink className={({ isActive }) => navCls(isActive, true)} to="/admin/provisioning" end>Request Logs</NavLink>*/}
               <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/provisioning/csv"><Upload size={16} /> Bulk Upload</NavLink>
             </div>
-            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/access"><Database size={16} /> Active Access</NavLink>
             {/* Collapsible Certifications */}
             <div
               className={`sidebar-item ${expanded.certifications ? 'parent-active' : ''}`}

@@ -80,7 +80,7 @@ export function ActiveAccessPage() {
   const columns: Column<any>[] = [
     { 
       key: 'app', 
-      header: 'Application', 
+      header: 'Entitlement', 
       render: a => (
         <div className="flex flex-col">
           <span className="font-bold text-gray-900">{a.application_name}</span>
@@ -117,7 +117,7 @@ export function ActiveAccessPage() {
       key: 'actions', header: '', width: '100px',
       render: a => a.status === 'ACTIVE' ? (
         <button className="btn btn-sm btn-danger btn-full" onClick={() => { setRevokeTarget(a); setRevokeReason(''); }}>
-          Revoke
+          Remove
         </button>
       ) : null,
     },
@@ -125,7 +125,7 @@ export function ActiveAccessPage() {
 
   return (
     <div className="fade-in">
-      <PageHeader title="Active Access" subtitle="Manage provisioned entitlements and time-based access" />
+      <PageHeader title="Remove Entitlement" subtitle="Manage provisioned entitlements and time-based access" />
 
       <div className="card mb-6" style={{ padding: '12px 20px' }}>
         <div className="search-input-wrap" style={{ maxWidth: 450 }}>
@@ -148,9 +148,9 @@ export function ActiveAccessPage() {
 
       <ConfirmDialog
         open={!!revokeTarget}
-        title="Revoke Entitlement"
+        title="Remove Entitlement"
         message={`This will immediately revoke access to ${revokeTarget?.application_name} for the user. Proceed?`}
-        confirmLabel="Confirm Revoke"
+        confirmLabel="Confirm Removal"
         danger
         loading={revoke.isPending}
         onConfirm={() => revoke.mutate()}
