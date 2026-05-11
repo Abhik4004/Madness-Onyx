@@ -87,3 +87,19 @@ export function relayMiddleware(req, res) {
       });
     });
 }
+
+/**
+ * Publish a non-blocking event to NATS.
+ */
+export async function publish(subject, body, req = {}) {
+  const { nc } = getNATS();
+  const envelope = {
+    requestId: randomUUID(),
+    userId:    req.userId ?? null,
+    role:      req.role   ?? null,
+    body:      body   ?? {},
+    timestamp: Date.now(),
+  };
+  nc.publish(subject, jc.encode(envelope));
+  console.log(`[relay] Published async event to ${subject}`);
+}

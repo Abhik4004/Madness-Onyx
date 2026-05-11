@@ -147,7 +147,7 @@ export function UserDashboard() {
                         </div>
                         <div className="text-xs text-muted mt-2">{s.reason}</div>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-                          <Link to="/admin/access" className="btn btn-sm btn-primary" style={{ fontSize: '0.75rem', padding: '6px 12px' }}>Provision Now →</Link>
+                          <Link to="/requests/new" className="btn btn-sm btn-primary" style={{ fontSize: '0.75rem', padding: '6px 12px' }}>Provision Now →</Link>
                         </div>
                       </div>
                     ))}

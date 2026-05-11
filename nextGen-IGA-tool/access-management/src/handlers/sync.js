@@ -675,7 +675,7 @@ export async function handleActiveAccessList(msg) {
       FROM user_access ua
       LEFT JOIN users_access u ON ua.user_id = u.id
       LEFT JOIN applications a ON ua.application_id = a.id
-      WHERE ua.status = 'ACTIVE' AND ua.access_type != 'TIME_BASED'
+      WHERE ua.status IN ('ACTIVE', 'REMOVED') AND ua.access_type != 'TIME_BASED'
     `;
     let vals = [];
 
@@ -700,6 +700,31 @@ export async function handleActiveAccessList(msg) {
     msg.respond(err(500, "DB error"));
   }
 }
+
+// ── access.remove.local ──────────────────────────────────────────────────────
+export async function handleAccessRemoveLocal(msg) {
+  try {
+    const envelope = jc.decode(msg.data);
+    const { userId, applicationId } = envelope.body || envelope;
+
+    if (!userId || !applicationId) {
+      return msg.respond(err(400, "userId and applicationId are required"));
+    }
+
+    console.log(`[sync] Updating local status to REMOVED for user: ${userId}, app: ${applicationId}`);
+
+    await db.query(
+      "UPDATE user_access SET status = 'REMOVED' WHERE user_id = ? AND application_id = ? AND status = 'ACTIVE'",
+      [userId, applicationId]
+    );
+
+    msg.respond(ok({ message: "Local status updated to REMOVED" }));
+  } catch (e) {
+    console.error("[sync] handleAccessRemoveLocal error:", e.message);
+    msg.respond(err(500, "DB error"));
+  }
+}
+
 // ── admin.group.create ───────────────────────────────────────────────────────
 export async function handleGroupCreate(msg) {
   try {

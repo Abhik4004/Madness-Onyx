@@ -39,7 +39,8 @@ import {
   handlePermissionsList,
   startBackgroundLdapSync,
   handleManualLdapSync,
-  startLdapReconciliationJob
+  startLdapReconciliationJob,
+  handleAccessRemoveLocal
 } from "./handlers/sync.js";
 import {
   handleUserCreated,
@@ -480,6 +481,7 @@ async function main() {
   const asyncRoutes = [
     { subject: "events.access.request.update", handler: handleRequestUpdate, name: "req-update" },
     { subject: "events.access.time.revoke", handler: handleTimeRevoke, name: "time-revoke" },
+    { subject: "events.access.remove.local", handler: handleAccessRemoveLocal, name: "remove-local" },
     { subject: "events.provision.time", handler: handleTimeProvision, name: "time-provision" },
     { subject: "certification.recommendation.generated", handler: handleRecommendationGenerated, name: "cert-recommend" },
   ];

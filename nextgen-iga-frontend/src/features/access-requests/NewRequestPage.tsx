@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Check,
   Search,
@@ -50,6 +50,11 @@ type Step2Data = z.infer<typeof step2Schema>;
 
 export function NewRequestPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const prefilledUser = params.get("user");
+  const prefilledApp = params.get("app");
+
   const qc = useQueryClient();
   const { user } = useAuth();
   const { isSupervisor } = usePermissions();
@@ -108,6 +113,19 @@ export function NewRequestPage() {
   });
 
   const applications = appsData?.data ?? [];
+
+  useEffect(() => {
+    if (prefilledApp && applications.length > 0 && !resourceId) {
+      const app = applications.find((a: any) => a.id === prefilledApp || a.app_name === prefilledApp);
+      if (app) {
+        setResourceId(app.id);
+        setResourceName(app.app_name || app.id || "");
+      }
+    }
+    if (prefilledUser && isSupervisor) {
+      setValue("targetUserId", prefilledUser);
+    }
+  }, [prefilledApp, prefilledUser, applications, isSupervisor, setValue, resourceId]);
 
   const filtered = applications.filter(
     (r: any) => {

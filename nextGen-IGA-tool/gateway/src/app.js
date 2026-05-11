@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import { connectNats as connect } from "./nats/client.js";
-import { relayMiddleware } from "./nats/relay.js";
+import { relayMiddleware, publish } from "./nats/relay.js";
 import { jwtMiddleware } from "./middleware/jwt.js";
 import { db } from "./db.js";
 
@@ -214,6 +214,9 @@ app.post("/api/removeuser/group", async (req, res) => {
     });
 
     const data = await upstream.json().catch(() => ({}));
+    if (upstream.ok) {
+      publish("events.access.remove.local", { userId: uid, applicationId: groupCn }, req);
+    }
     res.status(upstream.status).json(data);
   } catch (err) {
     console.error("[gateway] REMOVE USER FROM GROUP error:", err.message);

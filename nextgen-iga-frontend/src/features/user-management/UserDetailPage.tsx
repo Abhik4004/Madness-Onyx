@@ -316,16 +316,13 @@ export function UserDetailPage() {
                   {rec.reason}
                 </div>
                 <div style={{ marginTop: 'auto', paddingTop: 8 }}>
-                  <button 
+                  <Link 
+                    to={`/requests/new?user=${id}&app=${rec.entitlement}`}
                     className="btn btn-primary btn-sm btn-full" 
-                    style={{ fontSize: '0.75rem' }}
-                    onClick={() => {
-                      setSelectedApp(rec.entitlement);
-                      setAddAccessOpen(true);
-                    }}
+                    style={{ fontSize: '0.75rem', textAlign: 'center' }}
                   >
                     Quick Grant
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}

@@ -162,7 +162,7 @@ export function AdminDashboard() {
                         <span style={{ color: 'var(--color-success)' }}>{s.confidence}%</span>
                       </div>
                       <div className="text-xs text-muted" style={{ marginTop: 4, fontSize: '0.65rem' }}>{s.reason}</div>
-                      <Link to="/admin/access" className="text-xs font-bold block mt-2" style={{ color: 'var(--color-primary)', textAlign: 'right' }}>Provision →</Link>
+                      <Link to="/requests/new" className="text-xs font-bold block mt-2" style={{ color: 'var(--color-primary)', textAlign: 'right' }}>Provision →</Link>
                     </div>
                   ))}
                 </div>
