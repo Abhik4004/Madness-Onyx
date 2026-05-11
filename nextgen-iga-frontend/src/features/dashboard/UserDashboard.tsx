@@ -1,316 +1,317 @@
-﻿·i·m·p·o·r·t· ·{· ·u·s·e·Q·u·e·r·y· ·}· ·f·r·o·m· ·'·@·t·a·n·s·t·a·c·k·/·r·e·a·c·t·-·q·u·e·r·y·'·;·
-·i·m·p·o·r·t· ·{· ·F·i·l·e·T·e·x·t·,· ·C·h·e·c·k·C·i·r·c·l·e·,· ·B·e·l·l·,· ·L·i·g·h·t·b·u·l·b·,· ·A·l·e·r·t·T·r·i·a·n·g·l·e·,· ·S·p·a·r·k·l·e·s·,· ·D·o·w·n·l·o·a·d·,· ·C·l·o·c·k· ·}· ·f·r·o·m· ·'·l·u·c·i·d·e·-·r·e·a·c·t·'·;·
-·i·m·p·o·r·t· ·{· ·L·i·n·k· ·}· ·f·r·o·m· ·'·r·e·a·c·t·-·r·o·u·t·e·r·-·d·o·m·'·;·
-·i·m·p·o·r·t· ·{· ·P·a·g·e·H·e·a·d·e·r· ·}· ·f·r·o·m· ·'·.·.·/·.·.·/·c·o·m·p·o·n·e·n·t·s·/·l·a·y·o·u·t·/·P·a·g·e·H·e·a·d·e·r·'·;·
-·i·m·p·o·r·t· ·{· ·S·t·a·t·u·s·B·a·d·g·e· ·}· ·f·r·o·m· ·'·.·.·/·.·.·/·c·o·m·p·o·n·e·n·t·s·/·s·h·a·r·e·d·/·S·t·a·t·u·s·B·a·d·g·e·'·;·
-·i·m·p·o·r·t· ·{· ·r·e·q·u·e·s·t·s·A·p·i· ·}· ·f·r·o·m· ·'·.·.·/·.·.·/·a·p·i·/·r·e·q·u·e·s·t·s·.·a·p·i·'·;·
-·i·m·p·o·r·t· ·{· ·n·o·t·i·f·i·c·a·t·i·o·n·s·A·p·i· ·}· ·f·r·o·m· ·'·.·.·/·.·.·/·a·p·i·/·n·o·t·i·f·i·c·a·t·i·o·n·s·.·a·p·i·'·;·
-·i·m·p·o·r·t· ·{· ·r·e·c·o·m·m·e·n·d·a·t·i·o·n·s·A·p·i· ·}· ·f·r·o·m· ·'·.·.·/·.·.·/·a·p·i·/·r·e·c·o·m·m·e·n·d·a·t·i·o·n·s·.·a·p·i·'·;·
-·i·m·p·o·r·t· ·{· ·c·e·r·t·i·f·i·c·a·t·i·o·n·A·p·i· ·}· ·f·r·o·m· ·'·.·.·/·.·.·/·a·p·i·/·c·e·r·t·i·f·i·c·a·t·i·o·n·.·a·p·i·'·;·
-·i·m·p·o·r·t· ·{· ·u·s·e·A·u·t·h· ·}· ·f·r·o·m· ·'·.·.·/·.·.·/·h·o·o·k·s·/·u·s·e·A·u·t·h·'·;·
-·i·m·p·o·r·t· ·{· ·u·s·e·P·e·r·m·i·s·s·i·o·n·s· ·}· ·f·r·o·m· ·'·.·.·/·.·.·/·h·o·o·k·s·/·u·s·e·P·e·r·m·i·s·s·i·o·n·s·'·;·
-·i·m·p·o·r·t· ·{· ·f·o·r·m·a·t·D·a·t·e·,· ·f·o·r·m·a·t·R·e·l·a·t·i·v·e·,· ·g·e·t·E·r·r·o·r·M·e·s·s·a·g·e· ·}· ·f·r·o·m· ·'·.·.·/·.·.·/·l·i·b·/·u·t·i·l·s·'·;·
-·i·m·p·o·r·t· ·{· ·A·d·m·i·n·D·a·s·h·b·o·a·r·d· ·}· ·f·r·o·m· ·'·.·/·A·d·m·i·n·D·a·s·h·b·o·a·r·d·'·;·
-·/·/· ·i·m·p·o·r·t· ·{· ·A·I·I·n·s·i·g·h·t·s·W·i·d·g·e·t·,· ·A·I·A·n·o·m·a·l·i·e·s·W·i·d·g·e·t· ·}· ·f·r·o·m· ·'·.·.·/·a·i·/·A·I·W·i·d·g·e·t·s·'·;·
-·
-·e·x·p·o·r·t· ·f·u·n·c·t·i·o·n· ·U·s·e·r·D·a·s·h·b·o·a·r·d·(·)· ·{·
-· · ·c·o·n·s·t· ·{· ·u·s·e·r· ·}· ·=· ·u·s·e·A·u·t·h·(·)·;·
-· · ·c·o·n·s·t· ·{· ·i·s·A·d·m·i·n·,· ·i·s·S·u·p·e·r·v·i·s·o·r· ·}· ·=· ·u·s·e·P·e·r·m·i·s·s·i·o·n·s·(·)·;·
-·
-· · ·c·o·n·s·t· ·p·e·n·d·i·n·g·R·e·q·s· ·=· ·u·s·e·Q·u·e·r·y·(·{·
-· · · · ·q·u·e·r·y·K·e·y·:· ·[·'·r·e·q·u·e·s·t·s·'·,· ·{· ·s·t·a·t·u·s·:· ·'·P·E·N·D·I·N·G·'·,· ·p·a·g·e·:· ·1· ·}·]·,·
-· · · · ·q·u·e·r·y·F·n·:· ·(·)· ·=·>· ·r·e·q·u·e·s·t·s·A·p·i·.·l·i·s·t·(·{· ·s·t·a·t·u·s·:· ·'·P·E·N·D·I·N·G·'·,· ·p·e·r·_·p·a·g·e·:· ·1· ·}·)·,·
-· · ·}·)·;·
-·
-· · ·c·o·n·s·t· ·r·e·c·e·n·t·R·e·q·s· ·=· ·u·s·e·Q·u·e·r·y·(·{·
-· · · · ·q·u·e·r·y·K·e·y·:· ·[·'·r·e·q·u·e·s·t·s·'·,· ·'·r·e·c·e·n·t·'·,· ·{· ·p·a·g·e·:· ·1· ·}·]·,·
-· · · · ·q·u·e·r·y·F·n·:· ·(·)· ·=·>· ·r·e·q·u·e·s·t·s·A·p·i·.·l·i·s·t·(·{· ·p·a·g·e·:· ·1·,· ·p·e·r·_·p·a·g·e·:· ·5· ·}·)·,·
-· · ·}·)·;·
-·
-· · ·c·o·n·s·t· ·a·c·t·i·v·e·R·e·q·s· ·=· ·u·s·e·Q·u·e·r·y·(·{·
-· · · · ·q·u·e·r·y·K·e·y·:· ·[·'·r·e·q·u·e·s·t·s·'·,· ·{· ·s·t·a·t·u·s·:· ·'·A·P·P·R·O·V·E·D·'·,· ·p·a·g·e·:· ·1· ·}·]·,·
-· · · · ·q·u·e·r·y·F·n·:· ·(·)· ·=·>· ·r·e·q·u·e·s·t·s·A·p·i·.·l·i·s·t·(·{· ·s·t·a·t·u·s·:· ·'·A·P·P·R·O·V·E·D·'·,· ·p·e·r·_·p·a·g·e·:· ·1· ·}·)·,·
-· · ·}·)·;·
-·
-· · ·c·o·n·s·t· ·n·o·t·i·f·i·c·a·t·i·o·n·s· ·=· ·u·s·e·Q·u·e·r·y·(·{·
-· · · · ·q·u·e·r·y·K·e·y·:· ·[·'·n·o·t·i·f·i·c·a·t·i·o·n·s·'·,· ·{· ·r·e·a·d·:· ·f·a·l·s·e· ·}·]·,·
-· · · · ·q·u·e·r·y·F·n·:· ·(·)· ·=·>· ·n·o·t·i·f·i·c·a·t·i·o·n·s·A·p·i·.·l·i·s·t·(·{· ·r·e·a·d·:· ·f·a·l·s·e·,· ·p·e·r·_·p·a·g·e·:· ·5· ·}·)·,·
-· · · · ·r·e·f·e·t·c·h·I·n·t·e·r·v·a·l·:· ·3·0·_·0·0·0·,·
-· · ·}·)·;·
-·
-· · ·c·o·n·s·t· ·r·e·c·o·m·m·e·n·d·a·t·i·o·n·s· ·=· ·u·s·e·Q·u·e·r·y·(·{·
-· · · · ·q·u·e·r·y·K·e·y·:· ·[·'·r·e·c·o·m·m·e·n·d·a·t·i·o·n·s·'·,· ·u·s·e·r·?·.·i·d·]·,·
-· · · · ·q·u·e·r·y·F·n·:· ·(·)· ·=·>· ·r·e·c·o·m·m·e·n·d·a·t·i·o·n·s·A·p·i·.·g·e·t·U·s·e·r·R·e·c·o·m·m·e·n·d·a·t·i·o·n·s·(·u·s·e·r·!·.·i·d·)·,·
-· · · · ·e·n·a·b·l·e·d·:· ·!·!·u·s·e·r·,·
-· · ·}·)·;·
-· · ·
-· · ·c·o·n·s·t· ·c·e·r·t·i·f·i·c·a·t·i·o·n·s· ·=· ·u·s·e·Q·u·e·r·y·(·{·
-· · · · ·q·u·e·r·y·K·e·y·:· ·[·'·c·e·r·t·i·f·i·c·a·t·i·o·n·s·'·,· ·{· ·s·t·a·t·u·s·:· ·'·A·C·T·I·V·E·'· ·}·]·,·
-· · · · ·q·u·e·r·y·F·n·:· ·(·)· ·=·>· ·c·e·r·t·i·f·i·c·a·t·i·o·n·A·p·i·.·l·i·s·t·(·{· ·s·t·a·t·u·s·:· ·'·A·C·T·I·V·E·'· ·}·)·,·
-· · · · ·e·n·a·b·l·e·d·:· ·i·s·S·u·p·e·r·v·i·s·o·r·,·
-· · ·}·)·;·
-·
-· · ·c·o·n·s·t· ·t·e·a·m·R·e·c·o·m·m·e·n·d·a·t·i·o·n·s· ·=· ·u·s·e·Q·u·e·r·y·(·{·
-· · · · ·q·u·e·r·y·K·e·y·:· ·[·'·r·e·c·o·m·m·e·n·d·a·t·i·o·n·s·'·,· ·'·t·e·a·m·'·,· ·u·s·e·r·?·.·i·d·]·,·
-· · · · ·q·u·e·r·y·F·n·:· ·(·)· ·=·>· ·r·e·c·o·m·m·e·n·d·a·t·i·o·n·s·A·p·i·.·g·e·t·T·e·a·m·R·e·c·o·m·m·e·n·d·a·t·i·o·n·s·(·u·s·e·r·!·.·i·d·)·,·
-· · · · ·e·n·a·b·l·e·d·:· ·i·s·S·u·p·e·r·v·i·s·o·r· ·&·&· ·!·!·u·s·e·r·,·
-· · ·}·)·;·
-·
-· · ·c·o·n·s·t· ·t·e·a·m·R·e·c·s· ·=· ·(·t·e·a·m·R·e·c·o·m·m·e·n·d·a·t·i·o·n·s·.·d·a·t·a· ·a·s· ·a·n·y·)·?·.·t·e·a·m·_·r·e·c·o·m·m·e·n·d·a·t·i·o·n·s· ·|·|· ·[·]·;·
-·
-· · ·c·o·n·s·t· ·p·e·n·d·i·n·g·C·o·u·n·t· ·=· ·p·e·n·d·i·n·g·R·e·q·s·.·d·a·t·a·?·.·m·e·t·a·?·.·t·o·t·a·l· ·?·?· ·0·;·
-· · ·c·o·n·s·t· ·a·c·t·i·v·e·C·o·u·n·t· ·=· ·a·c·t·i·v·e·R·e·q·s·.·d·a·t·a·?·.·m·e·t·a·?·.·t·o·t·a·l· ·?·?· ·0·;·
-· · ·c·o·n·s·t· ·u·n·r·e·a·d·N·o·t·i·f·s· ·=· ·A·r·r·a·y·.·i·s·A·r·r·a·y·(·n·o·t·i·f·i·c·a·t·i·o·n·s·.·d·a·t·a·?·.·d·a·t·a·)·
-· · · · ·?· ·n·o·t·i·f·i·c·a·t·i·o·n·s·.·d·a·t·a·.·d·a·t·a·.·f·i·l·t·e·r·(·(·n·)· ·=·>· ·!·n·.·r·e·a·d·)·.·l·e·n·g·t·h·
-· · · · ·:· ·0·;·
-· · ·c·o·n·s·t· ·r·e·c·s· ·=· ·A·r·r·a·y·.·i·s·A·r·r·a·y·(·r·e·c·o·m·m·e·n·d·a·t·i·o·n·s·.·d·a·t·a·?·.·d·a·t·a·)·
-· · · · ·?· ·r·e·c·o·m·m·e·n·d·a·t·i·o·n·s·.·d·a·t·a·.·d·a·t·a·
-· · · · ·:· ·[·]·;·
-·
-· · ·r·e·t·u·r·n· ·(·
-· · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·f·l·e·x·D·i·r·e·c·t·i·o·n·:· ·"·c·o·l·u·m·n·"·,· ·g·a·p·:· ·4·0·,· ·a·n·i·m·a·t·i·o·n·:· ·"·f·a·d·e·I·n· ·0·.·5·s· ·e·a·s·e·-·o·u·t·"· ·}·}·>·
-· · · · · · ·{·i·s·A·d·m·i·n· ·&·&· ·(·
-· · · · · · · · ·<·s·e·c·t·i·o·n· ·c·l·a·s·s·N·a·m·e·=·"·g·l·a·s·s·"· ·s·t·y·l·e·=·{·{· ·p·a·d·d·i·n·g·:· ·2·4·,· ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·2·4·,· ·b·o·r·d·e·r·:· ·"·1·p·x· ·s·o·l·i·d· ·v·a·r·(·-·-·c·o·l·o·r·-·p·r·i·m·a·r·y·-·l·i·g·h·t·)·"· ·}·}·>·
-· · · · · · · · · · ·<·A·d·m·i·n·D·a·s·h·b·o·a·r·d· ·/·>·
-· · · · · · · · ·<·/·s·e·c·t·i·o·n·>·
-· · · · · · ·)·}·
-·
-· · · · · · ·<·s·e·c·t·i·o·n·>·
-· · · · · · · · ·<·P·a·g·e·H·e·a·d·e·r·
-· · · · · · · · · · ·t·i·t·l·e·=·{·i·s·A·d·m·i·n· ·?· ·"·M·y· ·W·o·r·k·s·p·a·c·e·"· ·:· ·`·W·e·l·c·o·m·e· ·b·a·c·k·,· ·$·{·u·s·e·r·?·.·f·u·l·l·_·n·a·m·e·?·.·s·p·l·i·t·(·"· ·"·)·[·0·]· ·?·?· ·"·t·h·e·r·e·"·}·`·}·
-· · · · · · · · · · ·s·u·b·t·i·t·l·e·=·"·H·e·r·e·'·s· ·a·n· ·o·v·e·r·v·i·e·w· ·o·f· ·y·o·u·r· ·p·e·r·s·o·n·a·l· ·a·c·c·e·s·s· ·a·n·d· ·a·c·t·i·v·i·t·y·"·
-· · · · · · · · ·/·>·
-·
-· · · · · · · · ·{·/·*· ·-·-· ·S·u·p·e·r·v·i·s·o·r· ·V·i·e·w·:· ·P·e·e·r· ·R·e·c·o·m·m·e·n·d·a·t·i·o·n·s· ·&· ·C·e·r·t·i·f·i·c·a·t·i·o·n· ·-·-· ·*·/·}·
-· · · · · · · · ·{·i·s·S·u·p·e·r·v·i·s·o·r· ·&·&· ·(·
-· · · · · · · · · · ·<·>·
-· · · · · · · · · · · · ·{·t·e·a·m·R·e·c·s·.·l·e·n·g·t·h· ·>· ·0· ·&·&· ·(·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d· ·g·l·a·s·s·"· ·s·t·y·l·e·=·{·{· ·
-· · · · · · · · · · · · · · · · ·m·a·r·g·i·n·B·o·t·t·o·m·:· ·4·0·,· ·
-· · · · · · · · · · · · · · · · ·m·a·r·g·i·n·T·o·p·:· ·2·0·,· ·
-· · · · · · · · · · · · · · · · ·b·o·r·d·e·r·:· ·"·1·p·x· ·s·o·l·i·d· ·v·a·r·(·-·-·c·o·l·o·r·-·p·r·i·m·a·r·y·-·l·i·g·h·t·)·"·,· ·
-· · · · · · · · · · · · · · · · ·b·a·c·k·g·r·o·u·n·d·:· ·"·l·i·n·e·a·r·-·g·r·a·d·i·e·n·t·(·1·3·5·d·e·g·,· ·r·g·b·a·(·3·7·,· ·9·9·,· ·2·3·5·,· ·0·.·0·8·)· ·0·%·,· ·r·g·b·a·(·3·7·,· ·9·9·,· ·2·3·5·,· ·0·.·0·2·)· ·1·0·0·%·)·"·,·
-· · · · · · · · · · · · · · · · ·b·o·x·S·h·a·d·o·w·:· ·"·0· ·2·0·p·x· ·4·0·p·x· ·r·g·b·a·(·3·7·,· ·9·9·,· ·2·3·5·,· ·0·.·1·)·"·
-· · · · · · · · · · · · · · ·}·}·>·
-· · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d·-·h·e·a·d·e·r·"· ·s·t·y·l·e·=·{·{· ·p·a·d·d·i·n·g·:· ·"·2·4·p·x· ·3·0·p·x·"· ·}·}·>·
-· · · · · · · · · · · · · · · · · · ·<·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · ·<·s·p·a·n· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d·-·t·i·t·l·e·"· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·a·l·i·g·n·I·t·e·m·s·:· ·"·c·e·n·t·e·r·"·,· ·g·a·p·:· ·1·2·,· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·p·r·i·m·a·r·y·)·"·,· ·f·o·n·t·S·i·z·e·:· ·"·1·.·5·r·e·m·"·,· ·f·o·n·t·W·e·i·g·h·t·:· ·8·0·0· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · · · ·<·S·p·a·r·k·l·e·s· ·s·i·z·e·=·{·2·8·}· ·/·>· ·P·e·e·r· ·R·e·c·o·m·m·e·n·d·a·t·i·o·n·s·
-· · · · · · · · · · · · · · · · · · · · ·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · · · · · · · ·<·p· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·m·u·t·e·d· ·m·t·-·1·"·>·A·I·-·d·r·i·v·e·n· ·a·c·c·e·s·s· ·s·u·g·g·e·s·t·i·o·n·s· ·f·o·r· ·y·o·u·r· ·t·e·a·m· ·m·e·m·b·e·r·s· ·a·n·d· ·n·e·w· ·j·o·i·n·e·e·s·<·/·p·>·
-· · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · ·<·s·p·a·n· ·c·l·a·s·s·N·a·m·e·=·"·b·a·d·g·e·"· ·s·t·y·l·e·=·{·{· ·b·a·c·k·g·r·o·u·n·d·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·p·r·i·m·a·r·y·)·"·,· ·c·o·l·o·r·:· ·"·#·f·f·f·"·,· ·p·a·d·d·i·n·g·:· ·"·8·p·x· ·1·6·p·x·"·,· ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·2·0·,· ·f·o·n·t·W·e·i·g·h·t·:· ·7·0·0· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · ·{·t·e·a·m·R·e·c·s·.·l·e·n·g·t·h·}· ·M·e·m·b·e·r·s· ·N·e·e·d· ·A·t·t·e·n·t·i·o·n·
-· · · · · · · · · · · · · · · · · · ·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·g·r·i·d·-·1·2·"· ·s·t·y·l·e·=·{·{· ·p·a·d·d·i·n·g·:· ·"·0· ·3·0·p·x· ·3·0·p·x·"· ·}·}·>·
-· · · · · · · · · · · · · · · · · · ·{·t·e·a·m·R·e·c·s·.·m·a·p·(·(·m·e·m·b·e·r·:· ·a·n·y·)· ·=·>· ·(·
-· · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·k·e·y·=·{·m·e·m·b·e·r·.·u·s·e·r·I·d·}· ·c·l·a·s·s·N·a·m·e·=·"·s·p·a·n·-·6· ·g·l·a·s·s·"· ·s·t·y·l·e·=·{·{· ·b·a·c·k·g·r·o·u·n·d·:· ·"·#·f·f·f·"·,· ·b·o·r·d·e·r·:· ·"·1·p·x· ·s·o·l·i·d· ·v·a·r·(·-·-·c·o·l·o·r·-·g·r·a·y·-·1·0·0·)·"·,· ·p·a·d·d·i·n·g·:· ·2·4·,· ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·2·0· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·j·u·s·t·i·f·y·C·o·n·t·e·n·t·:· ·"·s·p·a·c·e·-·b·e·t·w·e·e·n·"·,· ·a·l·i·g·n·I·t·e·m·s·:· ·"·c·e·n·t·e·r·"·,· ·m·a·r·g·i·n·B·o·t·t·o·m·:· ·2·0· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·a·l·i·g·n·I·t·e·m·s·:· ·"·c·e·n·t·e·r·"·,· ·g·a·p·:· ·1·2· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·a·v·a·t·a·r·-·s·m·"· ·s·t·y·l·e·=·{·{· ·b·a·c·k·g·r·o·u·n·d·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·p·r·i·m·a·r·y·-·l·i·g·h·t·)·"·,· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·p·r·i·m·a·r·y·)·"·,· ·f·o·n·t·W·e·i·g·h·t·:· ·7·0·0· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · · · ·{·m·e·m·b·e·r·.·u·s·e·r·N·a·m·e·[·0·]·}·
-· · · · · · · · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·f·o·n·t·-·b·o·l·d·"· ·s·t·y·l·e·=·{·{· ·f·o·n·t·S·i·z·e·:· ·"·1·.·1·r·e·m·"·,· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·g·r·a·y·-·9·0·0·)·"· ·}·}·>·{·m·e·m·b·e·r·.·u·s·e·r·N·a·m·e·}·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·x·s· ·t·e·x·t·-·m·u·t·e·d·"·>·D·i·r·e·c·t· ·R·e·p·o·r·t·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·f·l·e·x·D·i·r·e·c·t·i·o·n·:· ·"·c·o·l·u·m·n·"·,· ·g·a·p·:· ·1·2· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · · · · · ·{·m·e·m·b·e·r·.·s·u·g·g·e·s·t·i·o·n·s·.·m·a·p·(·(·s·:· ·a·n·y·,· ·i·d·x·:· ·n·u·m·b·e·r·)· ·=·>· ·(·
-· · · · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·k·e·y·=·{·i·d·x·}· ·c·l·a·s·s·N·a·m·e·=·"·s·u·g·g·e·s·t·i·o·n·-·i·t·e·m·"· ·s·t·y·l·e·=·{·{· ·p·a·d·d·i·n·g·:· ·1·6·,· ·b·a·c·k·g·r·o·u·n·d·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·g·r·a·y·-·5·0·)·"·,· ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·1·6·,· ·b·o·r·d·e·r·:· ·"·1·p·x· ·s·o·l·i·d· ·v·a·r·(·-·-·c·o·l·o·r·-·g·r·a·y·-·1·0·0·)·"·,· ·t·r·a·n·s·i·t·i·o·n·:· ·"·t·r·a·n·s·f·o·r·m· ·0·.·2·s·"· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·j·u·s·t·i·f·y·C·o·n·t·e·n·t·:· ·"·s·p·a·c·e·-·b·e·t·w·e·e·n·"·,· ·a·l·i·g·n·I·t·e·m·s·:· ·"·c·e·n·t·e·r·"· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·<·s·p·a·n· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·s·m· ·f·o·n·t·-·b·o·l·d·"· ·s·t·y·l·e·=·{·{· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·g·r·a·y·-·8·0·0·)·"· ·}·}·>·{·s·.·e·n·t·i·t·l·e·m·e·n·t·}·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·<·s·p·a·n· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·x·s· ·f·o·n·t·-·b·l·a·c·k·"· ·s·t·y·l·e·=·{·{· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·s·u·c·c·e·s·s·)·"·,· ·b·a·c·k·g·r·o·u·n·d·:· ·"·r·g·b·a·(·3·4·,· ·1·9·7·,· ·9·4·,· ·0·.·1·)·"·,· ·p·a·d·d·i·n·g·:· ·"·4·p·x· ·8·p·x·"·,· ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·6· ·}·}·>·{·s·.·c·o·n·f·i·d·e·n·c·e·}·%· ·M·A·T·C·H·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·x·s· ·t·e·x·t·-·m·u·t·e·d· ·m·t·-·2·"· ·s·t·y·l·e·=·{·{· ·l·i·n·e·H·e·i·g·h·t·:· ·1·.·5· ·}·}·>·{·s·.·r·e·a·s·o·n·}·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·j·u·s·t·i·f·y·C·o·n·t·e·n·t·:· ·"·f·l·e·x·-·e·n·d·"·,· ·m·a·r·g·i·n·T·o·p·:· ·1·6· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·<·L·i·n·k· ·t·o·=·"·/·r·e·q·u·e·s·t·s·/·n·e·w·"· ·c·l·a·s·s·N·a·m·e·=·"·b·t·n· ·b·t·n·-·s·m· ·b·t·n·-·p·r·i·m·a·r·y·"· ·s·t·y·l·e·=·{·{· ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·8·,· ·f·o·n·t·S·i·z·e·:· ·"·0·.·7·5·r·e·m·"·,· ·f·o·n·t·W·e·i·g·h·t·:· ·6·0·0· ·}·}·>·P·r·o·v·i·s·i·o·n· ·N·o·w· ·→·<·/·L·i·n·k·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · ·)·)·}·
-· · · · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · ·)·)·}·
-· · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·)·}·
-·
-· · · · · · · · · · · · · · · · · · · · · · · · ·{·/·*· ·-·-· ·T·e·a·m· ·R·e·q·u·e·s·t· ·S·t·a·t·u·s· ·B·o·x·e·s· ·-·-· ·*·/·}·
-· · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·g·r·i·d·-·1·2·"· ·s·t·y·l·e·=·{·{· ·m·a·r·g·i·n·B·o·t·t·o·m·:· ·4·0· ·}·}·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·s·p·a·n·-·6· ·c·a·r·d· ·g·l·a·s·s·"· ·s·t·y·l·e·=·{·{· ·b·a·c·k·g·r·o·u·n·d·:· ·"·r·g·b·a·(·2·4·5·,· ·1·5·8·,· ·1·1·,· ·0·.·0·5·)·"·,· ·b·o·r·d·e·r·:· ·"·1·p·x· ·s·o·l·i·d· ·r·g·b·a·(·2·4·5·,· ·1·5·8·,· ·1·1·,· ·0·.·2·)·"·,· ·p·a·d·d·i·n·g·:· ·2·4·,· ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·2·0· ·}·}·>·
-· · · · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·j·u·s·t·i·f·y·C·o·n·t·e·n·t·:· ·"·s·p·a·c·e·-·b·e·t·w·e·e·n·"·,· ·a·l·i·g·n·I·t·e·m·s·:· ·"·c·e·n·t·e·r·"·,· ·m·a·r·g·i·n·B·o·t·t·o·m·:· ·1·6· ·}·}·>·
-· · · · · · · · · · · · · · · · · · ·<·s·p·a·n· ·s·t·y·l·e·=·{·{· ·f·o·n·t·W·e·i·g·h·t·:· ·8·0·0·,· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·a·m·b·e·r·-·6·0·0·)·"·,· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·a·l·i·g·n·I·t·e·m·s·:· ·"·c·e·n·t·e·r·"·,· ·g·a·p·:· ·8· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · ·<·C·l·o·c·k· ·s·i·z·e·=·{·2·0·}· ·/·>· ·P·e·n·d·i·n·g· ·A·p·p·r·o·v·a·l·
-· · · · · · · · · · · · · · · · · · ·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · · · · · ·<·s·p·a·n· ·c·l·a·s·s·N·a·m·e·=·"·b·a·d·g·e·"· ·s·t·y·l·e·=·{·{· ·b·a·c·k·g·r·o·u·n·d·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·a·m·b·e·r·-·5·0·0·)·"·,· ·c·o·l·o·r·:· ·"·#·f·f·f·"· ·}·}·>·{·p·e·n·d·i·n·g·C·o·u·n·t·}· ·T·a·s·k·s·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·s·m· ·t·e·x·t·-·m·u·t·e·d· ·m·b·-·4·"·>·R·e·q·u·e·s·t·s· ·r·e·q·u·i·r·i·n·g· ·y·o·u·r· ·i·m·m·e·d·i·a·t·e· ·r·e·v·i·e·w· ·a·n·d· ·d·e·c·i·s·i·o·n·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · ·<·L·i·n·k· ·t·o·=·"·/·r·e·q·u·e·s·t·s·"· ·c·l·a·s·s·N·a·m·e·=·"·b·t·n· ·b·t·n·-·s·m· ·b·t·n·-·p·r·i·m·a·r·y·"· ·s·t·y·l·e·=·{·{· ·b·a·c·k·g·r·o·u·n·d·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·a·m·b·e·r·-·5·0·0·)·"·,· ·b·o·r·d·e·r·:· ·"·n·o·n·e·"· ·}·}·>·R·e·v·i·e·w· ·N·o·w· ·→·<·/·L·i·n·k·>·
-· · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·s·p·a·n·-·6· ·c·a·r·d· ·g·l·a·s·s·"· ·s·t·y·l·e·=·{·{· ·b·a·c·k·g·r·o·u·n·d·:· ·"·r·g·b·a·(·3·4·,· ·1·9·7·,· ·9·4·,· ·0·.·0·5·)·"·,· ·b·o·r·d·e·r·:· ·"·1·p·x· ·s·o·l·i·d· ·r·g·b·a·(·3·4·,· ·1·9·7·,· ·9·4·,· ·0·.·2·)·"·,· ·p·a·d·d·i·n·g·:· ·2·4·,· ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·2·0· ·}·}·>·
-· · · · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·j·u·s·t·i·f·y·C·o·n·t·e·n·t·:· ·"·s·p·a·c·e·-·b·e·t·w·e·e·n·"·,· ·a·l·i·g·n·I·t·e·m·s·:· ·"·c·e·n·t·e·r·"·,· ·m·a·r·g·i·n·B·o·t·t·o·m·:· ·1·6· ·}·}·>·
-· · · · · · · · · · · · · · · · · · ·<·s·p·a·n· ·s·t·y·l·e·=·{·{· ·f·o·n·t·W·e·i·g·h·t·:· ·8·0·0·,· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·s·u·c·c·e·s·s·)·"·,· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·a·l·i·g·n·I·t·e·m·s·:· ·"·c·e·n·t·e·r·"·,· ·g·a·p·:· ·8· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · ·<·C·h·e·c·k·C·i·r·c·l·e· ·s·i·z·e·=·{·2·0·}· ·/·>· ·A·p·p·r·o·v·e·d· ·R·e·q·u·e·s·t·s·
-· · · · · · · · · · · · · · · · · · ·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · · · · · ·<·s·p·a·n· ·c·l·a·s·s·N·a·m·e·=·"·b·a·d·g·e·"· ·s·t·y·l·e·=·{·{· ·b·a·c·k·g·r·o·u·n·d·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·s·u·c·c·e·s·s·)·"·,· ·c·o·l·o·r·:· ·"·#·f·f·f·"· ·}·}·>·{·a·c·t·i·v·e·C·o·u·n·t·}· ·T·o·t·a·l·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·s·m· ·t·e·x·t·-·m·u·t·e·d· ·m·b·-·4·"·>·S·u·m·m·a·r·y· ·o·f· ·s·u·c·c·e·s·s·f·u·l·l·y· ·p·r·o·v·i·s·i·o·n·e·d· ·a·c·c·e·s·s· ·f·o·r· ·y·o·u·r· ·t·e·a·m·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · ·<·L·i·n·k· ·t·o·=·"·/·r·e·q·u·e·s·t·s·"· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·s·m· ·f·o·n·t·-·b·o·l·d·"· ·s·t·y·l·e·=·{·{· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·s·u·c·c·e·s·s·)·"· ·}·}·>·V·i·e·w· ·H·i·s·t·o·r·y· ·→·<·/·L·i·n·k·>·
-· · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·<·/·d·i·v·>·`·r·`·n·`·r·`·n· · · · · · · · · · · · ·{·(·c·e·r·t·i·f·i·c·a·t·i·o·n·s·.·d·a·t·a·?·.·d·a·t·a·?·.·l·e·n·g·t·h· ·?·?· ·0·)· ·>· ·0· ·&·&· ·(·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d·"· ·s·t·y·l·e·=·{·{· ·
-· · · · · · · · · · · · · · · · ·b·a·c·k·g·r·o·u·n·d·:· ·"·v·a·r·(·-·-·g·r·a·d·-·p·r·i·m·a·r·y·)·"·,· ·
-· · · · · · · · · · · · · · · · ·c·o·l·o·r·:· ·"·w·h·i·t·e·"·,· ·
-· · · · · · · · · · · · · · · · ·b·o·r·d·e·r·:· ·"·n·o·n·e·"·,·
-· · · · · · · · · · · · · · · · ·p·a·d·d·i·n·g·:· ·3·0·,·
-· · · · · · · · · · · · · · · · ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·2·4·,·
-· · · · · · · · · · · · · · · · ·m·a·r·g·i·n·B·o·t·t·o·m·:· ·4·0·,·
-· · · · · · · · · · · · · · · · ·b·o·x·S·h·a·d·o·w·:· ·"·0· ·1·5·p·x· ·3·5·p·x· ·r·g·b·a·(·3·7·,· ·9·9·,· ·2·3·5·,· ·0·.·2·5·)·"·,·
-· · · · · · · · · · · · · · · · ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,·
-· · · · · · · · · · · · · · · · ·j·u·s·t·i·f·y·C·o·n·t·e·n·t·:· ·"·s·p·a·c·e·-·b·e·t·w·e·e·n·"·,·
-· · · · · · · · · · · · · · · · ·a·l·i·g·n·I·t·e·m·s·:· ·"·c·e·n·t·e·r·"·
-· · · · · · · · · · · · · · ·}·}·>·
-· · · · · · · · · · · · · · · · ·<·d·i·v·>·
-· · · · · · · · · · · · · · · · · · ·<·h·3· ·s·t·y·l·e·=·{·{· ·f·o·n·t·S·i·z·e·:· ·"·1·.·5·r·e·m·"·,· ·f·o·n·t·W·e·i·g·h·t·:· ·8·0·0·,· ·l·e·t·t·e·r·S·p·a·c·i·n·g·:· ·"·-·0·.·5·p·x·"· ·}·}·>·C·e·r·t·i·f·i·c·a·t·i·o·n· ·C·a·m·p·a·i·g·n· ·A·c·t·i·v·e·<·/·h·3·>·
-· · · · · · · · · · · · · · · · · · ·<·p· ·s·t·y·l·e·=·{·{· ·o·p·a·c·i·t·y·:· ·0·.·9·,· ·m·a·r·g·i·n·T·o·p·:· ·6·,· ·f·o·n·t·S·i·z·e·:· ·"·1·r·e·m·"· ·}·}·>·Y·o·u· ·h·a·v·e· ·{·c·e·r·t·i·f·i·c·a·t·i·o·n·s·.·d·a·t·a·?·.·d·a·t·a·?·.·l·e·n·g·t·h· ·?·?· ·0·}· ·c·a·m·p·a·i·g·n·(·s·)· ·r·e·q·u·i·r·i·n·g· ·y·o·u·r· ·r·e·v·i·e·w·.·<·/·p·>·
-· · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · ·<·L·i·n·k· ·t·o·=·"·/·s·u·p·e·r·v·i·s·o·r·/·c·e·r·t·i·f·i·c·a·t·i·o·n·s·/·m·y·-·t·a·s·k·s·"· ·c·l·a·s·s·N·a·m·e·=·"·b·t·n· ·b·t·n·-·l·g·"· ·s·t·y·l·e·=·{·{· ·b·a·c·k·g·r·o·u·n·d·:· ·"·w·h·i·t·e·"·,· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·p·r·i·m·a·r·y·)·"·,· ·f·o·n·t·W·e·i·g·h·t·:· ·7·0·0·,· ·p·a·d·d·i·n·g·:· ·"·1·2·p·x· ·3·0·p·x·"·,· ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·1·2· ·}·}·>·
-· · · · · · · · · · · · · · · · · · ·P·e·r·f·o·r·m· ·R·e·v·i·e·w·s· ·→·
-· · · · · · · · · · · · · · · · ·<·/·L·i·n·k·>·
-· · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·)·}·
-· · · · · · · · · · ·<·/·>·
-· · · · · · · · ·)·}·
-·
-· · · · · · · · ·{·!·i·s·S·u·p·e·r·v·i·s·o·r· ·&·&· ·(·
-· · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·g·r·i·d·"·>·
-· · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·c·a·r·d·"·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·i·c·o·n· ·b·l·u·e·"·>·<·F·i·l·e·T·e·x·t· ·s·i·z·e·=·{·2·4·}· ·/·>·<·/·d·i·v·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·l·a·b·e·l·"·>·P·e·n·d·i·n·g· ·R·e·q·u·e·s·t·s·<·/·d·i·v·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·v·a·l·u·e·"·>·{·p·e·n·d·i·n·g·R·e·q·s·.·i·s·L·o·a·d·i·n·g· ·?· ·"·-·"· ·:· ·p·e·n·d·i·n·g·C·o·u·n·t·}·<·/·d·i·v·>·
-· · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·c·a·r·d·"·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·i·c·o·n· ·g·r·e·e·n·"·>·<·C·h·e·c·k·C·i·r·c·l·e· ·s·i·z·e·=·{·2·4·}· ·/·>·<·/·d·i·v·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·l·a·b·e·l·"·>·A·c·t·i·v·e· ·A·c·c·e·s·s·<·/·d·i·v·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·v·a·l·u·e·"·>·{·r·e·c·e·n·t·R·e·q·s·.·i·s·L·o·a·d·i·n·g· ·?· ·"·-·"· ·:· ·a·c·t·i·v·e·C·o·u·n·t·}·<·/·d·i·v·>·
-· · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·c·a·r·d·"·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·i·c·o·n· ·a·m·b·e·r·"·>·<·B·e·l·l· ·s·i·z·e·=·{·2·4·}· ·/·>·<·/·d·i·v·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·l·a·b·e·l·"·>·U·n·r·e·a·d· ·N·o·t·i·f·i·c·a·t·i·o·n·s·<·/·d·i·v·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·v·a·l·u·e·"·>·{·n·o·t·i·f·i·c·a·t·i·o·n·s·.·i·s·L·o·a·d·i·n·g· ·?· ·"·-·"· ·:· ·u·n·r·e·a·d·N·o·t·i·f·s·}·<·/·d·i·v·>·
-· · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·c·a·r·d·"·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·i·c·o·n· ·b·l·u·e·"·>·<·L·i·g·h·t·b·u·l·b· ·s·i·z·e·=·{·2·4·}· ·/·>·<·/·d·i·v·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·l·a·b·e·l·"·>·A·I· ·R·e·c·o·m·m·e·n·d·a·t·i·o·n·s·<·/·d·i·v·>·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·k·p·i·-·v·a·l·u·e·"·>·{·r·e·c·o·m·m·e·n·d·a·t·i·o·n·s·.·i·s·L·o·a·d·i·n·g· ·?· ·"·-·"· ·:· ·r·e·c·s·.·l·e·n·g·t·h·}·<·/·d·i·v·>·
-· · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · ·)·}·
-·
-· · · · · · · · ·{·/·*· ·P·e·r·s·o·n·a·l· ·R·e·c·o·m·m·e·n·d·a·t·i·o·n·s· ·*·/·}·
-· · · · · · · · ·{·r·e·c·s·.·l·e·n·g·t·h· ·>· ·0· ·&·&· ·(·
-· · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d· ·g·l·a·s·s·"· ·s·t·y·l·e·=·{·{· ·m·a·r·g·i·n·B·o·t·t·o·m·:· ·4·0·,· ·b·o·r·d·e·r·:· ·"·1·p·x· ·s·o·l·i·d· ·v·a·r·(·-·-·c·o·l·o·r·-·s·u·c·c·e·s·s·-·l·i·g·h·t·)·"·,· ·b·a·c·k·g·r·o·u·n·d·:· ·"·l·i·n·e·a·r·-·g·r·a·d·i·e·n·t·(·1·3·5·d·e·g·,· ·r·g·b·a·(·3·4·,· ·1·9·7·,· ·9·4·,· ·0·.·0·5·)· ·0·%·,· ·r·g·b·a·(·3·4·,· ·1·9·7·,· ·9·4·,· ·0·)· ·1·0·0·%·)·"· ·}·}·>·
-· · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d·-·h·e·a·d·e·r·"·>·
-· · · · · · · · · · · · · · ·<·s·p·a·n· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d·-·t·i·t·l·e·"· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·a·l·i·g·n·I·t·e·m·s·:· ·"·c·e·n·t·e·r·"·,· ·g·a·p·:· ·1·0·,· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·s·u·c·c·e·s·s·)·"· ·}·}·>·
-· · · · · · · · · · · · · · · · ·<·S·p·a·r·k·l·e·s· ·s·i·z·e·=·{·2·0·}· ·/·>· ·A·I· ·R·e·c·o·m·m·e·n·d·e·d· ·A·c·c·e·s·s·
-· · · · · · · · · · · · · · ·<·/·s·p·a·n·>·
-· · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·g·r·i·d·-·1·2·"· ·s·t·y·l·e·=·{·{· ·p·a·d·d·i·n·g·:· ·"·0· ·2·0·p·x· ·2·0·p·x·"· ·}·}·>·
-· · · · · · · · · · · · · · ·{·r·e·c·s·.·m·a·p·(·(·s·:· ·a·n·y·,· ·i·d·x·:· ·n·u·m·b·e·r·)· ·=·>· ·(·
-· · · · · · · · · · · · · · · · ·<·d·i·v· ·k·e·y·=·{·i·d·x·}· ·c·l·a·s·s·N·a·m·e·=·"·s·p·a·n·-·4· ·k·p·i·-·c·a·r·d·"· ·s·t·y·l·e·=·{·{· ·b·a·c·k·g·r·o·u·n·d·:· ·"·#·f·f·f·"·,· ·b·o·r·d·e·r·:· ·"·1·p·x· ·s·o·l·i·d· ·v·a·r·(·-·-·c·o·l·o·r·-·g·r·a·y·-·1·0·0·)·"·,· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·f·l·e·x·D·i·r·e·c·t·i·o·n·:· ·"·c·o·l·u·m·n·"· ·}·}·>·
-· · · · · · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·j·u·s·t·i·f·y·C·o·n·t·e·n·t·:· ·"·s·p·a·c·e·-·b·e·t·w·e·e·n·"·,· ·a·l·i·g·n·I·t·e·m·s·:· ·"·c·e·n·t·e·r·"· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · ·<·s·p·a·n· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·s·m· ·f·o·n·t·-·b·o·l·d·"·>·{·s·.·e·n·t·i·t·l·e·m·e·n·t·}·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · · · · · · · ·<·s·p·a·n· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·x·s· ·f·o·n·t·-·b·l·a·c·k·"· ·s·t·y·l·e·=·{·{· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·s·u·c·c·e·s·s·)·"· ·}·}·>·{·s·.·c·o·n·f·i·d·e·n·c·e·}·%· ·M·a·t·c·h·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·x·s· ·t·e·x·t·-·m·u·t·e·d· ·m·t·-·2·"· ·s·t·y·l·e·=·{·{· ·f·l·e·x·:· ·1· ·}·}·>·{·s·.·r·e·a·s·o·n·}·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·j·u·s·t·i·f·y·C·o·n·t·e·n·t·:· ·"·f·l·e·x·-·e·n·d·"·,· ·m·a·r·g·i·n·T·o·p·:· ·1·6· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · ·<·L·i·n·k· ·t·o·=·"·/·r·e·q·u·e·s·t·s·/·n·e·w·"· ·c·l·a·s·s·N·a·m·e·=·"·b·t·n· ·b·t·n·-·s·m· ·b·t·n·-·p·r·i·m·a·r·y·"· ·s·t·y·l·e·=·{·{· ·f·o·n·t·S·i·z·e·:· ·"·0·.·7·5·r·e·m·"·,· ·p·a·d·d·i·n·g·:· ·"·6·p·x· ·1·2·p·x·"· ·}·}·>·R·e·q·u·e·s·t· ·N·o·w· ·→·<·/·L·i·n·k·>·
-· · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · ·)·)·}·
-· · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · ·)·}·
-·
-· · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·g·r·i·d·-·1·2·"·>·
-· · · · · · · · · · ·{·/·*· ·R·e·c·e·n·t· ·R·e·q·u·e·s·t·s· ·*·/·}·
-· · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d· ·s·p·a·n·-·6·"·>·
-· · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d·-·h·e·a·d·e·r·"·>·
-· · · · · · · · · · · · · · ·<·s·p·a·n· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d·-·t·i·t·l·e·"·>·R·e·c·e·n·t· ·R·e·q·u·e·s·t·s·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · ·<·L·i·n·k· ·t·o·=·"·/·r·e·q·u·e·s·t·s·"· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·s·m· ·f·o·n·t·-·b·o·l·d·"· ·s·t·y·l·e·=·{·{· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·p·r·i·m·a·r·y·)·"· ·}·}·>·V·i·e·w· ·A·l·l· ·A·c·t·i·v·i·t·y· ·→·<·/·L·i·n·k·>·
-· · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·{·r·e·c·e·n·t·R·e·q·s·.·i·s·L·o·a·d·i·n·g· ·?· ·(·
-· · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·f·l·e·x·D·i·r·e·c·t·i·o·n·:· ·"·c·o·l·u·m·n·"·,· ·g·a·p·:· ·1·6·,· ·p·a·d·d·i·n·g·:· ·2·0· ·}·}·>·
-· · · · · · · · · · · · · · · · ·{·[·1·,·2·,·3·]·.·m·a·p·(·i· ·=·>· ·<·d·i·v· ·k·e·y·=·{·i·}· ·c·l·a·s·s·N·a·m·e·=·"·s·k·e·l·e·t·o·n·"· ·s·t·y·l·e·=·{·{· ·h·e·i·g·h·t·:· ·5·0·,· ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·1·2· ·}·}· ·/·>·)·}·
-· · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·)· ·:· ·r·e·c·e·n·t·R·e·q·s·.·i·s·E·r·r·o·r· ·?· ·(·
-· · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·e·r·r·o·r·-·s·t·a·t·e·"·>·
-· · · · · · · · · · · · · · · · ·<·A·l·e·r·t·T·r·i·a·n·g·l·e· ·s·i·z·e·=·{·2·4·}· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·d·a·n·g·e·r·"· ·/·>·
-· · · · · · · · · · · · · · · · ·<·s·p·a·n· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·s·m· ·f·o·n·t·-·m·e·d·i·u·m·"·>·{·g·e·t·E·r·r·o·r·M·e·s·s·a·g·e·(·r·e·c·e·n·t·R·e·q·s·.·e·r·r·o·r·)·}·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·)· ·:· ·(·A·r·r·a·y·.·i·s·A·r·r·a·y·(·r·e·c·e·n·t·R·e·q·s·.·d·a·t·a·?·.·d·a·t·a·)· ·?· ·r·e·c·e·n·t·R·e·q·s·.·d·a·t·a·.·d·a·t·a· ·:· ·[·]·)·.·l·e·n·g·t·h· ·=·=·=· ·0· ·?· ·(·
-· · · · · · · · · · · · · · ·<·p· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·s·m· ·t·e·x·t·-·m·u·t·e·d·"· ·s·t·y·l·e·=·{·{· ·t·e·x·t·A·l·i·g·n·:· ·"·c·e·n·t·e·r·"·,· ·p·a·d·d·i·n·g·:· ·"·4·0·p·x· ·0·"· ·}·}·>·N·o· ·r·e·q·u·e·s·t·s· ·y·e·t·.· ·<·L·i·n·k· ·t·o·=·"·/·r·e·q·u·e·s·t·s·/·n·e·w·"· ·c·l·a·s·s·N·a·m·e·=·"·f·o·n·t·-·b·o·l·d·"·>·R·e·q·u·e·s·t· ·a·c·c·e·s·s· ·n·o·w· ·?·<·/·L·i·n·k·>·<·/·p·>·
-· · · · · · · · · · · · ·)· ·:· ·(·
-· · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·f·l·e·x·D·i·r·e·c·t·i·o·n·:· ·"·c·o·l·u·m·n·"·,· ·g·a·p·:· ·4·,· ·p·a·d·d·i·n·g·:· ·"·0· ·2·0·p·x· ·2·0·p·x·"· ·}·}·>·
-· · · · · · · · · · · · · · · · ·{·(·A·r·r·a·y·.·i·s·A·r·r·a·y·(·r·e·c·e·n·t·R·e·q·s·.·d·a·t·a·?·.·d·a·t·a·)· ·?· ·r·e·c·e·n·t·R·e·q·s·.·d·a·t·a·.·d·a·t·a· ·:· ·[·]·)·.·m·a·p·(·(·r·)· ·=·>· ·(·
-· · · · · · · · · · · · · · · · · · ·<·d·i·v· ·k·e·y·=·{·r·.·i·d·}· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·a·l·i·g·n·I·t·e·m·s·:· ·"·c·e·n·t·e·r·"·,· ·j·u·s·t·i·f·y·C·o·n·t·e·n·t·:· ·"·s·p·a·c·e·-·b·e·t·w·e·e·n·"·,· ·p·a·d·d·i·n·g·:· ·"·1·6·p·x· ·0·"·,· ·b·o·r·d·e·r·B·o·t·t·o·m·:· ·"·1·p·x· ·s·o·l·i·d· ·v·a·r·(·-·-·c·o·l·o·r·-·g·r·a·y·-·1·0·0·)·"· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · ·<·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·f·o·n·t·-·b·o·l·d· ·t·e·x·t·-·s·m·"· ·s·t·y·l·e·=·{·{· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·g·r·a·y·-·9·0·0·)·"· ·}·}·>·O·p·e·n· ·D·S·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·x·s· ·t·e·x·t·-·m·u·t·e·d· ·m·t·-·1·"·>·{·r·.·a·p·p·l·i·c·a·t·i·o·n·_·n·a·m·e·}· ·Ã·ƒ·Â·¯·Ã·‚·Â·¿·Ã·‚·Â·½· ·{·f·o·r·m·a·t·D·a·t·e·(·r·.·s·u·b·m·i·t·t·e·d·_·a·t·)·}·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · ·<·S·t·a·t·u·s·B·a·d·g·e· ·s·t·a·t·u·s·=·{·r·.·a·c·c·e·s·s·_·t·y·p·e· ·=·=·=· ·"·T·I·M·E·_·B·A·S·E·D·"· ·?· ·"·E·X·P·I·R·E·D·"· ·:· ·r·.·s·t·a·t·u·s·}· ·/·>·
-· · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · ·)·)·}·
-· · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·)·}·
-· · · · · · · · · · ·<·/·d·i·v·>·
-·
-· · · · · · · · · · ·{·/·*· ·N·o·t·i·f·i·c·a·t·i·o·n·s· ·*·/·}·
-· · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d· ·s·p·a·n·-·6·"·>·
-· · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d·-·h·e·a·d·e·r·"·>·
-· · · · · · · · · · · · · · ·<·s·p·a·n· ·c·l·a·s·s·N·a·m·e·=·"·c·a·r·d·-·t·i·t·l·e·"·>·N·o·t·i·f·i·c·a·t·i·o·n·s·<·/·s·p·a·n·>·
-· · · · · · · · · · · · · · ·<·L·i·n·k· ·t·o·=·"·/·n·o·t·i·f·i·c·a·t·i·o·n·s·"· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·s·m· ·f·o·n·t·-·b·o·l·d·"· ·s·t·y·l·e·=·{·{· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·p·r·i·m·a·r·y·)·"· ·}·}·>·M·a·n·a·g·e· ·A·l·l· ·→·<·/·L·i·n·k·>·
-· · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·{·n·o·t·i·f·i·c·a·t·i·o·n·s·.·i·s·L·o·a·d·i·n·g· ·?· ·(·
-· · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·f·l·e·x·D·i·r·e·c·t·i·o·n·:· ·"·c·o·l·u·m·n·"·,· ·g·a·p·:· ·1·6·,· ·p·a·d·d·i·n·g·:· ·2·0· ·}·}·>·
-· · · · · · · · · · · · · · · · ·{·[·1·,·2·,·3·]·.·m·a·p·(·i· ·=·>· ·<·d·i·v· ·k·e·y·=·{·i·}· ·c·l·a·s·s·N·a·m·e·=·"·s·k·e·l·e·t·o·n·"· ·s·t·y·l·e·=·{·{· ·h·e·i·g·h·t·:· ·5·0·,· ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·1·2· ·}·}· ·/·>·)·}·
-· · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·)· ·:· ·(·A·r·r·a·y·.·i·s·A·r·r·a·y·(·n·o·t·i·f·i·c·a·t·i·o·n·s·.·d·a·t·a·?·.·d·a·t·a·)· ·?· ·n·o·t·i·f·i·c·a·t·i·o·n·s·.·d·a·t·a·.·d·a·t·a· ·:· ·[·]·)·.·l·e·n·g·t·h· ·=·=·=· ·0· ·?· ·(·
-· · · · · · · · · · · · · · ·<·p· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·s·m· ·t·e·x·t·-·m·u·t·e·d·"· ·s·t·y·l·e·=·{·{· ·t·e·x·t·A·l·i·g·n·:· ·"·c·e·n·t·e·r·"·,· ·p·a·d·d·i·n·g·:· ·"·4·0·p·x· ·0·"· ·}·}·>·A·l·l· ·c·a·u·g·h·t· ·u·p·!· ·N·o· ·n·e·w· ·n·o·t·i·f·i·c·a·t·i·o·n·s·.·<·/·p·>·
-· · · · · · · · · · · · ·)· ·:· ·(·
-· · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·f·l·e·x·D·i·r·e·c·t·i·o·n·:· ·"·c·o·l·u·m·n·"·,· ·g·a·p·:· ·4·,· ·p·a·d·d·i·n·g·:· ·"·0· ·2·0·p·x· ·2·0·p·x·"· ·}·}·>·
-· · · · · · · · · · · · · · · · ·{·(·A·r·r·a·y·.·i·s·A·r·r·a·y·(·n·o·t·i·f·i·c·a·t·i·o·n·s·.·d·a·t·a·?·.·d·a·t·a·)· ·?· ·n·o·t·i·f·i·c·a·t·i·o·n·s·.·d·a·t·a·.·d·a·t·a· ·:· ·[·]·)·.·s·l·i·c·e·(·0·,· ·5·)·.·m·a·p·(·(·n·)· ·=·>· ·{·
-· · · · · · · · · · · · · · · · · · ·c·o·n·s·t· ·i·s·S·p·e·c·i·a·l· ·=· ·n·.·t·i·t·l·e·.·i·n·c·l·u·d·e·s·(·"·W·e·l·c·o·m·e·"·)· ·|·|· ·n·.·t·i·t·l·e·.·i·n·c·l·u·d·e·s·(·"·M·F·A·"·)· ·|·|· ·n·.·t·i·t·l·e·.·i·n·c·l·u·d·e·s·(·"·A·c·c·e·s·s·"·)·;·
-· · · · · · · · · · · · · · · · · · ·r·e·t·u·r·n· ·(·
-· · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·k·e·y·=·{·n·.·i·d·}· ·s·t·y·l·e·=·{·{· ·
-· · · · · · · · · · · · · · · · · · · · · · ·p·a·d·d·i·n·g·:· ·"·1·6·p·x·"·,· ·
-· · · · · · · · · · · · · · · · · · · · · · ·b·o·r·d·e·r·R·a·d·i·u·s·:· ·1·2·,·
-· · · · · · · · · · · · · · · · · · · · · · ·b·a·c·k·g·r·o·u·n·d·:· ·i·s·S·p·e·c·i·a·l· ·?· ·"·r·g·b·a·(·3·7·,· ·9·9·,· ·2·3·5·,· ·0·.·0·3·)·"· ·:· ·"·t·r·a·n·s·p·a·r·e·n·t·"·,·
-· · · · · · · · · · · · · · · · · · · · · · ·b·o·r·d·e·r·B·o·t·t·o·m·:· ·i·s·S·p·e·c·i·a·l· ·?· ·"·n·o·n·e·"· ·:· ·"·1·p·x· ·s·o·l·i·d· ·v·a·r·(·-·-·c·o·l·o·r·-·g·r·a·y·-·1·0·0·)·"·,·
-· · · · · · · · · · · · · · · · · · · · · · ·m·a·r·g·i·n·B·o·t·t·o·m·:· ·4·,·
-· · · · · · · · · · · · · · · · · · · · · · ·t·r·a·n·s·i·t·i·o·n·:· ·"·v·a·r·(·-·-·t·r·a·n·s·i·t·i·o·n·)·"·
-· · · · · · · · · · · · · · · · · · · · ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·s·t·y·l·e·=·{·{· ·d·i·s·p·l·a·y·:· ·"·f·l·e·x·"·,· ·j·u·s·t·i·f·y·C·o·n·t·e·n·t·:· ·"·s·p·a·c·e·-·b·e·t·w·e·e·n·"·,· ·a·l·i·g·n·I·t·e·m·s·:· ·"·f·l·e·x·-·s·t·a·r·t·"·,· ·g·a·p·:· ·1·2· ·}·}·>·
-· · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·f·o·n·t·-·b·o·l·d· ·t·e·x·t·-·s·m·"· ·s·t·y·l·e·=·{·{· ·c·o·l·o·r·:· ·"·v·a·r·(·-·-·c·o·l·o·r·-·g·r·a·y·-·9·0·0·)·"· ·}·}·>·{·n·.·t·i·t·l·e·}·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·x·s· ·t·e·x·t·-·m·u·t·e·d· ·m·t·-·1· ·l·e·a·d·i·n·g·-·r·e·l·a·x·e·d·"·>·{·n·.·m·e·s·s·a·g·e·}·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · · · ·<·d·i·v· ·c·l·a·s·s·N·a·m·e·=·"·t·e·x·t·-·x·s· ·f·o·n·t·-·m·e·d·i·u·m· ·t·e·x·t·-·m·u·t·e·d·"· ·s·t·y·l·e·=·{·{· ·w·h·i·t·e·S·p·a·c·e·:· ·"·n·o·w·r·a·p·"· ·}·}·>·{·f·o·r·m·a·t·R·e·l·a·t·i·v·e·(·n·.·c·r·e·a·t·e·d·_·a·t·)·}·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · · · · · · · ·)·;·
-· · · · · · · · · · · · · · · · ·}·)·}·
-· · · · · · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · · · · · ·)·}·
-· · · · · · · · · · ·<·/·d·i·v·>·
-· · · · · · · · ·<·/·d·i·v·>·
-· · · · · · ·<·/·s·e·c·t·i·o·n·>·
-· · · · ·<·/·d·i·v·>·
-· · ·)·;·
-·}·
-·
-·
-·
-·
+import { useQuery } from '@tanstack/react-query';
+import { FileText, CheckCircle, Bell, Lightbulb, AlertTriangle, Sparkles, Download, Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { PageHeader } from '../../components/layout/PageHeader';
+import { StatusBadge } from '../../components/shared/StatusBadge';
+import { requestsApi } from '../../api/requests.api';
+import { notificationsApi } from '../../api/notifications.api';
+import { recommendationsApi } from '../../api/recommendations.api';
+import { certificationApi } from '../../api/certification.api';
+import { useAuth } from '../../hooks/useAuth';
+import { usePermissions } from '../../hooks/usePermissions';
+import { formatDate, formatRelative, getErrorMessage } from '../../lib/utils';
+import { AdminDashboard } from './AdminDashboard';
+// import { AIInsightsWidget, AIAnomaliesWidget } from '../ai/AIWidgets';
+
+export function UserDashboard() {
+  const { user } = useAuth();
+  const { isAdmin, isSupervisor } = usePermissions();
+
+  const pendingReqs = useQuery({
+    queryKey: ['requests', { status: 'PENDING', page: 1 }],
+    queryFn: () => requestsApi.list({ status: 'PENDING', per_page: 1 }),
+  });
+
+  const recentReqs = useQuery({
+    queryKey: ['requests', 'recent', { page: 1 }],
+    queryFn: () => requestsApi.list({ page: 1, per_page: 5 }),
+  });
+
+  const activeReqs = useQuery({
+    queryKey: ['requests', { status: 'APPROVED', page: 1 }],
+    queryFn: () => requestsApi.list({ status: 'APPROVED', per_page: 1 }),
+  });
+
+  const notifications = useQuery({
+    queryKey: ['notifications', { read: false }],
+    queryFn: () => notificationsApi.list({ read: false, per_page: 5 }),
+    refetchInterval: 30_000,
+  });
+
+  const recommendations = useQuery({
+    queryKey: ['recommendations', user?.id],
+    queryFn: () => recommendationsApi.getUserRecommendations(user!.id),
+    enabled: !!user,
+  });
+  
+  const certifications = useQuery({
+    queryKey: ['certifications', { status: 'ACTIVE' }],
+    queryFn: () => certificationApi.list({ status: 'ACTIVE' }),
+    enabled: isSupervisor,
+  });
+
+  const teamRecommendations = useQuery({
+    queryKey: ['recommendations', 'team', user?.id],
+    queryFn: () => recommendationsApi.getTeamRecommendations(user!.id),
+    enabled: isSupervisor && !!user,
+  });
+
+  const teamRecs = (teamRecommendations.data as any)?.team_recommendations || [];
+
+  const pendingCount = pendingReqs.data?.meta?.total ?? 0;
+  const activeCount = activeReqs.data?.meta?.total ?? 0;
+  const unreadNotifs = Array.isArray(notifications.data?.data)
+    ? notifications.data.data.filter((n) => !n.read).length
+    : 0;
+  const recs = Array.isArray(recommendations.data?.data)
+    ? recommendations.data.data
+    : [];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 40, animation: "fadeIn 0.5s ease-out" }}>
+      {isAdmin && (
+        <section className="glass" style={{ padding: 24, borderRadius: 24, border: "1px solid var(--color-primary-light)" }}>
+          <AdminDashboard />
+        </section>
+      )}
+
+      <section>
+        <PageHeader
+          title={isAdmin ? "My Workspace" : `Welcome back, ${user?.full_name?.split(" ")[0] ?? "there"}`}
+          subtitle="Here's an overview of your personal access and activity"
+        />
+
+        {/* -- Supervisor View: Peer Recommendations & Certification -- */}
+        {isSupervisor && (
+          <>
+            {teamRecs.length > 0 && (
+              <div className="card glass" style={{ 
+                marginBottom: 40, 
+                marginTop: 20, 
+                border: "1px solid var(--color-primary-light)", 
+                background: "linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.02) 100%)",
+                boxShadow: "0 20px 40px rgba(37, 99, 235, 0.1)"
+              }}>
+                <div className="card-header" style={{ padding: "24px 30px" }}>
+                  <div>
+                    <span className="card-title" style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--color-primary)", fontSize: "1.5rem", fontWeight: 800 }}>
+                      <Sparkles size={28} /> Peer Recommendations
+                    </span>
+                    <p className="text-muted mt-1">AI-driven access suggestions for your team members and new joinees</p>
+                  </div>
+                  <span className="badge" style={{ background: "var(--color-primary)", color: "#fff", padding: "8px 16px", borderRadius: 20, fontWeight: 700 }}>
+                    {teamRecs.length} Members Need Attention
+                  </span>
+                </div>
+                <div className="grid-12" style={{ padding: "0 30px 30px" }}>
+                  {teamRecs.map((member: any) => (
+                    <div key={member.userId} className="span-6 glass" style={{ background: "#fff", border: "1px solid var(--color-gray-100)", padding: 24, borderRadius: 20 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <div className="avatar-sm" style={{ background: "var(--color-primary-light)", color: "var(--color-primary)", fontWeight: 700 }}>
+                            {member.userName[0]}
+                          </div>
+                          <div>
+                            <div className="font-bold" style={{ fontSize: "1.1rem", color: "var(--color-gray-900)" }}>{member.userName}</div>
+                            <div className="text-xs text-muted">Direct Report</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {member.suggestions.map((s: any, idx: number) => (
+                          <div key={idx} className="suggestion-item" style={{ padding: 16, background: "var(--color-gray-50)", borderRadius: 16, border: "1px solid var(--color-gray-100)", transition: "transform 0.2s" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <span className="text-sm font-bold" style={{ color: "var(--color-gray-800)" }}>{s.entitlement}</span>
+                              <span className="text-xs font-black" style={{ color: "var(--color-success)", background: "rgba(34, 197, 94, 0.1)", padding: "4px 8px", borderRadius: 6 }}>{s.confidence}% MATCH</span>
+                            </div>
+                            <div className="text-xs text-muted mt-2" style={{ lineHeight: 1.5 }}>{s.reason}</div>
+                            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+                              <Link to="/requests/new" className="btn btn-sm btn-primary" style={{ borderRadius: 8, fontSize: "0.75rem", fontWeight: 600 }}>Provision Now →</Link>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+                        {/* -- Team Request Status Boxes -- */}
+            <div className="grid-12" style={{ marginBottom: 40 }}>
+              <div className="span-6 card glass" style={{ background: "rgba(245, 158, 11, 0.05)", border: "1px solid rgba(245, 158, 11, 0.2)", padding: 24, borderRadius: 20 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                  <span style={{ fontWeight: 800, color: "var(--color-amber-600)", display: "flex", alignItems: "center", gap: 8 }}>
+                    <Clock size={20} /> Pending Approval
+                  </span>
+                  <span className="badge" style={{ background: "var(--color-amber-500)", color: "#fff" }}>{pendingCount} Tasks</span>
+                </div>
+                <div className="text-sm text-muted mb-4">Requests requiring your immediate review and decision</div>
+                <Link to="/requests" className="btn btn-sm btn-primary" style={{ background: "var(--color-amber-500)", border: "none" }}>Review Now →</Link>
+              </div>
+              <div className="span-6 card glass" style={{ background: "rgba(34, 197, 94, 0.05)", border: "1px solid rgba(34, 197, 94, 0.2)", padding: 24, borderRadius: 20 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                  <span style={{ fontWeight: 800, color: "var(--color-success)", display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle size={20} /> Approved Requests
+                  </span>
+                  <span className="badge" style={{ background: "var(--color-success)", color: "#fff" }}>{activeCount} Total</span>
+                </div>
+                <div className="text-sm text-muted mb-4">Summary of successfully provisioned access for your team</div>
+                <Link to="/requests" className="text-sm font-bold" style={{ color: "var(--color-success)" }}>View History →</Link>
+              </div>
+            </div>
+
+            {(certifications.data?.data?.length ?? 0) > 0 && (
+              <div className="card" style={{ 
+                background: "var(--grad-primary)", 
+                color: "white", 
+                border: "none",
+                padding: 30,
+                borderRadius: 24,
+                marginBottom: 40,
+                boxShadow: "0 15px 35px rgba(37, 99, 235, 0.25)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}>
+                <div>
+                  <h3 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.5px" }}>Certification Campaign Active</h3>
+                  <p style={{ opacity: 0.9, marginTop: 6, fontSize: "1rem" }}>You have {certifications.data?.data?.length ?? 0} campaign(s) requiring your review.</p>
+                </div>
+                <Link to="/supervisor/certifications/my-tasks" className="btn btn-lg" style={{ background: "white", color: "var(--color-primary)", fontWeight: 700, padding: "12px 30px", borderRadius: 12 }}>
+                  Perform Reviews →
+                </Link>
+              </div>
+            )}
+          </>
+        )}
+
+        {!isSupervisor && (
+          <div className="kpi-grid">
+            <div className="kpi-card">
+              <div className="kpi-icon blue"><FileText size={24} /></div>
+              <div className="kpi-label">Pending Requests</div>
+              <div className="kpi-value">{pendingReqs.isLoading ? "-" : pendingCount}</div>
+            </div>
+            <div className="kpi-card">
+              <div className="kpi-icon green"><CheckCircle size={24} /></div>
+              <div className="kpi-label">Active Access</div>
+              <div className="kpi-value">{recentReqs.isLoading ? "-" : activeCount}</div>
+            </div>
+            <div className="kpi-card">
+              <div className="kpi-icon amber"><Bell size={24} /></div>
+              <div className="kpi-label">Unread Notifications</div>
+              <div className="kpi-value">{notifications.isLoading ? "-" : unreadNotifs}</div>
+            </div>
+            <div className="kpi-card">
+              <div className="kpi-icon blue"><Lightbulb size={24} /></div>
+              <div className="kpi-label">AI Recommendations</div>
+              <div className="kpi-value">{recommendations.isLoading ? "-" : recs.length}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Personal Recommendations */}
+        {recs.length > 0 && (
+          <div className="card glass" style={{ marginBottom: 40, border: "1px solid var(--color-success-light)", background: "linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(34, 197, 94, 0) 100%)" }}>
+            <div className="card-header">
+              <span className="card-title" style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--color-success)" }}>
+                <Sparkles size={20} /> AI Recommended Access
+              </span>
+            </div>
+            <div className="grid-12" style={{ padding: "0 20px 20px" }}>
+              {recs.map((s: any, idx: number) => (
+                <div key={idx} className="span-4 kpi-card" style={{ background: "#fff", border: "1px solid var(--color-gray-100)", display: "flex", flexDirection: "column" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span className="text-sm font-bold">{s.entitlement}</span>
+                    <span className="text-xs font-black" style={{ color: "var(--color-success)" }}>{s.confidence}% Match</span>
+                  </div>
+                  <div className="text-xs text-muted mt-2" style={{ flex: 1 }}>{s.reason}</div>
+                  <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+                    <Link to="/requests/new" className="btn btn-sm btn-primary" style={{ fontSize: "0.75rem", padding: "6px 12px" }}>Request Now →</Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="grid-12">
+          {/* Recent Requests */}
+          <div className="card span-6">
+            <div className="card-header">
+              <span className="card-title">Recent Requests</span>
+              <Link to="/requests" className="text-sm font-bold" style={{ color: "var(--color-primary)" }}>View All Activity →</Link>
+            </div>
+            {recentReqs.isLoading ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: 20 }}>
+                {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 50, borderRadius: 12 }} />)}
+              </div>
+            ) : recentReqs.isError ? (
+              <div className="error-state">
+                <AlertTriangle size={24} className="text-danger" />
+                <span className="text-sm font-medium">{getErrorMessage(recentReqs.error)}</span>
+              </div>
+            ) : (Array.isArray(recentReqs.data?.data) ? recentReqs.data.data : []).length === 0 ? (
+              <p className="text-sm text-muted" style={{ textAlign: "center", padding: "40px 0" }}>No requests yet. <Link to="/requests/new" className="font-bold">Request access now ?</Link></p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "0 20px 20px" }}>
+                {(Array.isArray(recentReqs.data?.data) ? recentReqs.data.data : []).map((r) => (
+                  <div key={r.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 0", borderBottom: "1px solid var(--color-gray-100)" }}>
+                    <div>
+                      <div className="font-bold text-sm" style={{ color: "var(--color-gray-900)" }}>Open DS</div>
+                      <div className="text-xs text-muted mt-1">{r.application_name} · {formatDate(r.submitted_at)}</div>
+                    </div>
+                    <StatusBadge status={r.access_type === "TIME_BASED" ? "EXPIRED" : r.status} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Notifications */}
+          <div className="card span-6">
+            <div className="card-header">
+              <span className="card-title">Notifications</span>
+              <Link to="/notifications" className="text-sm font-bold" style={{ color: "var(--color-primary)" }}>Manage All →</Link>
+            </div>
+            {notifications.isLoading ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: 20 }}>
+                {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 50, borderRadius: 12 }} />)}
+              </div>
+            ) : (Array.isArray(notifications.data?.data) ? notifications.data.data : []).length === 0 ? (
+              <p className="text-sm text-muted" style={{ textAlign: "center", padding: "40px 0" }}>All caught up! No new notifications.</p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "0 20px 20px" }}>
+                {(Array.isArray(notifications.data?.data) ? notifications.data.data : []).slice(0, 5).map((n) => {
+                  const isSpecial = n.title.includes("Welcome") || n.title.includes("MFA") || n.title.includes("Access");
+                  return (
+                    <div key={n.id} style={{ 
+                      padding: "16px", 
+                      borderRadius: 12,
+                      background: isSpecial ? "rgba(37, 99, 235, 0.03)" : "transparent",
+                      borderBottom: isSpecial ? "none" : "1px solid var(--color-gray-100)",
+                      marginBottom: 4,
+                      transition: "var(--transition)"
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                        <div>
+                          <div className="font-bold text-sm" style={{ color: "var(--color-gray-900)" }}>{n.title}</div>
+                          <div className="text-xs text-muted mt-1 leading-relaxed">{n.message}</div>
+                        </div>
+                        <div className="text-xs font-medium text-muted" style={{ whiteSpace: "nowrap" }}>{formatRelative(n.created_at)}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+
+
