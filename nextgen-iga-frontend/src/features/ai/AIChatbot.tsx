@@ -132,15 +132,15 @@ export function AIChatbot({ context, initialMessage }: Props) {
           <table className="table table-xs" style={{ margin: 0, fontSize: '0.65rem', minWidth: '100%' }}>
             <thead style={{ background: 'var(--color-gray-50)' }}>
               <tr>
-                {(msg.data_table.columns || []).map(col => (
+                {msg.data_table?.columns?.map(col => (
                   <th key={col} style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{col.replace(/_/g, ' ')}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {(msg.data_table.rows || []).map((row, i) => (
+              {msg.data_table?.rows?.map((row, i) => (
                 <tr key={i}>
-                  {(msg.data_table.columns || []).map(col => (
+                  {msg.data_table?.columns?.map(col => (
                     <td key={col} style={{ padding: '6px 8px', borderTop: '1px solid var(--color-gray-100)' }}>
                       {String(row[col] ?? '')}
                     </td>

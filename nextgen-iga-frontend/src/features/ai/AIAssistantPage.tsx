@@ -156,8 +156,8 @@ export function AIAssistantPage() {
   const renderDataContent = (msg: AIChatMessage) => {
     if (!msg.data && !msg.data_table) return null;
 
-    if (msg.phase === 'CHAT' && msg.data_table && msg.data_table.length > 0) {
-      return renderTable(msg.data_table);
+    if (msg.phase === 'CHAT' && msg.data_table && msg.data_table.rows.length > 0) {
+      return renderTable(msg.data_table.rows);
     }
 
     if (msg.phase === 'REPORT_GENERATION' && msg.data) {
