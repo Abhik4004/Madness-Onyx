@@ -14,6 +14,8 @@ const schema = z.object({
   appName: z.string().min(2, "Application name must be at least 2 characters"),
   groupCn: z.string().min(2, "Group name must be at least 2 characters"),
   owner: z.string().min(1, "Owner (Manager) is required"),
+  riskLevel: z.string().default("MEDIUM"),
+  riskScore: z.coerce.number().min(0).max(100).default(50),
 });
 type FormData = z.infer<typeof schema>;
 
@@ -181,6 +183,36 @@ export function RegisterApplicationPage() {
                 </div>
               )}
               {errors.owner && <span className="form-error">{errors.owner.message}</span>}
+            </div>
+
+            <div className="grid-2" style={{ gap: 16 }}>
+              <div className="form-group">
+                <label className="form-label">Initial Risk Level</label>
+                <select className="form-control" {...register("riskLevel")}>
+                  <option value="LOW">Low Risk</option>
+                  <option value="MEDIUM">Medium Risk</option>
+                  <option value="HIGH">High Risk</option>
+                  <option value="CRITICAL">Critical Risk</option>
+                </select>
+                <span className="form-hint">Categorical risk classification.</span>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Initial Risk Score (0-100)</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    className="flex-1"
+                    {...register("riskScore")}
+                  />
+                  <span className="badge badge-primary" style={{ width: 45, textAlign: 'center' }}>
+                    {watch("riskScore") || 50}
+                  </span>
+                </div>
+                <span className="form-hint">Numeric risk value for AI calculations.</span>
+              </div>
             </div>
 
             <div className="pt-4 border-top flex gap-3">

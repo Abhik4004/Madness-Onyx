@@ -797,7 +797,7 @@ export async function handleApplicationsList(msg) {
 
     let query = `
       SELECT a.id, a.app_name AS name, 
-             a.risk_level, u.full_name AS owner_name,
+             a.risk_level, a.risk_score, u.full_name AS owner_name,
              (SELECT count(*) FROM user_access WHERE application_id = a.id) AS access_count,
              'CONNECTED' AS connector_status
       FROM applications a

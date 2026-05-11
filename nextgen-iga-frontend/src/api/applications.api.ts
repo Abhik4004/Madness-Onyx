@@ -7,6 +7,8 @@ export interface Application {
   category?: string;
   description?: string;
   status?: string;
+  risk_level?: string;
+  risk_score?: number;
 }
 
 export const applicationsApi = {
@@ -25,8 +27,8 @@ export const applicationsApi = {
   /**
    * POST /api/create/group
    * Special endpoint that relays via Gateway -> EventManager -> External LDAP API
-   * Body: { groupCn, owner, appName }
+   * Body: { groupCn, owner, appName, riskLevel, riskScore }
    */
-  createGroup: (body: { groupCn: string; owner: string; appName: string }) =>
+  createGroup: (body: { groupCn: string; owner: string; appName: string; riskLevel?: string; riskScore?: number }) =>
     apiClient.post<ApiResponse<any>>("/api/create/group", body).then((r) => r.data),
 };

@@ -30,6 +30,17 @@ export function ApplicationListPage() {
   const columns: Column<Application>[] = [
     { key: 'name', header: 'Application', render: a => <Link to={`/admin/applications/${a.id}`} className="font-medium" style={{ color: 'var(--color-primary)' }}>{a.name || a.id}</Link> },
     { key: 'owner', header: 'Owner', render: a => a.owner_name },
+    { 
+      key: 'risk', header: 'Risk Score', 
+      render: a => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="risk-bar" style={{ width: 60, height: 6 }}>
+            <div className={`risk-fill ${(a.risk_level || 'MEDIUM').toLowerCase()}`} style={{ width: `${a.risk_score ?? 50}%` }} />
+          </div>
+          <span className="text-xs font-bold">{(a.risk_score ?? 50)}%</span>
+        </div>
+      )
+    },
     { key: 'access', header: 'Active Users', render: a => a.access_count },
     { key: 'connector', header: 'Connector', render: a => <StatusBadge status={a.connector_status} /> },
   ];

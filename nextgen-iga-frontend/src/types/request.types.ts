@@ -50,6 +50,8 @@ export interface Application {
   icon_url: string | null;
   connector_status: 'CONNECTED' | 'DISCONNECTED' | 'ERROR';
   access_count: number;
+  risk_level?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  risk_score?: number;
   created_at: string;
 }
 

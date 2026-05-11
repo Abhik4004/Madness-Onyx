@@ -283,6 +283,9 @@ async function main() {
       CREATE TABLE IF NOT EXISTS applications (
         id VARCHAR(255) PRIMARY KEY,
         app_name VARCHAR(255) NOT NULL,
+        app_type VARCHAR(50) DEFAULT 'BUSINESS',
+        risk_level VARCHAR(50) DEFAULT 'MEDIUM',
+        risk_score FLOAT DEFAULT 0,
         description TEXT,
         owner_id VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -383,6 +386,7 @@ async function main() {
     try { await db.query("ALTER TABLE access_certifications ADD COLUMN hierarchy_scope_type VARCHAR(50) DEFAULT 'DIRECT_REPORTS' AFTER certification_owner_id"); } catch (e) { }
     try { await db.query("ALTER TABLE applications ADD COLUMN app_type VARCHAR(50) DEFAULT 'BUSINESS' AFTER app_name"); } catch (e) { }
     try { await db.query("ALTER TABLE applications ADD COLUMN risk_level VARCHAR(50) DEFAULT 'MEDIUM' AFTER app_type"); } catch (e) { }
+    try { await db.query("ALTER TABLE applications ADD COLUMN risk_score FLOAT DEFAULT 0 AFTER risk_level"); } catch (e) { }
     try { await db.query("ALTER TABLE certification_items ADD COLUMN recommendation_score FLOAT AFTER decision"); } catch (e) { }
     try { await db.query("ALTER TABLE certification_items ADD COLUMN recommended_action VARCHAR(50) AFTER recommendation_score"); } catch (e) { }
     try { await db.query("ALTER TABLE certification_items ADD COLUMN reviewed_by VARCHAR(255) AFTER recommended_action"); } catch (e) { }

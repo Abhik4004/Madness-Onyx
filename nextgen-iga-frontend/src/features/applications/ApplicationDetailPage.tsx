@@ -31,6 +31,22 @@ export function ApplicationDetailPage() {
             { label: 'Connector Status', value: <StatusBadge status={app.connector_status} /> },
             { label: 'Active Users', value: app.access_count },
             { label: 'Registered', value: formatDate(app.created_at) },
+            { 
+              label: 'Risk Profile', 
+              value: (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span className={`badge badge-${(app.risk_level || 'MEDIUM').toLowerCase()}`}>
+                    {app.risk_level || 'MEDIUM'}
+                  </span>
+                  <div className="risk-score" style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 120 }}>
+                    <div className="risk-bar" style={{ flex: 1, height: 6 }}>
+                      <div className={`risk-fill ${(app.risk_level || 'MEDIUM').toLowerCase()}`} style={{ width: `${app.risk_score ?? 50}%` }} />
+                    </div>
+                    <span className="font-bold text-xs">{(app.risk_score ?? 50)}%</span>
+                  </div>
+                </div>
+              )
+            },
           ].map(item => (
             <div key={item.label} style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 8, padding: '10px 0', borderBottom: '1px solid var(--color-gray-100)' }}>
               <span className="text-xs text-muted font-semibold" style={{ textTransform: 'uppercase', letterSpacing: '0.4px', paddingTop: 2 }}>{item.label}</span>
