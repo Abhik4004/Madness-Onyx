@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-import { connect } from "nats";
+import { connectNats as connect } from "./nats/client.js";
 import { relayMiddleware } from "./nats/relay.js";
 import { jwtMiddleware } from "./middleware/jwt.js";
 import { db } from "./db.js";
@@ -676,7 +676,7 @@ app.use((err, req, res, next) => {
 async function main() {
   const NATS_URL = process.env.NATS_URL || "nats://54.224.250.252:4222";
   try {
-    const nc = await connect({ servers: NATS_URL });
+    const nc = await connect();
     console.log("[gateway] connected to NATS:", nc.getServer());
 
     app.listen(PORT, () => {
