@@ -53,9 +53,9 @@ export function TeamMemberDetailPage() {
   const columns: Column<UserAccess>[] = [
     { key: 'app', header: 'Application', render: () => <span className="font-medium">Open DS</span> },
     { key: 'role', header: 'Entitlement', render: a => a.application_name },
-    { 
-      key: 'status', 
-      header: 'Status', 
+    {
+      key: 'status',
+      header: 'Status',
       render: a => {
         let displayStatus = a.status;
         if (a.expires_at && ((a.status as any) === 'ACTIVE' || (a.status as any) === 'PROVISIONED')) {
@@ -67,25 +67,17 @@ export function TeamMemberDetailPage() {
       }
     },
     { key: 'granted', header: 'Granted', render: a => formatDate(a.granted_at) },
-    { 
-      key: 'expires', 
-      header: 'Time Remaining', 
+    {
+      key: 'expires',
+      header: 'Time Remaining',
       render: a => (
-        <TimeBasedProgress 
-          startTime={a.granted_at} 
-          endTime={a.expires_at} 
-          status={a.status} 
+        <TimeBasedProgress
+          startTime={a.granted_at}
+          endTime={a.expires_at}
+          status={a.status}
         />
       )
-    },
-    {
-      key: 'actions', header: '', width: '80px',
-      render: a => (
-        <button className="btn btn-sm btn-danger" onClick={() => { setRevokeTarget(a); setRevokeReason(''); }}>
-          Revoke
-        </button>
-      ),
-    },
+    }
   ];
 
   if (userLoading) return <div className="card"><div className="skeleton" style={{ height: 200 }} /></div>;
