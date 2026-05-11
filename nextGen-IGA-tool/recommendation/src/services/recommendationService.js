@@ -6,7 +6,7 @@ const { getRiskScore } = require('./riskScore');
 async function getUserForRecommendation(userId) {
   const rows = await query(`
     SELECT u.id, u.role_id, u.manager_id, r.role_type, r.role_name
-    FROM users u
+    FROM users_access u
     LEFT JOIN roles r ON r.id = u.role_id
     WHERE u.id = ?
   `, [userId]);
@@ -52,9 +52,9 @@ async function batchGetUsers(userIds) {
   const placeholders = userIds.map(() => '?').join(', ');
   const rows = await query(`
     SELECT u.id, u.role_id, u.manager_id, r.role_type, r.role_name
-    FROM users u
+    FROM users_access u
     LEFT JOIN roles r ON r.id = u.role_id
-    WHERE u.id IN (${placeholders}) AND u.status = 'active'
+    WHERE u.id IN (${placeholders}) AND u.status = 'ACTIVE'
   `, userIds);
 
   // Return as Map for O(1) lookup: userId → user
@@ -159,13 +159,28 @@ async function getOnboardingRecommendations(userId) {
   const existingSet = new Set(currentAccess.map(a => a.application_id));
 
   // 2. Suggest common access for this peer group
-  const suggestions = await query(`
+  let suggestions = await query(`
     SELECT access_type, users_with_access, total_people, risk_level
     FROM role_access_summary
     WHERE role_id = ? AND manager_id = ? 
     AND (users_with_access / total_people) >= 0.5
     AND access_type != 'NO_ACCESS'
-  `, [user.role_id, user.manager_id]);
+  `, [user.role_id, user.manager_id || 'NO_MANAGER']);
+
+  if (!suggestions.length) {
+    // Fallback: Global recommendations for this Role if the Team data is insufficient
+    suggestions = await query(`
+      SELECT 
+        access_type, 
+        SUM(users_with_access) as users_with_access, 
+        SUM(total_people) as total_people, 
+        MAX(risk_level) as risk_level
+      FROM role_access_summary
+      WHERE role_id = ? AND access_type != 'NO_ACCESS'
+      GROUP BY access_type
+      HAVING (SUM(users_with_access) / SUM(total_people)) >= 0.3
+    `, [user.role_id]);
+  }
 
   // 3. Filter out what the user already has and handle division safely
   return suggestions
@@ -184,7 +199,7 @@ async function getOnboardingRecommendations(userId) {
 
 async function getTeamOnboardingRecommendations(managerId) {
   const reports = await query(`
-    SELECT id, full_name, role_id FROM users WHERE manager_id = ? AND status = 'active'
+    SELECT id, full_name, role_id FROM users_access WHERE manager_id = ? AND status = 'ACTIVE'
   `, [managerId]);
 
   if (reports.length === 0) return [];
