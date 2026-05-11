@@ -526,7 +526,7 @@ async function main() {
   const express = (await import("express")).default;
   const cors = (await import("cors")).default;
   const app = express();
-  app.use(cors());
+  app.use(cors({ origin: true, credentials: true }));
   app.use(express.json());
 
   app.post("/api/login", async (req, res) => {

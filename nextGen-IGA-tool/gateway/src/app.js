@@ -30,7 +30,8 @@ const getIdentityHeaders = (req) => ({
 });
 
 app.use(cors({
-  origin: "*",              // or "http://54.167.248.162" for stricter
+  origin: true, // Echoes the requester's origin, compatible with credentials
+  credentials: true,
   methods: ["GET","POST","PUT","DELETE","PATCH","OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   preflightContinue: false,
