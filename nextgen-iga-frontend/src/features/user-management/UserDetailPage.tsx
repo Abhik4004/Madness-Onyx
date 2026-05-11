@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Users, Shield, UserCheck, Layers, Mail, Crown } from 'lucide-react';
+import { AlertTriangle, Users, Shield, UserCheck, Layers, Mail, Crown, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 import { PageHeader } from '../../components/layout/PageHeader';
@@ -42,7 +42,7 @@ export function UserDetailPage() {
     enabled: !!id,
   });
 
-  const recommendations = recommendationsQuery.data?.recommendations ?? [];
+  const recommendations = (recommendationsQuery.data as any)?.recommendations ?? [];
 
   console.log(`[debug] Page loaded for ${id}:`, {
     groups: groups.length,

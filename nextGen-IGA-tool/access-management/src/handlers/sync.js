@@ -753,6 +753,23 @@ export async function handleGroupCreate(msg) {
       // 1a. Ensure the owner exists (Just-In-Time Provisioning)
       const { rows: userRows } = await db.query("SELECT id FROM users_access WHERE id = ?", [owner]);
 
+      await db.query(
+        `INSERT INTO applications (id, app_name, app_type, owner_id, risk_level)
+         VALUES (?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE owner_id = ?`,
+        [groupCn, groupCn, "infrastructure", owner, "MEDIUM", owner]
+      );
+
+      // Add to access_catalog for discovery and recommendations
+      await db.query(
+        `INSERT INTO access_catalog (id, entitlement_name, category, risk_level, compatibility_score)
+         VALUES (?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE entitlement_name = entitlement_name`,
+        [groupCn, groupCn, "Infrastructure Group", "LOW", 75.0]
+      );
+
+      console.log(`[sync] Step 1: Persisted application group and catalog entry: ${groupCn} (Owner: ${owner})`);
+
       if (userRows.length === 0) {
         console.log(`[sync] JIT Provisioning: Creating missing user '${owner}'`);
         try {
@@ -775,13 +792,6 @@ export async function handleGroupCreate(msg) {
         }
       }
 
-      await db.query(
-        `INSERT INTO applications (id, app_name, app_type, owner_id, risk_level)
-         VALUES (?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE owner_id = ?`,
-        [groupCn, groupCn, "infrastructure", owner, "MEDIUM", owner]
-      );
-      console.log(`[sync] Step 1: Persisted application group to DB: ${groupCn} (Owner: ${owner})`);
     } catch (dbErr) {
       console.error("[sync] Step 1 ERROR (DB):", dbErr.message);
     }

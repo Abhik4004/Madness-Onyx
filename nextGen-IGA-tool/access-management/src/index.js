@@ -292,6 +292,19 @@ async function main() {
       )
     `);
 
+    // 6.1 ACCESS CATALOG (Discovery & Recommendations)
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS access_catalog (
+        id VARCHAR(255) PRIMARY KEY,
+        entitlement_name VARCHAR(255) NOT NULL,
+        category VARCHAR(100),
+        risk_level VARCHAR(50) DEFAULT 'LOW',
+        compatibility_score FLOAT DEFAULT 0,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // 7. USER ACCESS (Entitlements)
     await db.query(`
       CREATE TABLE IF NOT EXISTS user_access (

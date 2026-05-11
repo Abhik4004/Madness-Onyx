@@ -209,7 +209,7 @@ app.post("/api/removeuser/group", async (req, res) => {
     const upstream = await fetch(`http://18.60.129.12:8080/api/removeuser/group`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uid, groupCn }),
+      body: JSON.stringify({ uid, groupCn, groupCN: groupCn }),
       signal: AbortSignal.timeout(15000)
     });
 

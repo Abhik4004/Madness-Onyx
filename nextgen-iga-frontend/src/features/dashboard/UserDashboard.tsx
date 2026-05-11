@@ -113,13 +113,11 @@ export function UserDashboard() {
             <div className="kpi-label">Unread Notifications</div>
             <div className="kpi-value">{notifications.isLoading ? '—' : unreadNotifs}</div>
           </div>
-          {isAdmin && (
-            <div className="kpi-card">
-              <div className="kpi-icon blue"><Lightbulb size={24} /></div>
-              <div className="kpi-label">AI Recommendations</div>
-              <div className="kpi-value">{recommendations.isLoading ? '—' : recs.length}</div>
-            </div>
-          )}
+          <div className="kpi-card">
+            <div className="kpi-icon blue"><Lightbulb size={24} /></div>
+            <div className="kpi-label">AI Recommendations</div>
+            <div className="kpi-value">{recommendations.isLoading ? '—' : recs.length}</div>
+          </div>
         </div>
 
         {/* Team Suggestions (Vibrant) */}
@@ -153,6 +151,30 @@ export function UserDashboard() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* Personal Recommendations */}
+        {recs.length > 0 && (
+          <div className="card glass" style={{ marginBottom: 40, border: '1px solid var(--color-success-light)', background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(34, 197, 94, 0) 100%)' }}>
+            <div className="card-header">
+              <span className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--color-success)' }}>
+                <Sparkles size={20} /> AI Recommended Access
+              </span>
+            </div>
+            <div className="grid-12" style={{ padding: '0 20px 20px' }}>
+              {recs.map((s: any, idx: number) => (
+                <div key={idx} className="span-4 kpi-card" style={{ background: '#fff', border: '1px solid var(--color-gray-100)', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span className="text-sm font-bold">{s.entitlement}</span>
+                    <span className="text-xs font-black" style={{ color: 'var(--color-success)' }}>{s.confidence}% Match</span>
+                  </div>
+                  <div className="text-xs text-muted mt-2" style={{ flex: 1 }}>{s.reason}</div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                    <Link to="/requests/new" className="btn btn-sm btn-primary" style={{ fontSize: '0.75rem', padding: '6px 12px' }}>Request Now →</Link>
                   </div>
                 </div>
               ))}
