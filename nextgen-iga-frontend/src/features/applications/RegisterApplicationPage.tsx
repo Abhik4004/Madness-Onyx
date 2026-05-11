@@ -80,17 +80,17 @@ export function RegisterApplicationPage() {
   return (
     <div className="fade-in">
       <PageHeader
-        title="Add New Application"
+        title="Add New Entitlement"
         breadcrumbs={[
-          { label: "Applications", to: "/admin/applications" },
-          { label: "Add Application" },
+          { label: "Entitlements", to: "/admin/applications" },
+          { label: "Add Entitlement" },
         ]}
       />
 
       <div className="grid-2" style={{ gap: 24, alignItems: "start" }}>
         <div className="card shadow-lg border-0">
           <div className="card-header bg-transparent border-0">
-            <span className="card-title text-xl">Application Group Configuration</span>
+            <span className="card-title text-xl">Entitlement Group Configuration</span>
             <p className="text-muted text-sm mt-1">
               Create a new group in the infrastructure and assign an owner.
             </p>
@@ -98,7 +98,15 @@ export function RegisterApplicationPage() {
 
           <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
             <div className="form-group">
-              <label className="form-label required">Application Display Name</label>
+              <label className="form-label required">Target Application</label>
+              <select className="form-control" defaultValue="OpenDS" disabled>
+                <option value="OpenDS">OpenDS</option>
+              </select>
+              <span className="form-hint">The underlying system for this entitlement.</span>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label required">Entitlement Display Name</label>
               <input
                 className={`form-control ${errors.appName ? "error" : ""}`}
                 placeholder="Sales Portal"
@@ -238,7 +246,7 @@ export function RegisterApplicationPage() {
                 disabled={isSubmitting || create.isPending}
               >
                 {create.isPending ? <span className="spinner" /> : <Plus size={16} />}
-                Create Application Group
+                Create Entitlement Group
               </button>
             </div>
           </form>
