@@ -27,8 +27,8 @@ export function UserDashboard() {
   });
 
   const activeReqs = useQuery({
-    queryKey: ['requests', { status: 'PROVISIONED', page: 1 }],
-    queryFn: () => requestsApi.list({ status: 'PROVISIONED', per_page: 1 }),
+    queryKey: ['requests', { status: 'APPROVED', page: 1 }],
+    queryFn: () => requestsApi.list({ status: 'APPROVED', per_page: 1 }),
   });
 
   const notifications = useQuery({

@@ -110,10 +110,17 @@ export function NewRequestPage() {
   const applications = appsData?.data ?? [];
 
   const filtered = applications.filter(
-    (r: any) =>
-      !search ||
-      r.app_name?.toLowerCase().includes(search.toLowerCase()) ||
-      r.id?.toLowerCase().includes(search.toLowerCase()),
+    (r: any) => {
+      const matchesSearch = !search ||
+        r.app_name?.toLowerCase().includes(search.toLowerCase()) ||
+        r.id?.toLowerCase().includes(search.toLowerCase());
+      
+      const isEndUser = user?.role === 'end_user';
+      const isHighRisk = r.risk_level?.toUpperCase() === 'HIGH';
+      
+      if (isEndUser && isHighRisk) return false;
+      return matchesSearch;
+    }
   );
 
   const selectResource = (id: string) => {
