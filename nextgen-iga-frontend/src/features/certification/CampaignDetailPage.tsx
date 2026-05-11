@@ -92,7 +92,7 @@ export function CampaignDetailPage() {
             onClick={() => certify.mutate(i)} 
             disabled={certify.isPending && certify.variables?.user_id === i.user_id && certify.variables?.application_id === i.application_id}
           >
-            {certify.isPending && certify.variables?.user_id === i.user_id && certify.variables?.application_id === i.application_id ? <span className="spinner spinner-sm" /> : 'Certify'}
+            {certify.isPending && certify.variables?.user_id === i.user_id && certify.variables?.application_id === i.application_id ? <span className="spinner spinner-sm" /> : 'Keep'}
           </button>
           <button 
             className="btn btn-sm btn-danger" 

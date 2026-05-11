@@ -49,7 +49,7 @@ export function RequestListPage() {
     {
       key: 'role',
       header: 'Entitlement',
-      render: (r) => r.role_name,
+      render: (r) => r.application_name,
     },
     {
       key: 'for',

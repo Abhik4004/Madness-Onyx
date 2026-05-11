@@ -1238,8 +1238,8 @@ export async function handleCertificationList(msg) {
     let params = [];
 
     if (requestorRole !== "admin") {
-      where += " AND (certification_owner_id = ? OR id IN (SELECT certification_id FROM certification_items WHERE manager_id = ?))";
-      params.push(requestorId, requestorId);
+      where += " AND (certification_owner_id = ? OR id IN (SELECT certification_id FROM certification_items WHERE manager_id = ? OR manager_id LIKE ?))";
+      params.push(requestorId, requestorId, `uid=${requestorId},%`);
     }
 
     if (status) {
@@ -1289,8 +1289,8 @@ export async function handleCertificationGet(msg) {
     let itemParams = [certId];
 
     if (requestorRole !== "admin") {
-      itemQuery += " AND i.manager_id = ?";
-      itemParams.push(requestorId);
+      itemQuery += " AND (i.manager_id = ? OR i.manager_id LIKE ?)";
+      itemParams.push(requestorId, `uid=${requestorId},%`);
     }
 
     const { rows: items } = await db.query(itemQuery, itemParams);
@@ -1359,8 +1359,8 @@ export async function handleCertificationItemsList(msg) {
     }
 
     if (requestorRole !== "admin") {
-      itemQuery += " AND i.manager_id = ?";
-      itemParams.push(requestorId);
+      itemQuery += " AND (i.manager_id = ? OR i.manager_id LIKE ?)";
+      itemParams.push(requestorId, `uid=${requestorId},%`);
     }
 
     // Support for PENDING filter if needed (Frontend filter is client-side, but let's be safe)
@@ -1879,11 +1879,16 @@ export async function handleCertificationGenerate(msg) {
     const { js } = getNats();
 
     for (const item of accessList) {
+      let mId = item.manager_id;
+      if (mId && mId.includes("=")) {
+        const match = mId.match(/uid=([^,]+)/i);
+        mId = match ? match[1] : mId;
+      }
       const itemId = randomUUID();
       await db.query(
         `INSERT INTO certification_items (id, certification_id, user_id, application_id, manager_id, decision)
          VALUES (?, ?, ?, ?, ?, ?)`,
-        [itemId, id, item.user_id, item.application_id, item.manager_id, 'PENDING']
+        [itemId, id, item.user_id, item.application_id, mId, 'PENDING']
       );
 
       // Trigger AI Recommendation
