@@ -1,2 +1,34 @@
-node_modules/
+# ─── .DOCKERIGNORE ─────────────────────────────────────────────────────────────
+# Copy this file to EACH service root directory.
+# Prevents these files from being sent to Docker build context.
+# Smaller context = faster builds, no host node_modules contaminating container.
+
+# Skip host node_modules — container installs its own via npm install
+node_modules
+
+# Skip env files — secrets should come from docker-compose environment, not baked in
 .env
+.env.*
+
+# Skip logs — not needed in image
+*.log
+
+# Skip git history — not needed in image
+.git
+.gitignore
+
+# Skip docs — not needed in image
+README.md
+
+# Skip compose files — not needed inside individual service containers
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Skip build output — container builds its own
+dist
+build
+
+# Skip test coverage reports
+coverage
+.nyc_output
