@@ -1841,11 +1841,12 @@ export async function handleRecommendationGenerated(msg) {
   try {
     const { itemId, recommendation, confidenceScore } = jc.decode(msg.data);
 
+    const riskScore = Math.round((1 - (confidenceScore || 0)) * 100);
     await db.query(
       `UPDATE certification_items 
-       SET recommendation_score = ?, recommended_action = ?
+       SET recommendation_score = ?, recommended_action = ?, risk_score = ?
        WHERE id = ? AND decision = 'PENDING'`,
-      [confidenceScore, recommendation, itemId]
+      [confidenceScore, recommendation, riskScore, itemId]
     );
 
     msg.ack();

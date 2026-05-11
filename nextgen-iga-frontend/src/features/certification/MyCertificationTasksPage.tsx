@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { X } from 'lucide-react';
+import { X, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { DataTable, type Column } from '../../components/shared/DataTable';
@@ -101,6 +101,39 @@ export function MyCertificationTasksPage() {
     { key: 'user', header: 'User', render: i => <span className="font-medium">{i.user_name}</span> },
     { key: 'app', header: 'Application', render: i => i.application_name },
     { key: 'decision', header: 'Decision', render: i => <StatusBadge status={i.decision} /> },
+    {
+      key: 'risk', header: 'Risk Score',
+      render: (i) => {
+        const score = i.risk_score !== null ? Math.round(i.risk_score) : null;
+        const level = score === null ? '' : (score >= 70 ? 'high' : score >= 40 ? 'medium' : 'low');
+        return (
+          <div className="risk-score" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className="risk-bar" style={{ width: 60, height: 6 }}>
+              <div className={`risk-fill ${level}`} style={{ width: `${score ?? 0}%` }} />
+            </div>
+            {score !== null ? (
+              <span className={`badge badge-${level}`} style={{ minWidth: '45px', textAlign: 'center', fontWeight: 700 }}>
+                {score}%
+              </span>
+            ) : (
+              <span className="text-xs text-muted">N/A</span>
+            )}
+          </div>
+        );
+      },
+      width: '160px'
+    },
+    {
+      key: 'recommendation', header: 'AI Recommendation',
+      render: (i) => i.recommended_action ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Sparkles size={14} style={{ color: '#7c3aed' }} />
+          <span className={`badge badge-${i.recommended_action === 'RETAIN' ? 'low' : 'medium'}`} style={{ fontSize: '0.7rem', fontWeight: 700 }}>
+            {i.recommended_action}
+          </span>
+        </div>
+      ) : <span className="text-xs text-muted">Analyzing…</span>
+    },
     {
       key: 'actions', header: 'Actions',
       render: (i) => i.decision === 'PENDING' ? (

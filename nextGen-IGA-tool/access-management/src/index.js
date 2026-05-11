@@ -386,6 +386,7 @@ async function main() {
     try { await db.query("ALTER TABLE certification_items ADD COLUMN recommended_action VARCHAR(50) AFTER recommendation_score"); } catch (e) { }
     try { await db.query("ALTER TABLE certification_items ADD COLUMN reviewed_by VARCHAR(255) AFTER recommended_action"); } catch (e) { }
     try { await db.query("ALTER TABLE certification_items ADD COLUMN reviewed_at DATETIME AFTER reviewed_by"); } catch (e) { }
+    try { await db.query("ALTER TABLE certification_items ADD COLUMN risk_score FLOAT AFTER recommendation_score"); } catch (e) { }
     try { await db.query("ALTER TABLE access_requests ADD COLUMN duration_seconds INT DEFAULT NULL AFTER justification"); } catch (e) { }
     try { await db.query("ALTER TABLE access_requests ADD COLUMN application_name VARCHAR(255) AFTER application_id"); } catch (e) { }
     try { await db.query("ALTER TABLE access_requests ADD COLUMN role_id VARCHAR(100) AFTER application_name"); } catch (e) { }
