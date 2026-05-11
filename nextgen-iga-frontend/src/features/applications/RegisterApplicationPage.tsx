@@ -17,7 +17,14 @@ const schema = z.object({
   riskLevel: z.string(),
   riskScore: z.coerce.number().min(0).max(100),
 });
-type FormData = z.infer<typeof schema>;
+
+interface FormData {
+  appName: string;
+  groupCn: string;
+  owner: string;
+  riskLevel: string;
+  riskScore: number;
+}
 
 export function RegisterApplicationPage() {
   const navigate = useNavigate();
@@ -32,7 +39,7 @@ export function RegisterApplicationPage() {
     watch,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: { 
       owner: "",
       riskLevel: "MEDIUM",
@@ -66,6 +73,10 @@ export function RegisterApplicationPage() {
     },
   });
 
+  const onFormSubmit = (data: FormData) => {
+    create.mutate(data);
+  };
+
   return (
     <div className="fade-in">
       <PageHeader
@@ -85,7 +96,7 @@ export function RegisterApplicationPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit((d: FormData) => create.mutate(d))} className="space-y-6">
+          <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
             <div className="form-group">
               <label className="form-label required">Application Display Name</label>
               <input
