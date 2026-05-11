@@ -30,53 +30,16 @@ export function AIAuditPage() {
     onError: () => toast.error('Failed to generate report. AI service might be busy.'),
   });
 
-  const convertToCSV = (data: any[]) => {
-    if (!data || data.length === 0) return '';
-    const headers = Object.keys(data[0]);
-    const headerRow = headers.map(h => `"${h.replace(/"/g, '""')}"`).join(',');
-    const rows = data.map(row => 
-      headers.map(header => {
-        const val = row[header] === null || row[header] === undefined ? '' : row[header];
-        return `"${String(val).replace(/"/g, '""')}"`;
-      }).join(',')
-    );
-    return [headerRow, ...rows].join('\n');
-  };
-
   const handleDownload = async (id: string, title: string) => {
-    const toastId = toast.loading('Preparing CSV download directly from UI...');
+    const toastId = toast.loading('Initiating report download...');
     try {
-      // 1. Direct UI Download: Use the already loaded selectedReport to avoid ANY API call
-      let reportToExport = selectedReport;
-      
-      if (!reportToExport || reportToExport.id !== id || !reportToExport.detailed_records) {
-        reportToExport = await aiApi.getReport(id);
-      }
-      
-      if (!reportToExport || !reportToExport.detailed_records) {
-        throw new Error('Report data is not available for CSV conversion');
-      }
-
-      // 2. Convert detailed records to CSV
-      const csvContent = convertToCSV(reportToExport.detailed_records);
-      
-      // 3. Create a blob and download locally
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      const safeTitle = (title || 'AI_Report').replace(/\s+/g, '_');
-      link.setAttribute('download', `${safeTitle}_${id}.csv`);
-      
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      
-      toast.success('CSV Download complete', { id: toastId });
+      // Direct call to external report download API
+      const downloadUrl = `http://13.234.90.97/api/v1/reports/${id}/download`;
+      window.open(downloadUrl, '_blank');
+      toast.success('Download started', { id: toastId });
     } catch (err: any) {
-      console.error('[ai] csv download error:', err);
-      toast.error(err.message || 'Download failed.', { id: toastId });
+      console.error('[ai] download error:', err);
+      toast.error('Download failed.', { id: toastId });
     }
   };
 
@@ -284,3 +247,4 @@ export function AIAuditPage() {
     </div>
   );
 }
+ Broadway/

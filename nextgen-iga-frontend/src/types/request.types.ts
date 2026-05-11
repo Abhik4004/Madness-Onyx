@@ -30,6 +30,7 @@ export interface AccessRequest {
   approved_at: string | null;
   history: RequestHistoryEntry[];
   duration_seconds?: number | null;
+  access_type?: 'PERMANENT' | 'TIME_BASED';
 }
 
 export interface RequestHistoryEntry {
@@ -62,3 +63,4 @@ export interface AppRole {
   application_id: string;
   risk_level: 'LOW' | 'MEDIUM' | 'HIGH';
 }
+
