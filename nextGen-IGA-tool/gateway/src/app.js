@@ -28,7 +28,14 @@ const getIdentityHeaders = (req) => ({
   "X-User-Role": req.role || "user"
 });
 
-app.use(cors());
+app.use(cors({
+  origin: "*",              // or "http://54.167.248.162" for stricter
+  methods: ["GET","POST","PUT","DELETE","PATCH","OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}));
+
 app.use(express.json());
 
 // ── Public Routes ────────────────────────────────────────────────────────────
