@@ -294,36 +294,60 @@ export function NewRequestPage() {
                   <span className="font-semibold text-lg">Requestee (Target User)</span>
                 </label>
                 <p className="text-sm text-muted mb-4">Select who this access is being requested for.</p>
-                <div className="search-input-wrap mb-3">
-                  <Search size={13} />
-                  <input
+                <div className="relative" style={{ position: 'relative' }}>
+                  <button
+                    type="button"
                     className="form-control"
-                    placeholder="Search users..."
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                  />
-                </div>
-
-                <div className="user-picker-list border rounded-lg max-h-40 overflow-y-auto">
-                  <div className={`user-picker-item ${!targetUserId ? 'active shadow-sm' : ''}`} onClick={() => setValue("targetUserId", "")}>
-                    <div className="avatar-xs mr-3 bg-primary text-white">{user?.full_name?.[0]}</div>
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold">Myself (You)</div>
-                      <div className="text-xs text-muted">{user?.full_name} — {user?.email}</div>
-                    </div>
-                    {!targetUserId && <Check size={14} className="text-primary" />}
-                  </div>
-
-                  {userList.map((u) => (
-                    <div key={u.id} className={`user-picker-item ${targetUserId === u.id ? 'active' : ''}`} onClick={() => setValue("targetUserId", u.id)}>
-                      <div className="avatar-xs mr-3">{u.full_name?.[0]}</div>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">{u.full_name}</div>
-                        <div className="text-xs text-muted">{u.email}</div>
+                    style={{ height: 'auto', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+                    onClick={() => setCustomInput(customInput === 'user-picker-open' ? '' : 'user-picker-open')}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div className="avatar-xs" style={{ backgroundColor: 'var(--color-primary)', color: 'white' }}>
+                        {(targetUserId ? userList.find(u => u.id === targetUserId)?.full_name?.[0] : user?.full_name?.[0]) || '?'}
                       </div>
-                      {targetUserId === u.id && <Check size={14} className="text-primary" />}
+                      <div style={{ textAlign: 'left' }}>
+                        <div className="text-sm font-semibold truncate">
+                          {targetUserId ? userList.find(u => u.id === targetUserId)?.full_name : "Myself (You)"}
+                        </div>
+                        <div className="text-xs text-muted truncate">
+                          {targetUserId ? userList.find(u => u.id === targetUserId)?.email : user?.email}
+                        </div>
+                      </div>
                     </div>
-                  ))}
+                    <div style={{ opacity: 0.5 }}>{customInput === 'user-picker-open' ? '▲' : '▼'}</div>
+                  </button>
+
+                  {customInput === 'user-picker-open' && (
+                    <div className="card shadow-xl" style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: 8, padding: 12, backgroundColor: 'white', border: '1px solid var(--color-gray-200)', minWidth: 300 }}>
+                      <div className="search-input-wrap mb-3" onClick={e => e.stopPropagation()}>
+                        <Search size={13} />
+                        <input 
+                          className="form-control" 
+                          placeholder="Search users..." 
+                          value={userSearch} 
+                          autoFocus 
+                          onChange={(e) => setUserSearch(e.target.value)} 
+                          onClick={e => e.stopPropagation()}
+                        />
+                      </div>
+                      <div className="user-picker-list border rounded-lg" style={{ maxHeight: '240px', overflowY: 'auto', background: 'var(--color-gray-50)' }}>
+                        <div className={`user-picker-item ${!targetUserId ? 'active shadow-sm' : ''}`} onClick={() => { setValue("targetUserId", ""); setCustomInput(''); }}>
+                          <div className="avatar-xs mr-3 bg-primary text-white">{user?.full_name?.[0]}</div>
+                          <div className="flex-1"><div className="text-sm font-semibold">Myself (You)</div><div className="text-xs text-muted">{user?.email}</div></div>
+                          {!targetUserId && <Check size={14} className="text-primary" />}
+                        </div>
+                        {userList
+                          .filter(u => !userSearch || u.full_name?.toLowerCase().includes(userSearch.toLowerCase()) || u.email?.toLowerCase().includes(userSearch.toLowerCase()))
+                          .map((u) => (
+                            <div key={u.id} className={`user-picker-item ${targetUserId === u.id ? 'active' : ''}`} onClick={() => { setValue("targetUserId", u.id); setCustomInput(''); }}>
+                              <div className="avatar-xs mr-3">{u.full_name?.[0]}</div>
+                              <div className="flex-1"><div className="text-sm font-medium">{u.full_name}</div><div className="text-xs text-muted">{u.email}</div></div>
+                              {targetUserId === u.id && <Check size={14} className="text-primary" />}
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
