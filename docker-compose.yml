@@ -76,10 +76,8 @@ services:
       - EXTERNAL_AUTH_URL=${EXTERNAL_AUTH_URL:-http://18.60.129.12:8080}  # External auth server
       - PUBLIC_URL=${PUBLIC_URL:-http://54.167.248.162:3000}
     depends_on:
-      access-management:         # Wait until access-management healthcheck passes
-        condition: service_healthy
-      recommendation:            # Wait until recommendation healthcheck passes
-        condition: service_healthy
+      - access-management
+      - recommendation
     networks:
       - iga-network
 
