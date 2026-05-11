@@ -51,8 +51,8 @@ export function TeamMemberDetailPage() {
   const accesses = accessRes?.data ?? [];
 
   const columns: Column<UserAccess>[] = [
-    { key: 'app', header: 'Application', render: a => <span className="font-medium">{a.application_name}</span> },
-    { key: 'role', header: 'Role', render: a => a.role_name },
+    { key: 'app', header: 'Application', render: () => <span className="font-medium">Open DS</span> },
+    { key: 'role', header: 'Entitlement', render: a => a.application_name },
     { 
       key: 'status', 
       header: 'Status', 
@@ -109,6 +109,7 @@ export function TeamMemberDetailPage() {
         <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
           <div><div className="text-xs text-muted font-semibold" style={{ textTransform: 'uppercase' }}>Role</div><div className="text-sm font-medium" style={{ marginTop: 4 }}>{user.role.replace('_', ' ')}</div></div>
           <div><div className="text-xs text-muted font-semibold" style={{ textTransform: 'uppercase' }}>Status</div><div style={{ marginTop: 4 }}><StatusBadge status={user.status} /></div></div>
+          <div><div className="text-xs text-muted font-semibold" style={{ textTransform: 'uppercase' }}>Groups</div><div className="text-sm font-medium" style={{ marginTop: 4 }}>{user.groups && user.groups.length > 0 ? user.groups.join(', ') : 'None'}</div></div>
         </div>
       </div>
 

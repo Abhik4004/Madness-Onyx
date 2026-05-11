@@ -18,7 +18,7 @@ function HierarchyNode({ node }: { node: any }) {
   return (
     <div className="hierarchy-node">
       {/* Card */}
-      <div className="hierarchy-card-link">
+      <Link to={`/supervisor/team/${node.uid}`} className="hierarchy-card-link" style={{ textDecoration: 'none', color: 'inherit' }}>
         <div className={`hierarchy-card role-${role}`}>
           <div className="hierarchy-avatar">
             {node.full_name?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
@@ -33,7 +33,7 @@ function HierarchyNode({ node }: { node: any }) {
             )}
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Children */}
       {hasChildren && (
@@ -154,6 +154,13 @@ export function TeamAccessPage() {
     { key: 'email', header: 'Email', render: u => u.email },
     { key: 'role', header: 'Role', render: u => <StatusBadge status={u.role.replace('_', ' ').toUpperCase()} /> },
     { key: 'status', header: 'Status', render: u => <StatusBadge status={u.status} /> },
+    {
+      key: 'actions', header: '', render: u => (
+        <Link to={`/supervisor/team/${u.uid}`} className="btn btn-sm btn-secondary text-xs" style={{ whiteSpace: 'nowrap' }}>
+          View Details →
+        </Link>
+      )
+    }
   ];
 
   return (
