@@ -137,7 +137,7 @@ export function UserDashboard() {
               </div>
             )}
 
-            {certifications.data?.data?.length > 0 && (
+            {(certifications.data?.data?.length ?? 0) > 0 && (
               <div className="card" style={{ 
                 background: "var(--grad-primary)", 
                 color: "white", 
@@ -152,7 +152,7 @@ export function UserDashboard() {
               }}>
                 <div>
                   <h3 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.5px" }}>Certification Campaign Active</h3>
-                  <p style={{ opacity: 0.9, marginTop: 6, fontSize: "1rem" }}>You have {certifications.data?.data?.length} campaign(s) requiring your review.</p>
+                  <p style={{ opacity: 0.9, marginTop: 6, fontSize: "1rem" }}>You have {certifications.data?.data?.length ?? 0} campaign(s) requiring your review.</p>
                 </div>
                 <Link to="/supervisor/certifications/my-tasks" className="btn btn-lg" style={{ background: "white", color: "var(--color-primary)", fontWeight: 700, padding: "12px 30px", borderRadius: 12 }}>
                   Perform Reviews ?
@@ -236,7 +236,7 @@ export function UserDashboard() {
                   <div key={r.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 0", borderBottom: "1px solid var(--color-gray-100)" }}>
                     <div>
                       <div className="font-bold text-sm" style={{ color: "var(--color-gray-900)" }}>Open DS</div>
-                      <div className="text-xs text-muted mt-1">{r.application_name} � {formatDate(r.submitted_at)}</div>
+                      <div className="text-xs text-muted mt-1">{r.application_name} ï¿½ {formatDate(r.submitted_at)}</div>
                     </div>
                     <StatusBadge status={r.access_type === "TIME_BASED" ? "EXPIRED" : r.status} />
                   </div>
