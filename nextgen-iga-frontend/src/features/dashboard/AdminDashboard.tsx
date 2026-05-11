@@ -9,7 +9,7 @@ import { formatDate, formatRelative } from '../../lib/utils';
 import { useAuth } from '../../hooks/useAuth';
 import { recommendationsApi } from '../../api/recommendations.api';
 import { Lightbulb, Sparkles } from 'lucide-react';
-import { AIInsightsWidget, AIAnomaliesWidget } from '../ai/AIWidgets';
+// import { AIInsightsWidget, AIAnomaliesWidget } from '../ai/AIWidgets';
 
 export function AdminDashboard() {
   const { data: response, isLoading } = useQuery({

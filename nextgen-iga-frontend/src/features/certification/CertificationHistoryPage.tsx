@@ -5,10 +5,10 @@ import { PageHeader } from '../../components/layout/PageHeader';
 import { StatusBadge } from '../../components/shared/StatusBadge';
 import { certificationApi } from '../../api/certification.api';
 import { formatDate } from '../../lib/utils';
-import { useAuth } from '../../hooks/useAuth';
+import { usePermissions } from '../../hooks/usePermissions';
 
 export function CertificationHistoryPage() {
-  const { isAdmin, isSupervisor } = useAuth();
+  const { isAdmin, isSupervisor } = usePermissions();
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['certifications', 'history'],
     queryFn: () => certificationApi.getHistory(),
