@@ -14,8 +14,8 @@ const schema = z.object({
   appName: z.string().min(2, "Application name must be at least 2 characters"),
   groupCn: z.string().min(2, "Group name must be at least 2 characters"),
   owner: z.string().min(1, "Owner (Manager) is required"),
-  riskLevel: z.string().default("MEDIUM"),
-  riskScore: z.coerce.number().min(0).max(100).default(50),
+  riskLevel: z.string(),
+  riskScore: z.coerce.number().min(0).max(100),
 });
 type FormData = z.infer<typeof schema>;
 
@@ -33,7 +33,11 @@ export function RegisterApplicationPage() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { owner: "" }
+    defaultValues: { 
+      owner: "",
+      riskLevel: "MEDIUM",
+      riskScore: 50
+    }
   });
 
   const selectedOwner = watch("owner");
@@ -81,7 +85,7 @@ export function RegisterApplicationPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit((d) => create.mutate(d))} className="space-y-6">
+          <form onSubmit={handleSubmit((d: FormData) => create.mutate(d))} className="space-y-6">
             <div className="form-group">
               <label className="form-label required">Application Display Name</label>
               <input

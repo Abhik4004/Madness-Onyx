@@ -238,9 +238,10 @@ dataRouter.post(
       }));
       
       res.json({
+        ok: true,
         action: "provision",
         results: resultsArray,
-        external: extData
+        externals: extData
       });
     } catch (err) {
       console.error("[provision] submit error:", err);
@@ -284,7 +285,11 @@ dataRouter.post("/user", async (req, res) => {
       body: JSON.stringify(user)
     });
 
-    res.json({ ok: true, message: "User provisioned and synced", data: extData });
+    res.json({ 
+      ok: true, 
+      message: "User provisioned and synced", 
+      externals: extData 
+    });
   } catch (err) {
     console.error("[provision] Single user bypass error:", err.message);
     res.status(502).json({ ok: false, message: "Service communication error" });
