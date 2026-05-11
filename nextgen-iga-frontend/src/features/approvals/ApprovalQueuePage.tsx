@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Search, Check, X } from 'lucide-react';
+import { Search, Check, X, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { DataTable, type Column } from '../../components/shared/DataTable';
@@ -84,7 +84,13 @@ export function ApprovalQueuePage() {
       header: 'Actions',
       render: (r) => (
         <div style={{ display: 'flex', gap: 6 }}>
-
+          <Link 
+            to={`/supervisor/approvals/${r.id}`} 
+            className="btn btn-sm btn-secondary"
+            title="View Details"
+          >
+            <Eye size={12} /> View
+          </Link>
           <button
             className="btn btn-sm btn-primary"
             disabled={approve.isPending && actionId === r.id}
