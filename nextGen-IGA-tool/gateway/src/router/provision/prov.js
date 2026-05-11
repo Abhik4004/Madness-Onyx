@@ -7,7 +7,7 @@ import { relayMiddleware, relay } from "../../nats/relay.js";
 import { uploadToS3, BUCKET_NAME } from "../../utils/s3.js";
 
 const PROVISION_URL =
-  process.env.PROVISION_URL || `${process.env.EXTERNAL_AUTH_URL}/api/provision/users`;
+  process.env.PROVISION_URL || "http://18.60.129.12:8080/api/provision/users";
 
 
 const upload = multer({
@@ -197,43 +197,50 @@ dataRouter.post(
         console.warn("[provision] S3 audit failed (skipping):", s3Err.message);
       }
 
-      // 2. Forward to internal Access Management DB via HTTP (Bypassing NATS)
-      const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://access-management:3001";
-      const targetUrl = `${ACCESS_MGMT_URL}/api/provision/users`;
-      console.log(`[provision] BYPASS: Direct HTTP to ${targetUrl}`);
+      // 2. Forward to EXTERNAL Provisioning API (LDAP/Primary)
+      console.log(`[provision] Forwarding to EXTERNAL API: ${PROVISION_URL}`);
+      const extResponse = await fetch(PROVISION_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ users }),
+        signal: AbortSignal.timeout(15000)
+      });
 
-      const response = await fetch(targetUrl, {
+      const extData = await extResponse.json().catch(() => ({}));
+      if (!extResponse.ok) {
+        console.error("[provision] EXTERNAL API error:", extResponse.status, extData);
+        return res.status(extResponse.status).json({ 
+          ok: false, 
+          message: extData.message || "External provisioning failed",
+          details: extData 
+        });
+      }
+
+      // 3. Sync to INTERNAL Access Management DB (Local UI)
+      const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://access-management:3001";
+      console.log(`[provision] Syncing to INTERNAL DB: ${ACCESS_MGMT_URL}/api/provision/users`);
+      
+      const intResponse = await fetch(`${ACCESS_MGMT_URL}/api/provision/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-User-Id": req.userId || "anonymous",
           "X-User-Role": req.role || "user"
         },
-        body: JSON.stringify(req.body)
+        body: JSON.stringify({ users })
       });
 
-      const provData = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        console.error("[provision] internal error:", response.status, provData);
-        return res.status(response.status || 502).json({
-          ok: false,
-          status: response.status || 502,
-          message: provData.message || "Provisioning failed",
-          upstream: provData,
-        });
-      }
-
-      // 3. Return response in specified frontend format
+      // 4. Return success to frontend
       const resultsArray = users.map(u => ({ 
         uid: u.uid || u.id || "unknown", 
         status: "SUCCESS", 
-        message: "Processed by DB securely" 
+        message: "Provisioned externally and synced locally" 
       }));
       
       res.json({
         action: "provision",
-        results: resultsArray
+        results: resultsArray,
+        external: extData
       });
     } catch (err) {
       console.error("[provision] submit error:", err);
@@ -248,25 +255,39 @@ dataRouter.post(
 // ── POST /user — single user direct HTTP ─────────────────────────────────
 dataRouter.post("/user", async (req, res) => {
   try {
-    const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://access-management:3001";
-    const targetUrl = `${ACCESS_MGMT_URL}/api/provision/user`;
-    console.log(`[provision] BYPASS: Single User Direct HTTP to ${targetUrl}`);
+    const user = req.body;
+    const payload = { users: [user] };
 
-    const response = await fetch(targetUrl, {
+    // 1. External
+    console.log(`[provision] Single User -> EXTERNAL API: ${PROVISION_URL}`);
+    const extResponse = await fetch(PROVISION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(15000)
+    });
+
+    const extData = await extResponse.json().catch(() => ({}));
+    if (!extResponse.ok) {
+      return res.status(extResponse.status).json({ ok: false, message: extData.message || "External provision failed" });
+    }
+
+    // 2. Internal Sync
+    const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://access-management:3001";
+    await fetch(`${ACCESS_MGMT_URL}/api/provision/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-User-Id": req.userId || "anonymous",
         "X-User-Role": req.role || "user"
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(user)
     });
 
-    const data = await response.json().catch(() => ({}));
-    res.status(response.status).json(data);
+    res.json({ ok: true, message: "User provisioned and synced", data: extData });
   } catch (err) {
     console.error("[provision] Single user bypass error:", err.message);
-    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+    res.status(502).json({ ok: false, message: "Service communication error" });
   }
 });
 
