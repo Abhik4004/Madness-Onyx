@@ -14,6 +14,7 @@ export const auditApi = {
     offset?: number;
     page?: number;
     per_page?: number;
+    search?: string;
   }) =>
     apiClient
       .get<ApiResponse<AuditLogPage>>('/api/audit/log', { params })

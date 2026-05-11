@@ -13,7 +13,7 @@ export function CertificationListPage() {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['certifications', { search }],
-    queryFn: () => certificationApi.list({ search }),
+    queryFn: () => certificationApi.list({ search } as any),
   });
 
   const certs = (data?.data ?? []) as CertificationCampaign[];
@@ -71,7 +71,22 @@ export function CertificationListPage() {
                       <span className="font-semibold">{cert.name}</span>
                       <StatusBadge status={cert.status} />
                     </div>
-                    <div className="text-xs text-muted">{formatDate(cert.start_date)} — {formatDate(cert.end_date)}</div>
+                    <div className="text-xs text-muted" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span>{formatDate(cert.start_date)} — {formatDate(cert.end_date)}</span>
+                      {cert.status === 'ACTIVE' && (
+                        <span className="badge badge-low" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span className="pulse" style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: 'currentColor' }} />
+                          {(() => {
+                            const diff = new Date(cert.end_date).getTime() - Date.now();
+                            if (diff <= 0) return 'Deadline Reached';
+                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            if (days > 0) return `${days}d ${hours}h remaining`;
+                            return `${hours}h remaining`;
+                          })()}
+                        </span>
+                      )}
+                    </div>
                     <div style={{ marginTop: 10 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                         <span className="text-xs text-muted">Progress</span>
@@ -86,7 +101,12 @@ export function CertificationListPage() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
-
+                    <Link to={`/admin/certifications/${cert.id}`} className="btn btn-secondary btn-sm">
+                      View Details
+                    </Link>
+                    <Link to={`/admin/certifications/${cert.id}/report`} className="btn btn-outline btn-sm">
+                      Report
+                    </Link>
                   </div>
                 </div>
               </div>

@@ -160,7 +160,23 @@ export function MyCertificationTasksPage() {
     <div>
       <PageHeader 
         title="My Certification Tasks" 
-        subtitle={itemsQuery.data?.data?.length ? `Reviewing ${itemsQuery.data.meta?.total || itemsQuery.data.data.length} pending access assignments across all active campaigns` : "Review and certify access assignments"} 
+        subtitle={
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span>Reviewing {itemsQuery.data?.meta?.total || pendingItems.length} pending items</span>
+            {activeCert && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', color: '#f59e0b' }}>
+                <span className="pulse" style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: 'currentColor' }} />
+                Deadline: {new Date(activeCert.end_date).toLocaleDateString()}
+                {(() => {
+                  const diff = new Date(activeCert.end_date).getTime() - Date.now();
+                  if (diff <= 0) return ' (Expired)';
+                  const days = Math.floor(diff / (80000000)); // Rough estimate for quick display
+                  return ` (${Math.max(1, Math.floor(diff/(1000*60*60*24)))}d remaining)`;
+                })()}
+              </div>
+            )}
+          </div>
+        }
       />
 
       {pendingItems.length > 0 && selected.length > 0 && (

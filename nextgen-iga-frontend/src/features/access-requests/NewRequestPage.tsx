@@ -28,7 +28,6 @@ const step2Schema = z.object({
   duration: z.string().optional(),
   targetUserId: z.string().optional(),
   role: z.string().min(1, "Please select a role"),
-  customRole: z.string().optional(),
 }).refine(data => {
   if (data.justification === "Other" && (!data.customJustification || data.customJustification.length < 10)) {
     return false;
@@ -78,7 +77,7 @@ export function NewRequestPage() {
       requestsApi.create({
         resourceId,
         application_name: resourceName,
-        role_name: data.role === "other" ? (data.customRole ?? "") : data.role,
+        role_name: data.role,
         justification: data.justification === "other" ? (data.customJustification ?? "") : data.justification,
         duration: data.duration ? parseInt(data.duration) : undefined,
         targetUserId: data.targetUserId || user?.id,
@@ -239,22 +238,10 @@ export function NewRequestPage() {
                 <option value="viewer">Viewer / Read-Only</option>
                 <option value="editor">Editor / Read-Write</option>
                 <option value="admin">Administrator / Full Control</option>
-                <option value="other">Other (Specify below)...</option>
               </select>
               {errors.role && <span className="form-error">{errors.role.message}</span>}
             </div>
 
-            {selectedRole === "other" && (
-              <div className="form-group fade-in">
-                <label className="form-label required">Custom Role Name</label>
-                <input
-                  className={`form-control ${errors.customRole ? "error" : ""}`}
-                  placeholder="e.g. Data Auditor, Support Lead..."
-                  {...register("customRole")}
-                />
-                {errors.customRole && <span className="form-error">Custom role is required</span>}
-              </div>
-            )}
 
             <div className="form-group">
               <label className="form-label required">Justification Reason</label>
@@ -364,7 +351,7 @@ export function NewRequestPage() {
             <div className="detail-row">
               <span className="detail-label">Requested Role</span>
               <span className="detail-value capitalize text-primary font-bold">
-                {selectedRole === "other" ? watch("customRole") : selectedRole}
+                {selectedRole}
               </span>
             </div>
             <div className="detail-row">

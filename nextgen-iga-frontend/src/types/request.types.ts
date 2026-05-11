@@ -27,6 +27,7 @@ export interface AccessRequest {
   decided_at: string | null;
   provisioned_at: string | null;
   expires_at: string | null;
+  approved_at: string | null;
   history: RequestHistoryEntry[];
   duration_seconds?: number | null;
 }

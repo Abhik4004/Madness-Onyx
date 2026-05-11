@@ -10,7 +10,7 @@ export interface UserAccess {
   role_name: string;
   granted_at: string;
   expires_at: string | null;
-  status: 'ACTIVE' | 'REVOKED' | 'EXPIRED';
+  status: 'ACTIVE' | 'REVOKED' | 'EXPIRED' | 'PROVISIONED' | 'PENDING';
 }
 
 export interface ProvisioningJob {

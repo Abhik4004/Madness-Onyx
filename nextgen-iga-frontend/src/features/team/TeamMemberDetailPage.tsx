@@ -58,7 +58,7 @@ export function TeamMemberDetailPage() {
       header: 'Status', 
       render: a => {
         let displayStatus = a.status;
-        if (a.expires_at && (a.status === 'ACTIVE' || a.status === 'PROVISIONED')) {
+        if (a.expires_at && ((a.status as any) === 'ACTIVE' || (a.status as any) === 'PROVISIONED')) {
           if (Date.now() > new Date(a.expires_at).getTime()) {
             displayStatus = 'EXPIRED';
           }

@@ -17,7 +17,7 @@ export const certificationApi = {
       .then((r) => r.data),
 
   // GET /api/access/cert/campaign  (extension)
-  list: (params?: { status?: string }) =>
+  list: (params?: { status?: string; search?: string }) =>
     apiClient
       .get<ApiResponse<Certification[]>>('/api/access/cert/campaign', { params })
       .then((r) => r.data),
@@ -31,7 +31,7 @@ export const certificationApi = {
   // GET /api/access/cert/campaign/:id/items  (extension)
   listItems: (
     id?: string,
-    params?: { reviewer_id?: string; decision?: string; page?: number; per_page?: number }
+    params?: { reviewer_id?: string; decision?: string; page?: number; per_page?: number; search?: string }
   ) => {
     const url = id ? `/api/access/cert/campaign/${id}/items` : '/api/access/cert/items';
     return apiClient

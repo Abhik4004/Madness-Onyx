@@ -28,7 +28,7 @@ export function AuditLogExplorerPage() {
       user_id: userId || undefined,
       from: from || undefined,
       to: to || undefined,
-    }),
+    } as any),
   });
 
   const logs = (data?.data?.logs ?? []) as unknown as AuditLog[];

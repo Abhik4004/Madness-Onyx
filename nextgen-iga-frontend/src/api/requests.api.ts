@@ -37,6 +37,7 @@ export interface BackendAccessRequest {
   user_id?: string;
   expires_at?: string | null;
   duration_days?: number | null;
+  duration_seconds?: number | null;
 }
 
 interface CreateRequestBody {
