@@ -675,7 +675,7 @@ export async function handleActiveAccessList(msg) {
       FROM user_access ua
       LEFT JOIN users_access u ON ua.user_id = u.id
       LEFT JOIN applications a ON ua.application_id = a.id
-      WHERE ua.status = 'ACTIVE'
+      WHERE ua.status = 'ACTIVE' AND ua.access_type != 'TIME_BASED'
     `;
     let vals = [];
 

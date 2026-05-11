@@ -102,17 +102,6 @@ export function ActiveAccessPage() {
       }
     },
     { key: 'granted', header: 'Granted', render: a => formatDate(a.granted_at) },
-    { 
-      key: 'expires', 
-      header: 'Time Remaining', 
-      render: a => (
-        <TimeBasedProgress 
-          startTime={a.granted_at} 
-          endTime={a.expires_at} 
-          status={a.status} 
-        />
-      )
-    },
     {
       key: 'actions', header: '', width: '100px',
       render: a => a.status === 'ACTIVE' ? (
@@ -125,7 +114,7 @@ export function ActiveAccessPage() {
 
   return (
     <div className="fade-in">
-      <PageHeader title="Remove Entitlement" subtitle="Manage provisioned entitlements and time-based access" />
+      <PageHeader title="Remove Entitlement" subtitle="Manage provisioned entitlements" />
 
       <div className="card mb-6" style={{ padding: '12px 20px' }}>
         <div className="search-input-wrap" style={{ maxWidth: 450 }}>
