@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { FileText, CheckCircle, Bell, Lightbulb, AlertTriangle, Sparkles } from 'lucide-react';
+import { FileText, CheckCircle, Bell, Lightbulb, AlertTriangle, Sparkles, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { StatusBadge } from '../../components/shared/StatusBadge';
@@ -11,6 +11,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
 import { formatDate, formatRelative, getErrorMessage } from '../../lib/utils';
 import { AdminDashboard } from './AdminDashboard';
+import { AIInsightsWidget, AIAnomaliesWidget } from '../ai/AIWidgets';
 
 export function UserDashboard() {
   const { user } = useAuth();
@@ -80,6 +81,13 @@ export function UserDashboard() {
           subtitle="Here's an overview of your personal access and activity"
         />
 
+        {isSupervisor && (
+          <div className="grid-12" style={{ marginBottom: 40 }}>
+            <div className="span-6 glass" style={{ padding: 4, borderRadius: 24, background: 'rgba(37, 99, 235, 0.05)' }}><AIInsightsWidget /></div>
+            <div className="span-6 glass" style={{ padding: 4, borderRadius: 24, background: 'rgba(239, 68, 68, 0.05)' }}><AIAnomaliesWidget /></div>
+          </div>
+        )}
+
         <div className="kpi-grid">
           {isSupervisor && (
             <div className="card" style={{ 
@@ -122,7 +130,7 @@ export function UserDashboard() {
 
         {/* Team Suggestions (Vibrant) */}
         {isSupervisor && teamRecs.length > 0 && (
-          <div className="card glass" style={{ marginBottom: 40, border: '1px solid var(--color-primary-light)', background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(37, 99, 235, 0) 100%)' }}>
+          <div className="card glass" style={{ marginBottom: 40, marginTop: 40, border: '1px solid var(--color-primary-light)', background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(37, 99, 235, 0) 100%)' }}>
             <div className="card-header">
               <span className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--color-primary)' }}>
                 <Sparkles size={20} /> Team Onboarding Suggestions
@@ -131,7 +139,7 @@ export function UserDashboard() {
                 {teamRecs.length} Members Need Attention
               </span>
             </div>
-            <div className="grid-12">
+            <div className="grid-12" style={{ padding: '0 20px 20px' }}>
               {teamRecs.map((member: any) => (
                 <div key={member.userId} className="span-6 kpi-card" style={{ background: '#fff', border: '1px solid var(--color-gray-100)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -157,6 +165,7 @@ export function UserDashboard() {
             </div>
           </div>
         )}
+
         {/* Personal Recommendations */}
         {recs.length > 0 && (
           <div className="card glass" style={{ marginBottom: 40, border: '1px solid var(--color-success-light)', background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(34, 197, 94, 0) 100%)' }}>
@@ -190,7 +199,7 @@ export function UserDashboard() {
               <Link to="/requests" className="text-sm font-bold" style={{ color: 'var(--color-primary)' }}>View All Activity →</Link>
             </div>
             {recentReqs.isLoading ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 20 }}>
                 {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 50, borderRadius: 12 }} />)}
               </div>
             ) : recentReqs.isError ? (
@@ -201,14 +210,14 @@ export function UserDashboard() {
             ) : (Array.isArray(recentReqs.data?.data) ? recentReqs.data.data : []).length === 0 ? (
               <p className="text-sm text-muted" style={{ textAlign: 'center', padding: '40px 0' }}>No requests yet. <Link to="/requests/new" className="font-bold">Request access now →</Link></p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '0 20px 20px' }}>
                 {(Array.isArray(recentReqs.data?.data) ? recentReqs.data.data : []).map((r) => (
                   <div key={r.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid var(--color-gray-100)' }}>
                     <div>
                       <div className="font-bold text-sm" style={{ color: 'var(--color-gray-900)' }}>Open DS</div>
                       <div className="text-xs text-muted mt-1">{r.application_name} · {formatDate(r.submitted_at)}</div>
                     </div>
-                    <StatusBadge status={r.status} />
+                    <StatusBadge status={r.access_type === 'TIME_BASED' ? 'EXPIRED' : r.status} />
                   </div>
                 ))}
               </div>
@@ -222,13 +231,13 @@ export function UserDashboard() {
               <Link to="/notifications" className="text-sm font-bold" style={{ color: 'var(--color-primary)' }}>Manage All →</Link>
             </div>
             {notifications.isLoading ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 20 }}>
                 {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 50, borderRadius: 12 }} />)}
               </div>
             ) : (Array.isArray(notifications.data?.data) ? notifications.data.data : []).length === 0 ? (
               <p className="text-sm text-muted" style={{ textAlign: 'center', padding: '40px 0' }}>All caught up! No new notifications.</p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '0 20px 20px' }}>
                 {(Array.isArray(notifications.data?.data) ? notifications.data.data : []).slice(0, 5).map((n) => {
                   const isSpecial = n.title.includes("Welcome") || n.title.includes("MFA") || n.title.includes("Access");
                   return (
@@ -258,3 +267,4 @@ export function UserDashboard() {
     </div>
   );
 }
+ Broadway/

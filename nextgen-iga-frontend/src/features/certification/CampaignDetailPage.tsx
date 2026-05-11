@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { X, AlertTriangle, Sparkles } from 'lucide-react';
+import { X, AlertTriangle, Sparkles, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { DataTable, type Column } from '../../components/shared/DataTable';
@@ -116,7 +116,11 @@ export function CampaignDetailPage() {
       <PageHeader
         title={cert?.name ?? '…'}
         breadcrumbs={[{ label: 'Certifications', to: '/admin/certifications' }, { label: cert?.name ?? '' }]}
-        actions={undefined}
+        actions={
+          <button className="btn btn-secondary" onClick={() => window.print()}>
+            <Download size={16} style={{ marginRight: 8 }} /> Download Report
+          </button>
+        }
       />
 
       {cert && (
@@ -176,3 +180,4 @@ export function CampaignDetailPage() {
     </div>
   );
 }
+ Broadway/
