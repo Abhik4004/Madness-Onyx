@@ -84,17 +84,6 @@ export function CampaignDetailPage() {
       width: '160px'
     },
     {
-      key: 'recommendation', header: 'AI Recommendation',
-      render: (i) => i.recommended_action ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Sparkles size={14} style={{ color: '#7c3aed' }} />
-          <span className={`badge badge-${i.recommended_action === 'RETAIN' ? 'low' : 'medium'}`} style={{ fontSize: '0.7rem', fontWeight: 700 }}>
-            {i.recommended_action}
-          </span>
-        </div>
-      ) : <span className="text-xs text-muted">Analyzing…</span>
-    },
-    {
       key: 'actions', header: '', width: '160px',
       render: i => i.decision === 'PENDING' ? (
         <div style={{ display: 'flex', gap: 6 }}>
