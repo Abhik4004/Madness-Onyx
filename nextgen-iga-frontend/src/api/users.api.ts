@@ -226,7 +226,7 @@ export const usersApi = {
    */
   get: (uid: string) =>
     apiClient
-      .get<AdminUserResponse>(`/api/users/${uid}`)
+      .get<AdminUserResponse>(`/api/user/${uid}`)
       .then((r) => ({
         ...r.data,
         data: r.data.data ? normalizeUser(r.data.data) : undefined,

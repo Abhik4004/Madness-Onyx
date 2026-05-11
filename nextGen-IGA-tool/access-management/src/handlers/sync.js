@@ -1744,7 +1744,7 @@ export async function handleBulkImport(msg) {
           const match = String(manager).match(/uid=([^,]+)/i);
           manager = match ? match[1] : manager;
         }
-        const status = (u.status || 'ACTIVE').toUpperCase();
+        const status = (u.status || 'PENDING_APPROVAL').toUpperCase();
 
         // Authoritative Fields: status, manager_id, full_name, email, role_id
         // UI-Protected: mfa_setup_link, last_login, etc.
@@ -1752,14 +1752,14 @@ export async function handleBulkImport(msg) {
         const existing = existingRows[0];
 
         await db.query(
-          `INSERT INTO users_access (id, employee_id, full_name, email, role_id, manager_id, status, last_synced)
-           VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+          `INSERT INTO users_access (id, employee_id, full_name, email, role_id, manager_id, status, isApproved, last_synced)
+           VALUES (?, ?, ?, ?, ?, ?, ?, FALSE, NOW())
            ON DUPLICATE KEY UPDATE 
              full_name = VALUES(full_name), 
              email = VALUES(email), 
              role_id = VALUES(role_id), 
              manager_id = VALUES(manager_id),
-             status = VALUES(status),
+             status = IF(isApproved = TRUE AND VALUES(status) = 'PENDING_APPROVAL', status, VALUES(status)),
              last_synced = NOW()`,
           [id, id, fullName, email, role, manager, status]
         );
@@ -2097,7 +2097,7 @@ async function performLdapSync() {
           const match = manager.match(/uid=([^,]+)/i);
           manager = match ? match[1] : manager;
         }
-        const status = (u.status || 'ACTIVE').toUpperCase();
+        const status = (u.status || 'PENDING_APPROVAL').toUpperCase();
 
         // Authoritative check
         const { rows: existingRows } = await db.query("SELECT manager_id FROM users_access WHERE id = ?", [id]);
@@ -2105,7 +2105,7 @@ async function performLdapSync() {
 
         await db.query(
           `INSERT INTO users_access (id, employee_id, full_name, email, role_id, manager_id, status, isApproved, last_synced)
-             VALUES (?, ?, ?, ?, ?, ?, ?, TRUE, NOW())
+             VALUES (?, ?, ?, ?, ?, ?, ?, FALSE, NOW())
              ON DUPLICATE KEY UPDATE 
                full_name = VALUES(full_name), 
                email = VALUES(email), 
@@ -2114,8 +2114,7 @@ async function performLdapSync() {
                  ELSE VALUES(role_id) 
                END, 
                manager_id = COALESCE(VALUES(manager_id), manager_id),
-               status = VALUES(status),
-               isApproved = TRUE,
+               status = IF(isApproved = TRUE AND VALUES(status) = 'PENDING_APPROVAL', status, VALUES(status)),
                last_synced = NOW()`,
           [id, id, fullName, email, role, manager || null, status]
         );

@@ -11,6 +11,7 @@ const adminUsersRouter = Router();
 adminUsersRouter.get("/", relayMiddleware);
 adminUsersRouter.post("/details", relayMiddleware);
 adminUsersRouter.post("/update", relayMiddleware);
+adminUsersRouter.get("/:uid", relayMiddleware);
 
 adminUsersRouter.get("/:uid/groups", relayMiddleware);
 adminUsersRouter.post("/:uid/group", relayMiddleware);
