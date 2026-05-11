@@ -126,6 +126,33 @@ export function AIChatbot({ context, initialMessage }: Props) {
   const renderDataContent = (msg: AIChatMessage) => {
     if (!msg.data && !msg.data_table) return null;
 
+    if (msg.data_table && msg.data_table.rows.length > 0) {
+      return (
+        <div style={{ marginTop: 10, overflowX: 'auto', background: 'white', borderRadius: 8, border: '1px solid var(--color-gray-200)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+          <table className="table table-xs" style={{ margin: 0, fontSize: '0.65rem', minWidth: '100%' }}>
+            <thead style={{ background: 'var(--color-gray-50)' }}>
+              <tr>
+                {(msg.data_table.columns || []).map(col => (
+                  <th key={col} style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>{col.replace(/_/g, ' ')}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {(msg.data_table.rows || []).map((row, i) => (
+                <tr key={i}>
+                  {(msg.data_table.columns || []).map(col => (
+                    <td key={col} style={{ padding: '6px 8px', borderTop: '1px solid var(--color-gray-100)' }}>
+                      {String(row[col] ?? '')}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
     if (msg.phase === 'REPORT_GENERATION' && msg.data) {
       return (
         <div style={{ marginTop: 8, padding: 8, background: 'white', borderRadius: 6, border: '1px solid var(--color-gray-200)' }}>
@@ -210,9 +237,9 @@ export function AIChatbot({ context, initialMessage }: Props) {
                 <div ref={bottomRef} />
               </div>
 
-              {messages.length <= 1 && (
+              {(messages.length <= 1 || (messages[messages.length - 1]?.role === 'assistant' && messages[messages.length - 1]?.suggestions)) && (
                 <div className="ai-quick-prompts">
-                  {quickPrompts.map(p => (
+                  {(messages[messages.length - 1]?.suggestions || quickPrompts).map(p => (
                     <button key={p} className="ai-quick-chip" onClick={() => send(p)}>{p}</button>
                   ))}
                 </div>

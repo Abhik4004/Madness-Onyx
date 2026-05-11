@@ -34,7 +34,10 @@ export interface AIChatMessage {
   phase?: "CHAT" | "REPORT_GENERATION" | "REPORT_HISTORY" | "INSIGHT_ANALYSIS" | "ANOMALY_ANALYSIS" | "AUDIT_ANALYSIS";
   data?: any;
   response_text?: string;
-  data_table?: Record<string, any>[];
+  data_table?: {
+    columns: string[];
+    rows: Record<string, any>[];
+  };
   suggestions?: string[];
   timestamp: string;
 }
@@ -47,7 +50,11 @@ export interface AIChatRequest {
 
 export interface AIChatResponse {
   response_text: string;
-  data_table?: Record<string, any>[];
+  data_table?: {
+    columns: string[];
+    rows: Record<string, any>[];
+  };
+  sql_executed?: string;
   suggestions?: string[];
   timestamp: string;
 }
@@ -126,7 +133,7 @@ export const aiApi = {
   chat: (body: AIChatRequest, userId?: string): Promise<AIChatResponse> =>
     aiClient
       .post<any>("assistant/chat", { ...body, user_id: userId })
-      .then((r) => r.data.data || r.data),
+      .then((r) => r.data),
 
   // Insights & Anomalies
   getInsights: (): Promise<AIInsight[]> =>
@@ -136,16 +143,16 @@ export const aiApi = {
     aiClient.get<any>("anomalies").then((r) => r.data.data || r.data),
 
   // Reports
-  generateReport: (query: string, userId?: string): Promise<AIReport> =>
+  generateReport: (query: string, userId?: string): Promise<AIReport & { id: string }> =>
     aiClient
       .post<any>("reports/generate", { query, user_id: userId })
       .then((r) => {
-        const raw = r.data.data || r.data;
-        // Map report_id to id if backend uses report_id
-        const report = raw.report || raw;
+        const raw = r.data;
         return {
-          ...report,
-          id: raw.report_id || raw.id || report.id
+          ...raw.report,
+          id: raw.report_id,
+          data_table: raw.data_table,
+          sql_executed: raw.sql_executed
         };
       }),
 
