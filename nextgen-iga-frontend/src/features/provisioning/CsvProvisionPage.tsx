@@ -145,14 +145,11 @@ export function CsvProvisionPage() {
   };
 
   // 👇 DYNAMIC COLUMN LOGIC 👇
-  const orderedMandatory = ["full_name", "email", "role"];
   const dynamicColumns = preview?.preview?.length
     ? Object.keys(preview.preview[0]).filter(
-        (k) => !["row", "status", "error"].includes(k),
+        (k) => !["row", "status", "error", "_ldap"].includes(k),
       )
     : [];
-  
-  const extraColumns = dynamicColumns.filter(c => !orderedMandatory.includes(c));
 
   return (
     <div>
@@ -341,15 +338,6 @@ export function CsvProvisionPage() {
             <div className="card-header">
               <span className="card-title">
                 Preview — first {Math.min(preview.preview.length, 10)} rows
-                {extraColumns.length > 0 && (
-                  <span
-                    className="text-xs text-muted"
-                    style={{ marginLeft: 8, fontWeight: 400 }}
-                  >
-                    · {extraColumns.length} extra column
-                    {extraColumns.length !== 1 ? "s" : ""} detected from CSV
-                  </span>
-                )}
               </span>
               <button className="btn btn-ghost btn-sm" onClick={reset}>
                 <X size={14} /> Change file
@@ -383,8 +371,7 @@ export function CsvProvisionPage() {
                       Row
                     </th>
 
-                    {/* Mandatory columns — visually marked with a dot */}
-                    {orderedMandatory.map((col) => (
+                    {dynamicColumns.map((col) => (
                       <th
                         key={col}
                         style={{
@@ -393,45 +380,6 @@ export function CsvProvisionPage() {
                         }}
                       >
                         {col.replace(/_/g, " ")}
-                        <span
-                          title="Required field"
-                          style={{
-                            display: "inline-block",
-                            width: 5,
-                            height: 5,
-                            borderRadius: "50%",
-                            background: "var(--color-danger)",
-                            marginLeft: 4,
-                            verticalAlign: "middle",
-                            marginBottom: 2,
-                          }}
-                        />
-                      </th>
-                    ))}
-
-                    {/* Extra columns — fully dynamic, whatever came from the CSV */}
-                    {extraColumns.map((col) => (
-                      <th
-                        key={col}
-                        style={{
-                          textTransform: "uppercase",
-                          color: "var(--color-gray-500)",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        {col.replace(/_/g, " ")}
-                        {CSV_COL_TO_LDAP[col] && (
-                          <span
-                            style={{
-                              color: "var(--color-gray-400)",
-                              fontWeight: 400,
-                              fontSize: "0.7rem",
-                              marginLeft: 4,
-                            }}
-                          >
-                            ({CSV_COL_TO_LDAP[col]})
-                          </span>
-                        )}
                       </th>
                     ))}
 

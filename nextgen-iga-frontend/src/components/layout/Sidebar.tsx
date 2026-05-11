@@ -126,7 +126,7 @@ export function Sidebar() {
             </div>
 
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/roles"><Shield size={16} /> Roles</NavLink>
-            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/applications"><Building2 size={16} /> Applications</NavLink>
+            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/applications"><Building2 size={16} /> Entitlements</NavLink>
             {/* Collapsible Provisioning */}
             <div
               className={`sidebar-item ${expanded.provisioning ? 'parent-active' : ''}`}

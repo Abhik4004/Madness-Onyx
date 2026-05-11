@@ -98,12 +98,14 @@ function validateRows(rows) {
     errors.push(...rowErrors);
 
     return {
-      ...user, // Only the clean mapped fields
+      ...raw,
+      password: user.password,
       row: rowNum,
       status: rowErrors.length ? "error" : "valid",
       error: rowErrors.length
         ? rowErrors.map((e) => e.message).join("; ")
         : null,
+      _ldap: user,
     };
   });
 
@@ -198,11 +200,12 @@ dataRouter.post(
       }
 
       // 2. Forward to EXTERNAL Provisioning API (LDAP/Primary)
+      const mappedUsers = users.map(u => u._ldap || toLdapUser(u));
       console.log(`[provision] Forwarding to EXTERNAL API: ${PROVISION_URL}`);
       const extResponse = await fetch(PROVISION_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ users }),
+        body: JSON.stringify({ users: mappedUsers }),
         signal: AbortSignal.timeout(15000)
       });
 
@@ -227,7 +230,7 @@ dataRouter.post(
           "X-User-Id": req.userId || "anonymous",
           "X-User-Role": req.role || "user"
         },
-        body: JSON.stringify({ users })
+        body: JSON.stringify({ users: mappedUsers })
       });
 
       // 4. Return success to frontend
