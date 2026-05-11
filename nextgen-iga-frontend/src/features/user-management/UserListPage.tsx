@@ -297,32 +297,15 @@ export function UserListPage() {
 
   // Fetch Users
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['admin', 'users'],
-    queryFn: () => usersApi.list({}),
+    queryKey: ['admin', 'users', { search, role }],
+    queryFn: () => usersApi.list({ search, role }),
   });
 
   const users: User[] = data?.data ?? [];
   const managers = users.filter(u => u.role === 'supervisor' || u.role === 'admin');
 
   // Unified Search & Filter Logic
-  const filtered = useMemo(() => {
-    return users.filter(u => {
-      // Role Filter
-      if (role && u.role !== role) return false;
-
-      // Search Filter
-      if (search) {
-        const q = search.toLowerCase();
-        const fullName = (u.full_name || '').toLowerCase();
-        const email = (u.email || '').toLowerCase();
-        const uid = (u.uid || '').toLowerCase();
-        
-        return fullName.includes(q) || email.includes(q) || uid.includes(q);
-      }
-      
-      return true;
-    });
-  }, [users, search, role]);
+  const filtered = users; // Server-side search/filtering implemented
 
 
   return (

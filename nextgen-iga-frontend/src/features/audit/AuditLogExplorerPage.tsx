@@ -20,9 +20,10 @@ export function AuditLogExplorerPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['audit', { page, eventType, userId, from, to }],
+    queryKey: ['audit', { page, search, eventType, userId, from, to }],
     queryFn: () => auditApi.list({
       page, per_page: perPage,
+      search: search || undefined,
       event_type: eventType || undefined,
       user_id: userId || undefined,
       from: from || undefined,
@@ -32,15 +33,7 @@ export function AuditLogExplorerPage() {
 
   const logs = (data?.data?.logs ?? []) as unknown as AuditLog[];
 
-  const filtered = useMemo(() => {
-    if (!search) return logs;
-    const q = search.toLowerCase();
-    return logs.filter(l =>
-      l.event_type?.toLowerCase().includes(q) ||
-      l.actor_name?.toLowerCase().includes(q) ||
-      l.target_id?.toLowerCase().includes(q)
-    );
-  }, [logs, search]);
+  const filtered = logs; // Server-side search implemented
 
 
   const exportCsv = async () => {

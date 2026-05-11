@@ -397,8 +397,8 @@ export const rolesApi = {
    * → Gateway → relayMiddleware → NATS subject: roles.list
    * Response: { ok, status, data: Role[] }
    */
-  list: () =>
-    apiClient.get<ApiResponse<Role[]>>("/api/roles").then((r) => r.data),
+  list: (params?: { search?: string }) =>
+    apiClient.get<ApiResponse<Role[]>>("/api/roles", { params }).then((r) => r.data),
 
   /**
    * GET /api/roles/:id

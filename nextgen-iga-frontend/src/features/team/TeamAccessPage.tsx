@@ -80,17 +80,7 @@ export function TeamAccessPage() {
   });
 
   // ── Client-side filtering ──
-  const filteredUsers = useMemo(() => {
-    const raw = (data?.data ?? []) as User[];
-    if (!search) return raw;
-
-    const q = search.toLowerCase();
-    return raw.filter(u =>
-      u.full_name?.toLowerCase().includes(q) ||
-      u.email?.toLowerCase().includes(q) ||
-      u.id?.toLowerCase().includes(q)
-    );
-  }, [data?.data, search]);
+  const filteredUsers = (data?.data ?? []) as User[];
 
   // ── Local Hierarchy Building ──
   const hierarchyData = useMemo(() => {

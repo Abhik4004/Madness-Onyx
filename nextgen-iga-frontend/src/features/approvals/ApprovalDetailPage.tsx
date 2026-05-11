@@ -8,6 +8,7 @@ import { StatusBadge } from '../../components/shared/StatusBadge';
 import { requestsApi } from '../../api/requests.api';
 import { recommendationsApi } from '../../api/recommendations.api';
 import { formatDate } from '../../lib/utils';
+import { TimeBasedProgress } from '../access-requests/components/TimeBasedProgress';
 
 export function ApprovalDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -75,7 +76,13 @@ export function ApprovalDetailPage() {
           <div className="card">
             <div className="card-header">
               <span className="card-title">Request Details</span>
-              <StatusBadge status={req.status} />
+              <StatusBadge status={(() => {
+                if (req.decided_at && req.duration_seconds && (req.status === 'APPROVED' || req.status === 'PROVISIONED')) {
+                  const expiryTime = new Date(req.decided_at).getTime() + (req.duration_seconds * 1000);
+                  if (Date.now() > expiryTime) return 'EXPIRED';
+                }
+                return req.status;
+              })()} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
@@ -84,7 +91,16 @@ export function ApprovalDetailPage() {
                 { label: 'Role', value: req.role_name },
                 { label: 'Justification', value: req.justification },
                 { label: 'Submitted', value: formatDate(req.submitted_at) },
-                req.expires_at ? { label: 'Requested Duration', value: `${req.duration_days} days` } : null,
+                { 
+                  label: req.status === 'PENDING' ? 'Requested Duration' : 'Time Remaining', 
+                  value: (
+                    <TimeBasedProgress 
+                      decidedAt={req.decided_at} 
+                      durationSeconds={req.duration_seconds || null} 
+                      status={req.status} 
+                    />
+                  ) 
+                },
               ].filter(Boolean).map((item) => (
                 <div key={item!.label} style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 8, paddingBottom: 10, borderBottom: '1px solid var(--color-gray-100)' }}>
                   <span className="text-xs text-muted font-semibold" style={{ textTransform: 'uppercase', letterSpacing: '0.4px', paddingTop: 2 }}>{item!.label}</span>

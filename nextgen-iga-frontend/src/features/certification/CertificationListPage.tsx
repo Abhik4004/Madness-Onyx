@@ -12,19 +12,13 @@ export function CertificationListPage() {
   const [search, setSearch] = useState('');
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['certifications'],
-    queryFn: () => certificationApi.list({}),
+    queryKey: ['certifications', { search }],
+    queryFn: () => certificationApi.list({ search }),
   });
 
   const certs = (data?.data ?? []) as CertificationCampaign[];
 
-  const filtered = useMemo(() => {
-    if (!search) return certs;
-    const q = search.toLowerCase();
-    return certs.filter(c => 
-      c.name?.toLowerCase().includes(q)
-    );
-  }, [certs, search]);
+  const filtered = certs; // Server-side search implemented
 
   return (
     <div>

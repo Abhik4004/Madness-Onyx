@@ -9,6 +9,7 @@ import { requestsApi } from '../../api/requests.api';
 import { usePagination } from '../../hooks/usePagination';
 import { formatDate } from '../../lib/utils';
 import type { AccessRequest } from '../../types/request.types';
+import { TimeBasedProgress } from './components/TimeBasedProgress';
 
 const STATUSES = ['ALL', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'EXPIRED'];
 
@@ -69,12 +70,28 @@ export function RequestListPage() {
     {
       key: 'duration',
       header: 'Duration',
-      render: (r) => r.duration_seconds ? `${r.duration_seconds}s` : <span className="text-muted">Permanent</span>,
+      render: (r) => (
+        <TimeBasedProgress 
+          decidedAt={r.decided_at} 
+          durationSeconds={r.duration_seconds || null} 
+          status={r.status} 
+        />
+      ),
     },
     {
       key: 'status',
       header: 'Status',
-      render: (r) => <StatusBadge status={r.status} />,
+      render: (r) => {
+        // Dynamic status check for expired items
+        let displayStatus = r.status;
+        if (r.decided_at && r.duration_seconds && (r.status === 'APPROVED' || r.status === 'PROVISIONED')) {
+          const expiryTime = new Date(r.decided_at).getTime() + (r.duration_seconds * 1000);
+          if (Date.now() > expiryTime) {
+            displayStatus = 'EXPIRED';
+          }
+        }
+        return <StatusBadge status={displayStatus} />;
+      },
     },
     {
       key: 'submitted',

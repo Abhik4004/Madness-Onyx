@@ -372,17 +372,44 @@ export async function handleManagedAppSync(msg) {
 // ── audit.logs.list ──────────────────────────────────────────────────────────
 export async function handleAuditLogs(msg) {
   try {
-    const { query = {} } = jc.decode(msg.data);
+    const envelope = jc.decode(msg.data);
+    const { query = {} } = envelope;
+    const { search, event_type, user_id, from, to } = query;
     const page = Math.max(1, Number(query.page ?? 1));
     const per_page = Math.min(100, Number(query.per_page ?? 20));
     const offset = (page - 1) * per_page;
 
-    const { rows: countRows } = await db.query("SELECT COUNT(*) as total FROM audit_logs");
+    let where = " WHERE 1=1";
+    let params = [];
+
+    if (search) {
+      where += " AND (event_type LIKE ? OR actor_name LIKE ? OR target_id LIKE ?)";
+      const q = `%${search}%`;
+      params.push(q, q, q);
+    }
+    if (event_type) {
+      where += " AND event_type = ?";
+      params.push(event_type);
+    }
+    if (user_id) {
+      where += " AND (actor_id = ? OR target_id = ?)";
+      params.push(user_id, user_id);
+    }
+    if (from) {
+      where += " AND created_at >= ?";
+      params.push(from);
+    }
+    if (to) {
+      where += " AND created_at <= ?";
+      params.push(to);
+    }
+
+    const { rows: countRows } = await db.query(`SELECT COUNT(*) as total FROM audit_logs ${where}`, params);
     const total = Number(countRows[0].total);
 
     const { rows } = await db.query(
-      `SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT ${parseInt(per_page)} OFFSET ${parseInt(offset)}`,
-      []
+      `SELECT * FROM audit_logs ${where} ORDER BY created_at DESC LIMIT ${parseInt(per_page)} OFFSET ${parseInt(offset)}`,
+      params
     );
 
     msg.respond(jc.encode({
@@ -462,8 +489,19 @@ export async function handleRequestList(msg) {
     }
 
     if (query.status) {
-      vals.push(query.status.toUpperCase());
-      conditions.push(`ar.status = ?`);
+      const status = query.status.toUpperCase();
+      if (status === "EXPIRED") {
+        conditions.push(`(
+          ar.status = 'EXPIRED' 
+          OR (ar.status IN ('APPROVED', 'PROVISIONED') AND ar.duration_seconds > 0 AND DATE_ADD(ar.decided_at, INTERVAL ar.duration_seconds SECOND) < UTC_TIMESTAMP())
+        )`);
+      } else if (status === "APPROVED" || status === "PROVISIONED") {
+        conditions.push(`ar.status = ? AND (ar.duration_seconds IS NULL OR ar.duration_seconds = 0 OR DATE_ADD(ar.decided_at, INTERVAL ar.duration_seconds SECOND) >= UTC_TIMESTAMP())`);
+        vals.push(status);
+      } else {
+        vals.push(status);
+        conditions.push(`ar.status = ?`);
+      }
     }
 
     const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
@@ -812,30 +850,36 @@ export async function handleApplicationCreate(msg) {
 export async function handleUserList(msg) {
   try {
     const envelope = jc.decode(msg.data);
+    const { search, role } = envelope.query ?? envelope.body ?? {};
     const requestorId = envelope.userId || envelope.uid || null;
     const requestorRole = (envelope.role || "user").toLowerCase();
 
-    console.log(`[sync] handleUserList DEBUG: userId=${requestorId}, role=${requestorRole}, rawEnvelope=${JSON.stringify(envelope)}`);
+    console.log(`[sync] handleUserList: search=${search}, role=${role}, requestor=${requestorId}`);
 
-    // 1. Fetch from local DB first (Primary Source)
-    let localQuery = "SELECT id, full_name, email, role_id, manager_id, status, isApproved FROM users_access";
-    let localParams = [];
+    let query = "SELECT id, full_name, email, role_id, manager_id, status, isApproved FROM users_access WHERE 1=1";
+    let params = [];
 
-    /* 
-    // Only filter if not admin and we have a valid requestorId
+    // Security Filter (Supervisors see their team + themselves)
     if (requestorRole !== "admin" && requestorId) {
-      localQuery += " WHERE manager_id = ? OR id = ?";
-      localParams.push(requestorId, requestorId);
-      console.log(`[sync] handleUserList: Applying security filter for ${requestorId}`);
-    } else {
-      console.log(`[sync] handleUserList: Admin view or no requestorId - fetching ALL users`);
+      query += " AND (manager_id = ? OR id = ? OR LOWER(manager_id) LIKE ?)";
+      params.push(requestorId, requestorId, `%uid=${requestorId}%`);
     }
-    */
-    console.log(`[sync] handleUserList: FORCED ADMIN VIEW - fetching ALL users`);
 
-    const { rows: localUsers } = await db.query(localQuery, localParams);
+    // Search Filter
+    if (search) {
+      query += " AND (full_name LIKE ? OR email LIKE ? OR id LIKE ?)";
+      const q = `%${search}%`;
+      params.push(q, q, q);
+    }
 
-    // BARE ESSENTIALS: Map to frontend fields and return immediately
+    // Role Filter
+    if (role) {
+      query += " AND role_id = ?";
+      params.push(role);
+    }
+
+    const { rows: localUsers } = await db.query(query, params);
+
     const bareUsers = localUsers.map(u => ({
       id: String(u.id),
       uid: String(u.id),
@@ -847,12 +891,10 @@ export async function handleUserList(msg) {
       status: u.status || 'ACTIVE',
       manager: u.manager_id,
       groups: [],
-      isApproved: true
+      isApproved: !!u.isApproved
     }));
 
-    const finalPayload = bareUsers;
-    console.log(`[sync] handleUserList FINAL RESPOND: type=${typeof finalPayload}, isArray=${Array.isArray(finalPayload)}, length=${finalPayload.length}`);
-    msg.respond(jc.encode(finalPayload));
+    msg.respond(jc.encode(bareUsers));
   } catch (e) {
     console.error("[sync] handleUserList error:", e.message);
     msg.respond(err(500, "Failed to fetch user list"));
@@ -861,38 +903,45 @@ export async function handleUserList(msg) {
 
 // ── roles.list ───────────────────────────────────────────────────────────────
 export async function handleRolesList(msg) {
-  console.log(`[sync] handleRolesList entry. Subject: ${msg.subject}`);
   try {
+    const envelope = jc.decode(msg.data);
+    const { search } = envelope.query ?? {};
+
     let roles = [];
+    let query = "SELECT id, role_name AS name, description, role_type, permissions FROM roles";
+    let params = [];
+
+    if (search) {
+      query += " WHERE role_name LIKE ? OR id LIKE ?";
+      const q = `%${search}%`;
+      params.push(q, q);
+    }
+
     try {
-      const { rows } = await db.query(
-        `SELECT id, role_name AS name, description, role_type, permissions FROM roles`
-      );
+      const { rows } = await db.query(query, params);
       roles = rows;
     } catch (dbErr) {
-      console.warn("[sync] DB roles fetch failed, using hardcoded fallback:", dbErr.message);
+      console.warn("[sync] DB roles fetch failed, using fallback");
       roles = [
-        { id: 'end_user', name: 'End User', role_type: 'STANDARD', description: 'Standard access for requesting and managing personal application permissions.', permissions: ["READ_SELF", "CREATE_REQUEST"], user_count: 0 },
-        { id: 'supervisor', name: 'Supervisor', role_type: 'MANAGEMENT', description: 'Managerial access to review team requests and monitor team compliance.', permissions: ["READ_TEAM", "APPROVE_REQUEST", "MANAGE_APPLICATIONS"], user_count: 0 },
-        { id: 'admin', name: 'Administrator', role_type: 'SYSTEM', description: 'Full administrative control over the platform.', permissions: ["*"], user_count: 0 }
+        { id: 'end_user', name: 'End User', role_type: 'STANDARD', description: 'Standard access...', permissions: [], user_count: 0 },
+        { id: 'supervisor', name: 'Supervisor', role_type: 'MANAGEMENT', description: 'Managerial access...', permissions: [], user_count: 0 },
+        { id: 'admin', name: 'Administrator', role_type: 'SYSTEM', description: 'Full administrative control...', permissions: [], user_count: 0 }
       ];
     }
 
-    // Try to update counts if we have real data
-    if (roles.length > 0 && !roles[0].user_count) {
-      try {
-        const { rows: counts } = await db.query(
-          `SELECT role_id as id, COUNT(*) as count FROM users_access GROUP BY role_id`
-        );
-        roles.forEach(r => {
-          const countRow = counts.find(c => c.id === r.id);
-          r.user_count = countRow ? parseInt(countRow.count) : 0;
-          if (typeof r.permissions === 'string') {
-            try { r.permissions = JSON.parse(r.permissions); } catch (e) { r.permissions = []; }
-          }
-        });
-      } catch (countErr) { }
-    }
+    // Update counts
+    try {
+      const { rows: counts } = await db.query(
+        `SELECT role_id as id, COUNT(*) as count FROM users_access GROUP BY role_id`
+      );
+      roles.forEach(r => {
+        const countRow = counts.find(c => c.id === r.id);
+        r.user_count = countRow ? parseInt(countRow.count) : 0;
+        if (typeof r.permissions === 'string') {
+          try { r.permissions = JSON.parse(r.permissions); } catch (e) { r.permissions = []; }
+        }
+      });
+    } catch (countErr) { }
 
     msg.respond(ok(roles));
   } catch (e) {
@@ -1124,26 +1173,27 @@ export async function handleTimeProvision(msg) {
 
 export async function handleCertificationList(msg) {
   try {
-    const { userId: requestorId, role: requestorRole } = jc.decode(msg.data);
+    const envelope = jc.decode(msg.data);
+    const { userId: requestorId, role: requestorRole, query = {} } = envelope;
+    const { search } = query;
 
-    console.log(`[cert] handleCertificationList: requestor=${requestorId}, role=${requestorRole}`);
+    console.log(`[cert] handleCertificationList: requestor=${requestorId}, role=${requestorRole}, search=${search}`);
 
-    let query = "SELECT * FROM access_certifications";
+    let baseQuery = "SELECT * FROM access_certifications";
+    let where = " WHERE 1=1";
     let params = [];
 
     if (requestorRole !== "admin") {
-      // Owners see their assigned certifications OR if they have items
-      query = `
-        SELECT DISTINCT c.* 
-        FROM access_certifications c
-        LEFT JOIN certification_items i ON c.id = i.certification_id
-        WHERE c.certification_owner_id = ? OR i.manager_id = ?
-      `;
+      where += " AND (certification_owner_id = ? OR id IN (SELECT certification_id FROM certification_items WHERE manager_id = ?))";
       params.push(requestorId, requestorId);
     }
 
-    const { rows } = await db.query(query, params);
-    console.log(`[cert] handleCertificationList found ${rows.length} campaigns for ${requestorId}`);
+    if (search) {
+      where += " AND name LIKE ?";
+      params.push(`%${search}%`);
+    }
+
+    const { rows } = await db.query(baseQuery + where, params);
     msg.respond(ok(rows));
   } catch (e) {
     console.error("[cert] list error:", e.message);

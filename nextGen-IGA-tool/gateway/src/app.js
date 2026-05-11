@@ -191,8 +191,10 @@ app.use(jwtMiddleware);
 // ── DIRECT HTTP BYPASSES (Kill the LDAP_STREAM Ghosts) ───────────────────────
 app.get("/api/users", async (req, res) => {
   try {
-    console.log(`[gateway] BYPASS: Direct fetch from ${ACCESS_MGMT_URL}/api/users/list`);
-    const response = await fetch(`${ACCESS_MGMT_URL}/api/users/list`, {
+    const qs = new URLSearchParams(req.query).toString();
+    const targetUrl = `${ACCESS_MGMT_URL}/api/users/list${qs ? "?" + qs : ""}`;
+    console.log(`[gateway] BYPASS: Direct fetch from ${targetUrl}`);
+    const response = await fetch(targetUrl, {
       headers: getIdentityHeaders(req)
     });
     const data = await response.json();
@@ -268,7 +270,9 @@ app.post("/api/access/cert/campaign", async (req, res) => {
 
 app.get("/api/access/cert/campaign", async (req, res) => {
   try {
-    const response = await fetch(`${ACCESS_MGMT_URL}/api/access/cert/campaign/list`, {
+    const qs = new URLSearchParams(req.query).toString();
+    const targetUrl = `${ACCESS_MGMT_URL}/api/access/cert/campaign/list${qs ? "?" + qs : ""}`;
+    const response = await fetch(targetUrl, {
       headers: getIdentityHeaders(req)
     });
     const data = await response.json();
@@ -453,8 +457,10 @@ app.get("/api/admin/dashboard", async (req, res) => {
 
 app.get("/api/applications", async (req, res) => {
   try {
-    console.log(`[gateway] BYPASS: Direct Applications List`);
-    const response = await fetch(`${ACCESS_MGMT_URL}/api/applications/list`, {
+    const qs = new URLSearchParams(req.query).toString();
+    const targetUrl = `${ACCESS_MGMT_URL}/api/applications/list${qs ? "?" + qs : ""}`;
+    console.log(`[gateway] BYPASS: Direct Applications List -> ${targetUrl}`);
+    const response = await fetch(targetUrl, {
       headers: getIdentityHeaders(req)
     });
     const data = await response.json();
@@ -467,8 +473,10 @@ app.get("/api/applications", async (req, res) => {
 
 app.get("/api/roles", async (req, res) => {
   try {
-    console.log(`[gateway] BYPASS: Direct Roles List`);
-    const response = await fetch(`${ACCESS_MGMT_URL}/api/roles/list`, {
+    const qs = new URLSearchParams(req.query).toString();
+    const targetUrl = `${ACCESS_MGMT_URL}/api/roles/list${qs ? "?" + qs : ""}`;
+    console.log(`[gateway] BYPASS: Direct Roles List -> ${targetUrl}`);
+    const response = await fetch(targetUrl, {
       headers: getIdentityHeaders(req)
     });
     const data = await response.json();

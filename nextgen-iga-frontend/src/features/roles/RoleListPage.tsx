@@ -11,8 +11,8 @@ export function RoleListPage() {
   const [search, setSearch] = useState('');
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['roles'],
-    queryFn: () => rolesApi.list(),
+    queryKey: ['roles', { search }],
+    queryFn: () => rolesApi.list({ search }),
   });
 
   const staticRoles = [
@@ -23,14 +23,7 @@ export function RoleListPage() {
 
   const roles = (data?.data && data.data.length > 0 ? data.data : staticRoles) as Role[];
 
-  const filtered = useMemo(() => {
-    if (!search) return roles;
-    const q = search.toLowerCase();
-    return roles.filter(r => 
-      r.name?.toLowerCase().includes(q) || 
-      r.description?.toLowerCase().includes(q)
-    );
-  }, [roles, search]);
+  const filtered = roles; // Server-side search implemented
 
   const columns: Column<Role>[] = [
     { key: 'name', header: 'Role Name', render: r => <Link to={`/admin/roles/${r.id}`} className="font-medium" style={{ color: 'var(--color-primary)' }}>{r.name}</Link> },

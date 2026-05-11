@@ -8,6 +8,7 @@ import { StatusBadge } from '../../components/shared/StatusBadge';
 import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 import { requestsApi } from '../../api/requests.api';
 import { formatDate, formatDateTime, formatRelative } from '../../lib/utils';
+import { TimeBasedProgress } from './components/TimeBasedProgress';
 
 export function RequestDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -139,12 +140,14 @@ export function RequestDetailPage() {
                     <div className="text-xs">Your privileged access is provisioned and ready for use.</div>
                   </div>
                 </div>
-                {timeLeft && (
-                  <div className="text-right">
-                    <div className="text-xs uppercase font-bold tracking-wider opacity-75">Expires In</div>
-                    <div className="font-mono text-lg font-bold">{timeLeft}</div>
-                  </div>
-                )}
+                <div className="text-right" style={{ minWidth: '150px' }}>
+                  <div className="text-xs uppercase font-bold tracking-wider opacity-75 mb-1">Time Remaining</div>
+                  <TimeBasedProgress 
+                    startTime={req.valid_from || req.activated_at || req.decided_at} 
+                    endTime={req.valid_till || req.expires_at} 
+                    status={req.status} 
+                  />
+                </div>
               </div>
             )}
 

@@ -10,6 +10,7 @@ import { provisionApi } from '../../api/provision.api';
 import { usePagination } from '../../hooks/usePagination';
 import { formatDate } from '../../lib/utils';
 import type { UserAccess } from '../../types/provision.types';
+import { TimeBasedProgress } from '../access-requests/components/TimeBasedProgress';
 
 export function ActiveAccessPage() {
   const { page, perPage, setPage } = usePagination();
@@ -87,9 +88,31 @@ export function ActiveAccessPage() {
         </div>
       ) 
     },
-    { key: 'status', header: 'Status', render: a => <StatusBadge status={a.status} /> },
+    { 
+      key: 'status', 
+      header: 'Status', 
+      render: a => {
+        let displayStatus = a.status;
+        if (a.expires_at && (a.status === 'ACTIVE' || a.status === 'PROVISIONED')) {
+          if (Date.now() > new Date(a.expires_at).getTime()) {
+            displayStatus = 'EXPIRED';
+          }
+        }
+        return <StatusBadge status={displayStatus} />;
+      }
+    },
     { key: 'granted', header: 'Granted', render: a => formatDate(a.granted_at) },
-    { key: 'expires', header: 'Expires', render: a => a.expires_at ? formatDate(a.expires_at) : <span className="text-muted italic">Permanent</span> },
+    { 
+      key: 'expires', 
+      header: 'Time Remaining', 
+      render: a => (
+        <TimeBasedProgress 
+          startTime={a.granted_at} 
+          endTime={a.expires_at} 
+          status={a.status} 
+        />
+      )
+    },
     {
       key: 'actions', header: '', width: '100px',
       render: a => a.status === 'ACTIVE' ? (
