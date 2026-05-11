@@ -915,8 +915,8 @@ export async function handleUserList(msg) {
 
     // Security Filter (Supervisors see their team + themselves)
     if (requestorRole !== "admin" && requestorId) {
-      query += " AND (manager_id = ? OR id = ? OR LOWER(manager_id) LIKE ?)";
-      params.push(requestorId, requestorId, `%uid=${requestorId}%`);
+      query += " AND (manager_id = ? OR LOWER(manager_id) LIKE ? OR LOWER(manager_id) LIKE ?)";
+      params.push(requestorId, `uid=${requestorId.toLowerCase()},%`, `%,uid=${requestorId.toLowerCase()},%`);
     }
 
     // Search Filter
