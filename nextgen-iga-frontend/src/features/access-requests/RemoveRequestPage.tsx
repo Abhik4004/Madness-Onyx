@@ -4,6 +4,7 @@ import { Search, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { DataTable, type Column } from '../../components/shared/DataTable';
+import { StatusBadge } from '../../components/shared/StatusBadge';
 import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 import { provisionApi } from '../../api/provision.api';
 import { requestsApi } from '../../api/requests.api';
