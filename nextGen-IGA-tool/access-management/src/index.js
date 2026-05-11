@@ -267,6 +267,7 @@ async function main() {
         decision VARCHAR(50) DEFAULT 'PENDING',
         recommendation_score FLOAT,
         recommended_action VARCHAR(50),
+        risk_score FLOAT DEFAULT 0,
         comments TEXT,
         reviewed_at DATETIME,
         reviewed_by VARCHAR(255),
@@ -925,17 +926,50 @@ async function main() {
       const { handleCertificationItemUpdate } = await import("./handlers/sync.js");
       const { userId, role } = getIdentity(req);
       const msg = {
-        data: jc.encode({ 
-          userId, 
-          role,
-          body: req.body 
-        }),
+        data: jc.encode({ userId, role, body: req.body }),
         respond: (payload) => {
           const result = jc.decode(payload);
           res.status(result.status || 200).json(result);
         }
       };
       await handleCertificationItemUpdate(msg);
+    } catch (err) {
+      res.status(500).json({ ok: false, message: err.message });
+    }
+  });
+
+  // ── Provisioning Direct HTTP Bypass ──────────────────────────────────────────
+  app.post("/api/provision/users", async (req, res) => {
+    console.log("[access-management] HTTP: POST /api/provision/users hit (Direct Bypass)");
+    try {
+      const { handleBulkImport } = await import("./handlers/sync.js");
+      const { userId, role } = getIdentity(req);
+      const msg = {
+        data: jc.encode({ userId, role, body: req.body }),
+        respond: (payload) => {
+          const result = jc.decode(payload);
+          res.status(result.status || 200).json(result);
+        }
+      };
+      await handleBulkImport(msg);
+    } catch (err) {
+      res.status(500).json({ ok: false, message: err.message });
+    }
+  });
+
+  app.post("/api/provision/user", async (req, res) => {
+    console.log("[access-management] HTTP: POST /api/provision/user hit (Direct Bypass)");
+    try {
+      const { handleUserCreated } = await import("./handlers/users.js");
+      const { userId, role } = getIdentity(req);
+      const msg = {
+        data: jc.encode({ userId, role, body: req.body }),
+        respond: (payload) => {
+          const result = jc.decode(payload);
+          res.status(result.status || 200).json(result);
+        }
+      };
+      await handleUserCreated(msg);
     } catch (err) {
       res.status(500).json({ ok: false, message: err.message });
     }

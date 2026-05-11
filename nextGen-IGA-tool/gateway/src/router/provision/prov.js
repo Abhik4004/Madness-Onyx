@@ -197,14 +197,28 @@ dataRouter.post(
         console.warn("[provision] S3 audit failed (skipping):", s3Err.message);
       }
 
-      // 2. Forward to internal Access Management DB via NATS (Bypassing unreachable external LDAP)
-      const provData = await relay(req);
+      // 2. Forward to internal Access Management DB via HTTP (Bypassing NATS)
+      const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://access-management:3001";
+      const targetUrl = `${ACCESS_MGMT_URL}/api/provision/users`;
+      console.log(`[provision] BYPASS: Direct HTTP to ${targetUrl}`);
 
-      if (!provData.ok) {
-        console.error("[provision] internal error:", provData.status, provData);
-        return res.status(provData.status || 502).json({
+      const response = await fetch(targetUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-User-Id": req.userId || "anonymous",
+          "X-User-Role": req.role || "user"
+        },
+        body: JSON.stringify(req.body)
+      });
+
+      const provData = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        console.error("[provision] internal error:", response.status, provData);
+        return res.status(response.status || 502).json({
           ok: false,
-          status: provData.status || 502,
+          status: response.status || 502,
           message: provData.message || "Provisioning failed",
           upstream: provData,
         });
@@ -231,8 +245,30 @@ dataRouter.post(
   },
 );
 
-// ── POST /user — single user relay ──────────────────────────────────────
-dataRouter.post("/user", relayMiddleware);
+// ── POST /user — single user direct HTTP ─────────────────────────────────
+dataRouter.post("/user", async (req, res) => {
+  try {
+    const ACCESS_MGMT_URL = process.env.ACCESS_MGMT_URL || "http://access-management:3001";
+    const targetUrl = `${ACCESS_MGMT_URL}/api/provision/user`;
+    console.log(`[provision] BYPASS: Single User Direct HTTP to ${targetUrl}`);
+
+    const response = await fetch(targetUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-User-Id": req.userId || "anonymous",
+        "X-User-Role": req.role || "user"
+      },
+      body: JSON.stringify(req.body)
+    });
+
+    const data = await response.json().catch(() => ({}));
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error("[provision] Single user bypass error:", err.message);
+    res.status(502).json({ ok: false, message: "Access management service unreachable" });
+  }
+});
 
 // ── DELETE /user/:userId ───────────────────────────────────────────────
 dataRouter.delete("/user/:userId", relayMiddleware);
