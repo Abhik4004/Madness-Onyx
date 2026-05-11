@@ -186,30 +186,28 @@ export function UserDashboard() {
           </>
         )}
 
-        {!isSupervisor && (
-          <div className="kpi-grid">
-            <div className="kpi-card">
-              <div className="kpi-icon blue"><FileText size={24} /></div>
-              <div className="kpi-label">Pending Requests</div>
-              <div className="kpi-value">{pendingReqs.isLoading ? "-" : pendingCount}</div>
-            </div>
-            <div className="kpi-card">
-              <div className="kpi-icon green"><CheckCircle size={24} /></div>
-              <div className="kpi-label">Active Access</div>
-              <div className="kpi-value">{recentReqs.isLoading ? "-" : activeCount}</div>
-            </div>
-            <div className="kpi-card">
-              <div className="kpi-icon amber"><Bell size={24} /></div>
-              <div className="kpi-label">Unread Notifications</div>
-              <div className="kpi-value">{notifications.isLoading ? "-" : unreadNotifs}</div>
-            </div>
-            <div className="kpi-card">
-              <div className="kpi-icon blue"><Lightbulb size={24} /></div>
-              <div className="kpi-label">AI Recommendations</div>
-              <div className="kpi-value">{recommendations.isLoading ? "-" : recs.length}</div>
-            </div>
+        <div className="kpi-grid">
+          <div className="kpi-card">
+            <div className="kpi-icon blue"><FileText size={24} /></div>
+            <div className="kpi-label">Pending Requests</div>
+            <div className="kpi-value">{pendingReqs.isLoading ? "-" : pendingCount}</div>
           </div>
-        )}
+          <div className="kpi-card">
+            <div className="kpi-icon green"><CheckCircle size={24} /></div>
+            <div className="kpi-label">Active Access</div>
+            <div className="kpi-value">{recentReqs.isLoading ? "-" : activeCount}</div>
+          </div>
+          <div className="kpi-card">
+            <div className="kpi-icon amber"><Bell size={24} /></div>
+            <div className="kpi-label">Unread Notifications</div>
+            <div className="kpi-value">{notifications.isLoading ? "-" : unreadNotifs}</div>
+          </div>
+          <div className="kpi-card">
+            <div className="kpi-icon blue"><Lightbulb size={24} /></div>
+            <div className="kpi-label">AI Recommendations</div>
+            <div className="kpi-value">{recommendations.isLoading ? "-" : recs.length}</div>
+          </div>
+        </div>
 
         {/* Personal Recommendations */}
         {recs.length > 0 && (

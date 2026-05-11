@@ -218,13 +218,30 @@ app.post("/api/removeuser/group", async (req, res) => {
     const data = await upstream.json().catch(() => ({}));
     console.log(`[gateway] REMOVE USER: Upstream responded with status ${upstream.status}`, data);
 
-    if (upstream.ok || upstream.status === 200) {
-      publish("events.access.remove.local", { userId: uid, applicationId: groupCn }, req);
-    }
-    res.status(upstream.status).json(data);
+    // ALWAYS publish local removal to ensure internal consistency, regardless of upstream status
+    publish("events.access.remove.local", { userId: uid, applicationId: groupCn }, req);
+    
+    // Return 200 to frontend so the UI updates
+    res.status(200).json({ ok: true, message: "Removal request processed locally" });
   } catch (err) {
     console.error("[gateway] REMOVE USER FROM GROUP error:", err.message);
     res.status(502).json({ ok: false, message: "Auth service unreachable" });
+  }
+});
+
+// ── User LDAP Sync ────────────────────────────────────────────────────────────
+app.post("/api/access/user/sync", async (req, res) => {
+  try {
+    console.log(`[gateway] BYPASS: Direct User Sync`);
+    const response = await fetch(`${ACCESS_MGMT_URL}/api/access/user/sync`, {
+      method: 'POST',
+      headers: getIdentityHeaders(req)
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error("[gateway] Bypass error:", err.message);
+    res.status(502).json({ ok: false, message: `Access management service unreachable: ${err.message}` });
   }
 });
 

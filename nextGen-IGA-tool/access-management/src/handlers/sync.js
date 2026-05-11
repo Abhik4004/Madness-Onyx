@@ -1573,8 +1573,15 @@ export async function handleCertificationItemUpdate(msg) {
     const item = items[0];
     const targetItemId = item.id;
 
-    const isOwner = item.certification_owner_id === requestorId;
-    const isDirectManager = item.manager_id === requestorId;
+    const isOwner = String(item.certification_owner_id).toLowerCase() === String(requestorId).toLowerCase();
+    
+    // Extract uid from manager_id if it's an LDAP DN
+    let mId = item.manager_id || "";
+    if (String(mId).includes("=")) {
+      const match = String(mId).match(/uid=([^,]+)/i);
+      mId = match ? match[1] : mId;
+    }
+    const isDirectManager = String(mId).toLowerCase() === String(requestorId).toLowerCase();
 
     if (!isOwner && !isDirectManager && envelope.role !== "admin") {
       await logActivity("UNAUTHORIZED_CERTIFICATION_ATTEMPT", requestorId, requestorId, targetItemId, { decision });
@@ -1912,7 +1919,7 @@ export async function handleCertificationGenerate(msg) {
       FROM user_access ua
       JOIN users_access u ON ua.user_id = u.id
       JOIN applications a ON ua.application_id = a.id
-      WHERE ua.status = 'ACTIVE' AND ua.access_type != 'TIME_BASED'
+      WHERE ua.status = 'ACTIVE' AND COALESCE(ua.access_type, 'REGULAR') != 'TIME_BASED'
     `;
     let accessParams = [];
 

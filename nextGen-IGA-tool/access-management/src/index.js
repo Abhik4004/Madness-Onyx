@@ -957,6 +957,24 @@ async function main() {
     }
   });
 
+  app.post("/api/access/user/sync", async (req, res) => {
+    console.log("[access-management] HTTP: POST /api/access/user/sync hit (Direct Bypass)");
+    try {
+      const { handleManualLdapSync } = await import("./handlers/sync.js");
+      const { userId, role } = getIdentity(req);
+      const msg = {
+        data: jc.encode({ userId, role, body: req.body }),
+        respond: (payload) => {
+          const result = jc.decode(payload);
+          res.status(result.status || 200).json(result);
+        }
+      };
+      await handleManualLdapSync(msg);
+    } catch (err) {
+      res.status(500).json({ ok: false, message: err.message });
+    }
+  });
+
   // ── Provisioning Direct HTTP Bypass ──────────────────────────────────────────
   app.post("/api/provision/users", async (req, res) => {
     console.log("[access-management] HTTP: POST /api/provision/users hit (Direct Bypass)");
