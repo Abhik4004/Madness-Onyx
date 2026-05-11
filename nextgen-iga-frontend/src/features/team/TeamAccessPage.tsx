@@ -65,13 +65,41 @@ export function TeamAccessPage() {
   });
 
   // ── Client-side filtering ──
-  const filteredUsers = (data?.data ?? []) as User[];
+  const filteredUsers = useMemo(() => {
+    const allUsers = (data?.data ?? []) as User[];
+    if (!currentUser) return [];
+
+    const currentUserId = String(currentUser.id).toLowerCase();
+
+    const userMap = new Map<string, User>();
+    allUsers.forEach(u => userMap.set(String(u.uid).toLowerCase(), u));
+
+    const isUnderCurrentUser = (uid: string): boolean => {
+      let current = userMap.get(uid);
+      const visited = new Set<string>();
+      
+      while (current && !visited.has(String(current.uid).toLowerCase())) {
+        visited.add(String(current.uid).toLowerCase());
+        const m = String(current.manager_id || current.manager || '').toLowerCase();
+        let mId = m;
+        if (m.includes('uid=')) {
+          const match = m.match(/uid=([^,]+)/);
+          if (match) mId = match[1];
+        }
+        if (mId === currentUserId) return true;
+        current = userMap.get(mId);
+      }
+      return false;
+    };
+
+    return allUsers.filter(u => isUnderCurrentUser(String(u.uid).toLowerCase()));
+  }, [data?.data, currentUser]);
 
   // ── Local Hierarchy Building ──
   const hierarchyData = useMemo(() => {
-    if (viewMode !== 'hierarchy' || !data?.data || !currentUser) return [];
+    if (viewMode !== 'hierarchy' || !filteredUsers || !currentUser) return [];
 
-    const allUsers = data.data as User[];
+    const allUsers = filteredUsers;
     const userMap: Record<string, any> = {};
     allUsers.forEach(u => { userMap[u.uid] = { ...u, reports: [] }; });
 
@@ -80,20 +108,37 @@ export function TeamAccessPage() {
 
     allUsers.forEach(u => {
       const node = userMap[u.uid];
-      if (u.manager && userMap[u.manager]) {
-        userMap[u.manager].reports.push(node);
+      
+      // Parse manager safely for hierarchy
+      const m = String(u.manager_id || u.manager || '').toLowerCase();
+      let mId = m;
+      if (m.includes('uid=')) {
+        const match = m.match(/uid=([^,]+)/);
+        if (match) mId = match[1];
+      }
+
+      if (mId && userMap[mId]) {
+        userMap[mId].reports.push(node);
         childIds.add(u.uid);
       }
     });
 
     if (userMap[currentUser.id]) roots.push(userMap[currentUser.id]);
-    else allUsers.forEach(u => { if (u.manager === currentUser.id) roots.push(userMap[u.uid]); });
+    else allUsers.forEach(u => { 
+      const m = String(u.manager_id || u.manager || '').toLowerCase();
+      let mId = m;
+      if (m.includes('uid=')) {
+        const match = m.match(/uid=([^,]+)/);
+        if (match) mId = match[1];
+      }
+      if (mId === String(currentUser.id).toLowerCase()) roots.push(userMap[u.uid]); 
+    });
 
     if (roots.length === 0) {
       allUsers.forEach(u => { if (!childIds.has(u.uid)) roots.push(userMap[u.uid]); });
     }
     return roots;
-  }, [data?.data, currentUser, viewMode]);
+  }, [filteredUsers, currentUser, viewMode]);
 
   const columns: Column<User>[] = [
     {
