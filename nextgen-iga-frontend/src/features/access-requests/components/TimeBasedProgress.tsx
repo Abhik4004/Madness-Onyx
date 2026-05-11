@@ -3,13 +3,15 @@ import { Clock } from 'lucide-react';
 
 interface Props {
   decidedAt?: string | null;
+  approvedAt?: string | null;
+  submittedAt?: string | null;
   durationSeconds?: number | null;
   startTime?: string | null;
   endTime?: string | null;
   status: string;
 }
 
-export function TimeBasedProgress({ decidedAt, durationSeconds, startTime, endTime, status }: Props) {
+export function TimeBasedProgress({ decidedAt, approvedAt, submittedAt, durationSeconds, startTime, endTime, status }: Props) {
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -21,7 +23,8 @@ export function TimeBasedProgress({ decidedAt, durationSeconds, startTime, endTi
   }, [status]);
 
   const { progress, remaining, isExpired } = useMemo(() => {
-    const start = startTime ? new Date(startTime).getTime() : (decidedAt ? new Date(decidedAt).getTime() : null);
+    const startTimestamp = startTime || decidedAt || approvedAt || submittedAt;
+    const start = startTimestamp ? new Date(startTimestamp).getTime() : null;
     const end = endTime ? new Date(endTime).getTime() : (start && durationSeconds ? start + (durationSeconds * 1000) : null);
 
     if (!start || !end) return { progress: 0, remaining: '', isExpired: status === 'EXPIRED' };

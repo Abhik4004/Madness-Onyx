@@ -72,7 +72,7 @@ export function RequestListPage() {
       header: 'Duration',
       render: (r) => (
         <TimeBasedProgress 
-          decidedAt={r.decided_at} 
+          decidedAt={r.decided_at || r.approved_at || r.submitted_at} 
           durationSeconds={r.duration_seconds || null} 
           status={r.status} 
         />
@@ -84,8 +84,9 @@ export function RequestListPage() {
       render: (r) => {
         // Dynamic status check for expired items
         let displayStatus = r.status;
-        if (r.decided_at && r.duration_seconds && (r.status === 'APPROVED' || r.status === 'PROVISIONED')) {
-          const expiryTime = new Date(r.decided_at).getTime() + (r.duration_seconds * 1000);
+        const timestamp = r.decided_at || r.approved_at || r.submitted_at;
+        if (timestamp && r.duration_seconds && (r.status === 'APPROVED' || r.status === 'PROVISIONED')) {
+          const expiryTime = new Date(timestamp).getTime() + (r.duration_seconds * 1000);
           if (Date.now() > expiryTime) {
             displayStatus = 'EXPIRED';
           }

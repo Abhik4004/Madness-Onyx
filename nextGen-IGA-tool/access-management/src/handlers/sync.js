@@ -490,13 +490,14 @@ export async function handleRequestList(msg) {
 
     if (query.status) {
       const status = query.status.toUpperCase();
+      const timeColumn = "COALESCE(ar.decided_at, ar.approved_at, ar.submitted_at, ar.created_at)";
       if (status === "EXPIRED") {
         conditions.push(`(
           ar.status = 'EXPIRED' 
-          OR (ar.status IN ('APPROVED', 'PROVISIONED') AND ar.duration_seconds > 0 AND DATE_ADD(ar.decided_at, INTERVAL ar.duration_seconds SECOND) < UTC_TIMESTAMP())
+          OR (ar.status IN ('APPROVED', 'PROVISIONED') AND ar.duration_seconds > 0 AND DATE_ADD(${timeColumn}, INTERVAL ar.duration_seconds SECOND) < UTC_TIMESTAMP())
         )`);
       } else if (status === "APPROVED" || status === "PROVISIONED") {
-        conditions.push(`ar.status = ? AND (ar.duration_seconds IS NULL OR ar.duration_seconds = 0 OR DATE_ADD(ar.decided_at, INTERVAL ar.duration_seconds SECOND) >= UTC_TIMESTAMP())`);
+        conditions.push(`ar.status = ? AND (ar.duration_seconds IS NULL OR ar.duration_seconds = 0 OR DATE_ADD(${timeColumn}, INTERVAL ar.duration_seconds SECOND) >= UTC_TIMESTAMP())`);
         vals.push(status);
       } else {
         vals.push(status);

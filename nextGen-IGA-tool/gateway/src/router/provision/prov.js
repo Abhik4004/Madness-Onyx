@@ -36,20 +36,43 @@ function parseCSV(buffer) {
   });
 }
 
-const REQUIRED_FIELDS = ["uid", "mail"];
 const VALID_ROLES = new Set(["end_user", "supervisor", "admin"]);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function toLdapUser(r) {
+  const vals = Object.values(r).map(v => String(v || "").trim());
+  
+  // 1. Find Email (anything matching EMAIL_RE)
+  let email = vals.find(v => EMAIL_RE.test(v)) || "";
+  
+  // 2. Find UID (anything with a dot and no spaces, if not the email)
+  let uidCandidate = vals.find(v => v.includes('.') && !v.includes(' ') && v !== email);
+  
+  // 3. Find Role
+  const roles = ["end_user", "supervisor", "admin"];
+  let role = vals.find(v => roles.includes(v.toLowerCase())) || "end_user";
+  
+  // 4. Find Full Name (longest string that isn't an email or role or password-like)
+  let fullName = vals
+    .filter(v => v !== email && !roles.includes(v.toLowerCase()) && v.length > 2 && !v.includes('@') && !v.includes('ChangeMe'))
+    .sort((a, b) => b.length - a.length)[0] || uidCandidate || "Unknown User";
+
+  const uid = uidCandidate || (email ? email.split('@')[0] : fullName.toLowerCase().replace(/\s+/g, '.'));
+  const nameParts = fullName.split(/\s+/);
+  
   return {
-    uid: (r.uid ?? "").trim(),
-    givenName: (r.givenname ?? "").trim(), // CSV header 'givenName' normalized to 'givenname'
-    sn: (r.sn ?? "").trim(),
-    cn: (r.cn ?? "").trim(),
-    mail: (r.mail ?? "").trim(),
-    password: r.password?.trim() || "ChangeMe@123",
-    objectClass: "mfaUser",
-    role: (r.role ?? "end_user").trim(),
+    uid: uid.toLowerCase(),
+    full_name: fullName,
+    email: email.toLowerCase(),
+    role: role.toLowerCase(),
+    department: (r.department || r.ou || r.dept || r.password || "").trim(),
+    manager: (r.manager || r.manager_id || r.reports_to || "").trim(),
+    givenName: nameParts[0] || uid,
+    sn: nameParts.slice(1).join(" ") || "User",
+    cn: fullName,
+    mail: email,
+    password: "ChangeMe@123",
+    objectClass: "mfaUser"
   };
 }
 
@@ -58,23 +81,24 @@ function validateRows(rows) {
   const preview = rows.map((raw, idx) => {
     const rowNum = idx + 2;
     const rowErrors = [];
-
-    for (const f of REQUIRED_FIELDS) {
-      if (!raw[f] || !String(raw[f]).trim())
-        rowErrors.push({ row: rowNum, field: f, message: `${f} is required` });
-    }
     
-    if (raw.mail && !EMAIL_RE.test(String(raw.mail).trim()))
+    // Use mapped user for validation
+    const user = toLdapUser(raw);
+
+    if (!user.full_name) rowErrors.push({ row: rowNum, field: "full_name", message: "Full Name is required" });
+    if (!user.email) rowErrors.push({ row: rowNum, field: "email", message: "Email is required" });
+    
+    if (user.email && !EMAIL_RE.test(user.email))
       rowErrors.push({
         row: rowNum,
-        field: "mail",
+        field: "email",
         message: "invalid mail format",
       });
 
     errors.push(...rowErrors);
 
     return {
-      ...toLdapUser(raw),
+      ...user, // Only the clean mapped fields
       row: rowNum,
       status: rowErrors.length ? "error" : "valid",
       error: rowErrors.length
@@ -86,11 +110,7 @@ function validateRows(rows) {
   return { errors, preview };
 }
 
-async function ensureBucket() {
-  if (!(await minioClient.bucketExists(BUCKET_NAME))) {
-    await minioClient.makeBucket(BUCKET_NAME);
-  }
-}
+
 
 // ── POST /view — parse + validate + upload to S3 ────────────────────────
 dataRouter.post(
@@ -108,22 +128,28 @@ dataRouter.post(
     }
 
     try {
-      // 1. Upload to S3 first
-      const fileName = `uploads/csv/${Date.now()}-${req.file.originalname}`;
-      await uploadToS3(fileName, req.file.buffer, req.file.mimetype);
-      
-      // 2. Parse CSV for preview
+      // 1. Parse CSV for preview FIRST (so it works even if S3 is down)
       const rows = await parseCSV(req.file.buffer);
       const { errors, preview } = validateRows(rows);
       const error_rows = preview.filter((r) => r.status === "error").length;
 
-      // 3. Log metadata (simulated DB storage via console/logs for now as requested)
-      console.log("[s3] CSV Uploaded:", {
+      // 2. Optional S3 Upload
+      let s3Key = null;
+      try {
+        const fileName = `uploads/csv/${Date.now()}-${req.file.originalname}`;
+        await uploadToS3(fileName, req.file.buffer, req.file.mimetype);
+        s3Key = fileName;
+        console.log("[s3] CSV Uploaded successfully:", s3Key);
+      } catch (s3Err) {
+        console.warn("[s3] CSV upload failed (ignoring):", s3Err.message);
+      }
+
+      // 3. Log metadata
+      console.log("[csv] Processing View Request:", {
         file_name: req.file.originalname,
-        s3_key: fileName,
-        uploaded_by: req.userId || 'system',
-        uploaded_at: new Date().toISOString(),
-        status: 'PENDING_PROVISION'
+        total_rows: rows.length,
+        valid_rows: rows.length - error_rows,
+        uploaded_by: req.userId || 'system'
       });
 
       res.json({
@@ -135,14 +161,14 @@ dataRouter.post(
           error_rows,
           errors,
           preview,
-          s3_key: fileName, // Return for future reference
+          s3_key: s3Key,
         },
       });
     } catch (err) {
       console.error("[csv] upload/parse error:", err);
       res
         .status(500)
-        .json(buildResponse({ status: 500, message: "CSV processing failed" }));
+        .json(buildResponse({ status: 500, message: `CSV processing failed: ${err.message}` }));
     }
   },
 );
