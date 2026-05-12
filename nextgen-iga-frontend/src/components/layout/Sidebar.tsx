@@ -13,7 +13,6 @@ import { authApi } from '../../api/auth.api';
 import { useQuery } from '@tanstack/react-query';
 import { requestsApi } from '../../api/requests.api';
 
-import { AIHealthStatus } from '../../features/ai/AIWidgets';
 
 export function Sidebar() {
   const { user, logout } = useAuth();
@@ -183,9 +182,9 @@ export function Sidebar() {
               <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/certifications/history"><HistoryIcon size={16} /> Campaign History</NavLink>
             </div>
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/audit"><Activity size={16} /> Audit Logs</NavLink>
-            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/ai-audit"><Sparkles size={16} /> AI Audit & Reports</NavLink>
-            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/ai-assistant"><MessageSquare size={16} /> AI Assistant</NavLink>
-            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/permissions"><Lock size={16} /> Permissions</NavLink>
+            {/* <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/ai-audit"><Sparkles size={16} /> AI Audit & Reports</NavLink> */}
+            {/* <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/ai-assistant"><MessageSquare size={16} /> AI Assistant</NavLink> */}
+            {/* <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/permissions"><Lock size={16} /> Permissions</NavLink> */}
           </>
         )}
       </div>
