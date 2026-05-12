@@ -117,7 +117,7 @@ services:
     build:
       context: ./nextgen-iga-frontend
       args:
-        - VITE_API_BASE_URL=http://54.167.248.162:3000   # Baked into JS bundle at build time
+        - VITE_API_BASE_URL=http://52.90.238.161:3000   # Baked into JS bundle at build time
         - VITE_KEYCLOAK_URL=http://18.60.129.12:8080     # Baked into JS bundle at build time
     restart: always
     ports:
