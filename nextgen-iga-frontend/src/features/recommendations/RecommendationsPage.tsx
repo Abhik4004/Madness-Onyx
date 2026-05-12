@@ -33,9 +33,6 @@ export function RecommendationsPage() {
 
   // Old mutations removed
 
-  const recs = recsQuery.data?.data ?? [];
-  const pending = recs.filter(r => r.status === 'PENDING');
-  const risk = riskQuery.data?.data;
   const aiInsight = aiInsightQuery.data;
 
   return (

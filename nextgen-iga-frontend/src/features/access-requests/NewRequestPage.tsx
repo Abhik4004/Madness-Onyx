@@ -93,14 +93,18 @@ export function NewRequestPage() {
   const userList = (usersData?.data ?? []).filter((u) => u.id !== user?.id);
 
   const submit = useMutation({
-    mutationFn: (data: Step2Data) =>
+    mutationFn: (data: Step2Data & { override?: boolean; override_reason?: string; approved_by?: string; recommendation_score?: number }) =>
       requestsApi.create({
         resourceId,
         application_name: resourceName,
         role_name: data.role,
-        justification: data.justification === "other" ? (data.customJustification ?? "") : data.justification,
+        justification: data.justification === "Other" ? (data.customJustification ?? "") : data.justification,
         duration: data.duration ? parseInt(data.duration) : undefined,
         targetUserId: data.targetUserId || user?.id,
+        override: data.override,
+        override_reason: data.override_reason,
+        approved_by: data.approved_by,
+        recommendation_score: data.recommendation_score,
       }),
     onSuccess: () => {
       toast.success("Access request submitted successfully!");
@@ -244,24 +248,6 @@ export function NewRequestPage() {
               ))
             )}
           </div>
-
-          {/* <div className="mt-8 pt-6 border-top">
-            <label className="form-label flex items-center gap-2">
-              <Lock size={14} /> Custom Resource ID
-            </label>
-            <input
-              className="form-control"
-              placeholder="e.g. production-storage-v2"
-              value={customInput}
-              onChange={(e) => {
-                setCustomInput(e.target.value);
-                setResourceName(e.target.value);
-                if (e.target.value) setResourceId(e.target.value);
-                else setResourceId("");
-              }}
-            />
-            <span className="form-hint">Enter a custom ID if the resource is not listed above.</span>
-          </div> */}
 
           <div className="flex justify-end mt-6">
             <button className="btn btn-primary" disabled={!canProceedStep1} onClick={() => {

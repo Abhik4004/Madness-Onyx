@@ -66,7 +66,7 @@ export const ProactiveRecommendationCard: React.FC<ProactiveRecommendationCardPr
         color: `${styles.color}10`,
         transform: 'rotate(-15deg)'
       }}>
-        {React.cloneElement(styles.icon as React.ReactElement, { size: 120 })}
+        {React.cloneElement(styles.icon as React.ReactElement<any>, { size: 120 })}
       </div>
 
       <div style={{ position: 'relative', zIndex: 1 }}>
