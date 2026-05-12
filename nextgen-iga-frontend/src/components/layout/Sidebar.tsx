@@ -92,7 +92,11 @@ export function Sidebar() {
         {isSupervisor && (
           <>
             <div className="sidebar-section-label">Supervisor</div>
-            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/approvals" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <NavLink
+              className={({ isActive }) => navCls(isActive, true)}
+              to="/supervisor/approvals"
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            >
               <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}><CheckSquare size={16} /> Approvals</span>
               {pendingApprovals > 0 && (
                 <span style={{ backgroundColor: 'var(--color-primary)', color: 'white', fontSize: '0.7rem', padding: '2px 6px', borderRadius: 10, fontWeight: 600 }}>
@@ -102,11 +106,11 @@ export function Sidebar() {
             </NavLink>
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/team"><Users size={16} /> My Team</NavLink>
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/certifications/my-tasks"><Award size={16} /> Cert Tasks</NavLink>
-            {!isAdmin && (
-              <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/certifications/history"><HistoryIcon size={16} /> Campaign History</NavLink>
-            )}
+
+            {/* Show these only for pure supervisors — admins see them in the Admin section */}
             {!isAdmin && (
               <>
+                <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/certifications/history"><HistoryIcon size={16} /> Campaign History</NavLink>
                 <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/ai-audit"><Sparkles size={16} /> AI Audit & Reports</NavLink>
                 <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/ai-assistant"><MessageSquare size={16} /> AI Assistant</NavLink>
               </>
@@ -151,6 +155,7 @@ export function Sidebar() {
             <div className={`sidebar-dropdown ${expanded.manageEntitlements ? 'open' : ''}`}>
               <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/applications">Add Entitlement</NavLink>
             </div>
+
             {/* Collapsible Provisioning */}
             <div
               className={`sidebar-item ${expanded.provisioning ? 'parent-active' : ''}`}
@@ -163,9 +168,9 @@ export function Sidebar() {
               <ChevronDown size={14} style={{ transform: expanded.provisioning ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.2s' }} />
             </div>
             <div className={`sidebar-dropdown ${expanded.provisioning ? 'open' : ''}`}>
-              {/*avLink className={({ isActive }) => navCls(isActive, true)} to="/admin/provisioning" end>Request Logs</NavLink>*/}
               <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/provisioning/csv"><Upload size={16} /> Bulk Upload</NavLink>
             </div>
+
             {/* Collapsible Certifications */}
             <div
               className={`sidebar-item ${expanded.certifications ? 'parent-active' : ''}`}
@@ -181,10 +186,12 @@ export function Sidebar() {
               <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/certifications" end>Active Campaigns</NavLink>
               <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/certifications/history"><HistoryIcon size={16} /> Campaign History</NavLink>
             </div>
+
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/audit"><Activity size={16} /> Audit Logs</NavLink>
-            {/* <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/ai-audit"><Sparkles size={16} /> AI Audit & Reports</NavLink> */}
-            {/* <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/ai-assistant"><MessageSquare size={16} /> AI Assistant</NavLink> */}
-            {/* <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/permissions"><Lock size={16} /> Permissions</NavLink> */}
+
+            {/* Shared with supervisor — shown here for admins, in supervisor section for non-admin supervisors */}
+            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/ai-audit"><Sparkles size={16} /> AI Audit & Reports</NavLink>
+            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/ai-assistant"><MessageSquare size={16} /> AI Assistant</NavLink>
           </>
         )}
       </div>
@@ -206,6 +213,6 @@ export function Sidebar() {
           </button>
         </div>
       </div>
-    </nav >
+    </nav>
   );
 }
