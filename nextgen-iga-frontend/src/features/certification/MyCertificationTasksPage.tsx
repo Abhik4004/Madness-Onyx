@@ -126,6 +126,11 @@ export function MyCertificationTasksPage() {
       ) : null,
       width: '40px',
     },
+    ...(!isCampaignDetail ? [{ 
+      key: 'campaign', 
+      header: 'Campaign', 
+      render: (i: CertificationItem) => <span className="text-xs font-bold text-muted">{i.certification_name || 'Global'}</span> 
+    }] : []),
     { key: 'user', header: 'User', render: i => <span className="font-medium">{i.user_name}</span> },
     { key: 'app', header: 'Application', render: i => i.application_name },
     { key: 'decision', header: 'Decision', render: i => <StatusBadge status={i.decision} /> },

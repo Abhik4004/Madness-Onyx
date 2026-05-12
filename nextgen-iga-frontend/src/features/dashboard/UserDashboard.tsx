@@ -54,6 +54,12 @@ export function UserDashboard() {
     enabled: isSupervisor && !!user,
   });
 
+  const pendingItemsQuery = useQuery({
+    queryKey: ['certItems', 'pending', user?.id],
+    queryFn: () => certificationApi.listItems(undefined, { reviewer_id: user!.id, decision: 'PENDING', per_page: 5 }),
+    enabled: isSupervisor && !!user,
+  });
+
   const teamRecs = managerReview.data?.results || [];
 
   const pendingCount = pendingReqs.data?.meta?.total ?? 0;
@@ -61,9 +67,9 @@ export function UserDashboard() {
   const unreadNotifs = Array.isArray(notifications.data?.data)
     ? notifications.data.data.filter((n) => !n.read).length
     : 0;
-  const recs = Array.isArray(recommendations.data?.data)
-    ? recommendations.data.data
-    : [];
+  
+  const recs = Array.isArray(recommendations.data?.data) ? recommendations.data.data : [];
+  const recsCount = isSupervisor ? teamRecs.length : recs.length;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 40, animation: "fadeIn 0.5s ease-out" }}>
@@ -82,10 +88,35 @@ export function UserDashboard() {
         {/* -- Supervisor View: Peer Recommendations & Certification -- */}
         {isSupervisor && (
           <>
+            {/* -- Supervisor KPI Grid -- */}
+            <div className="kpi-grid" style={{ marginBottom: 40, marginTop: 20 }}>
+              <div className="kpi-card">
+                <div className="kpi-icon blue"><FileText size={24} /></div>
+                <div className="kpi-label">Team Requests</div>
+                <div className="kpi-value">{pendingReqs.isLoading ? "-" : pendingCount}</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-icon amber"><ClipboardList size={24} /></div>
+                <div className="kpi-label">Pending Reviews</div>
+                <div className="kpi-value">{pendingItemsQuery.isLoading ? "-" : (pendingItemsQuery.data?.meta?.total ?? 0)}</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-icon green"><CheckCircle size={24} /></div>
+                <div className="kpi-label">Active Access</div>
+                <div className="kpi-value">{recentReqs.isLoading ? "-" : activeCount}</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-icon purple" style={{ background: 'rgba(139, 92, 246, 0.1)', color: 'rgb(139, 92, 246)' }}>
+                  <Sparkles size={24} />
+                </div>
+                <div className="kpi-label">AI Insights</div>
+                <div className="kpi-value">{recsCount}</div>
+              </div>
+            </div>
+
             {teamRecs.length > 0 && (
               <div className="card glass" style={{ 
                 marginBottom: 40, 
-                marginTop: 20, 
                 border: "1px solid var(--color-primary-light)", 
                 background: "linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.02) 100%)",
                 boxShadow: "0 20px 40px rgba(37, 99, 235, 0.1)"
@@ -97,47 +128,54 @@ export function UserDashboard() {
                     </span>
                     <p className="text-muted mt-1">AI-driven access governance suggestions for your team</p>
                   </div>
-                  <span className="badge" style={{ background: "var(--color-primary)", color: "#fff", padding: "8px 16px", borderRadius: 20, fontWeight: 700 }}>
-                    {teamRecs.length} Flagged Items
-                  </span>
+                  <Link to="/recommendations" className="btn btn-sm btn-primary" style={{ borderRadius: 20 }}>
+                    Deep Analysis →
+                  </Link>
                 </div>
                 <div style={{ padding: "0 30px 30px" }}>
-                   <IGARecommendationPanel results={teamRecs} isLoading={managerReview.isLoading} />
+                   <IGARecommendationPanel results={teamRecs.slice(0, 3)} isLoading={managerReview.isLoading} />
+                   {teamRecs.length > 3 && (
+                     <div className="text-center mt-4">
+                       <Link to="/recommendations" className="text-sm font-bold text-primary">View all {teamRecs.length} recommendations →</Link>
+                     </div>
+                   )}
                 </div>
               </div>
             )}
 
-            {/* -- Supervisor KPI Grid -- */}
-            <div className="kpi-grid" style={{ marginBottom: 40 }}>
-              <div className="kpi-card">
-                <div className="kpi-icon blue"><FileText size={24} /></div>
-                <div className="kpi-label">Pending Approval</div>
-                <div className="kpi-value">{pendingReqs.isLoading ? "-" : pendingCount}</div>
+            {(pendingItemsQuery.data?.data?.length ?? 0) > 0 && (
+              <div className="card" style={{ marginBottom: 40 }}>
+                <div className="card-header">
+                  <span className="card-title" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <ClipboardList size={20} className="text-primary" /> Urgent Certification Tasks
+                  </span>
+                  <Link to="/supervisor/certifications/my-tasks" className="text-sm font-bold text-primary">View All Tasks ({pendingItemsQuery.data?.meta?.total}) →</Link>
+                </div>
+                <div style={{ padding: "0 20px 20px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    {pendingItemsQuery.data?.data?.map((item) => (
+                      <div key={item.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: "var(--color-gray-50)", borderRadius: 12, marginBottom: 4 }}>
+                        <div>
+                          <div className="text-sm font-bold" style={{ color: "var(--color-gray-900)" }}>{item.user_name}</div>
+                          <div className="text-xs text-muted">{item.application_name} · <span className="font-bold">{item.certification_name}</span></div>
+                        </div>
+                        <Link to={`/supervisor/certifications/my-tasks/${item.certification_id}`} className="btn btn-sm btn-secondary">
+                          Review
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="kpi-card">
-                <div className="kpi-icon green"><CheckCircle size={24} /></div>
-                <div className="kpi-label">Approved Requests</div>
-                <div className="kpi-value">{recentReqs.isLoading ? "-" : activeCount}</div>
-              </div>
-              <div className="kpi-card">
-                <div className="kpi-icon amber"><Bell size={24} /></div>
-                <div className="kpi-label">Unread Notifications</div>
-                <div className="kpi-value">{notifications.isLoading ? "-" : unreadNotifs}</div>
-              </div>
-              <div className="kpi-card">
-                <div className="kpi-icon blue"><Lightbulb size={24} /></div>
-                <div className="kpi-label">AI Recommendations</div>
-                <div className="kpi-value">{recommendations.isLoading ? "-" : recs.length}</div>
-              </div>
-            </div>
+            )}
 
             {(certifications.data?.data?.length ?? 0) > 0 && (
               <div style={{ marginBottom: 40 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                   <h3 style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--color-gray-900)", display: "flex", alignItems: "center", gap: 10 }}>
-                    <ClipboardList size={24} className="text-primary" /> Active Certifications
+                    <ClipboardList size={24} className="text-primary" /> Active Certification Campaigns
                   </h3>
-                  <Link to="/supervisor/certifications/history" className="text-sm font-bold text-primary">View All History →</Link>
+                  <Link to="/supervisor/certifications/history" className="text-sm font-bold text-primary">Full History →</Link>
                 </div>
                 <div className="grid-12">
                   {(certifications.data?.data || []).map((cert) => {
