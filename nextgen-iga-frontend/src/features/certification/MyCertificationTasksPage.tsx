@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
-import { X, Sparkles, Download } from 'lucide-react';
+import { X, Sparkles, Download, Zap } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { DataTable, type Column } from '../../components/shared/DataTable';
@@ -159,25 +159,38 @@ export function MyCertificationTasksPage() {
         
         if (!rec) return <span className="text-xs text-muted">No peer data</span>;
 
-        const color = rec.decision === 'STRONGLY_RECOMMEND' ? 'var(--color-success)' : rec.decision === 'RECOMMEND_WITH_CAUTION' ? 'var(--color-warning)' : 'var(--color-danger)';
+        const color = rec.decision === 'STRONGLY_RECOMMEND' ? '#22c55e' : rec.decision === 'RECOMMEND_WITH_CAUTION' ? '#f59e0b' : '#ef4444';
         const Icon = rec.decision === 'STRONGLY_RECOMMEND' ? ShieldCheck : rec.decision === 'RECOMMEND_WITH_CAUTION' ? ShieldQuestion : ShieldAlert;
 
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Icon size={14} style={{ color: color }} />
-              <span className="font-bold" style={{ color: color, fontSize: '0.7rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 220 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ 
+                background: `${color}15`, 
+                color: color, 
+                padding: 4, 
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Icon size={14} />
+              </div>
+              <span className="font-black" style={{ color: color, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 {rec.decision.replace(/_/g, ' ')}
               </span>
-              <span className="text-xs text-muted">({rec.confidence}%)</span>
+              <span className="text-xs font-bold" style={{ color: 'var(--color-gray-400)' }}>{rec.confidence}%</span>
             </div>
-            <div className="text-xs italic" style={{ fontSize: '0.65rem', lineHeight: 1.2, color: 'var(--color-gray-500)', maxWidth: 200 }}>
+            <div className="text-xs font-medium" style={{ fontSize: '0.7rem', lineHeight: 1.4, color: 'var(--color-gray-600)', background: 'var(--color-gray-50)', padding: '6px 10px', borderRadius: 8 }}>
               {rec.reason}
             </div>
             {rec.decision === 'DO_NOT_RECOMMEND' && (
-              <span style={{ fontSize: '0.6rem', color: 'var(--color-danger)', fontWeight: 800, textTransform: 'uppercase' }}>
-                POTENTIAL EXCESS ACCESS
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Zap size={10} fill="#ef4444" color="#ef4444" />
+                <span style={{ fontSize: '0.6rem', color: '#ef4444', fontBlack: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Risk Alert: Excess Access
+                </span>
+              </div>
             )}
           </div>
         );
@@ -188,11 +201,23 @@ export function MyCertificationTasksPage() {
       render: (i) => {
         const key = `${i.user_id}-${i.application_name}`.toLowerCase();
         const rec = recommendationsMap[key];
-        if (!rec) return '—';
+        if (!rec) return <span className="text-muted">—</span>;
         return (
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div className="text-xs font-bold">{rec.breakdown.same_manager.percentage} Team</div>
-            <div className="text-xs text-muted">{rec.breakdown.different_manager.percentage} Org</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: 100 }}>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span className="text-[10px] font-black text-muted">TEAM</span>
+                <span className="text-[10px] font-black">{rec.breakdown.same_manager.percentage}</span>
+             </div>
+             <div className="adoption-bar-container" style={{ height: 4 }}>
+                <div className="adoption-bar-fill" style={{ width: rec.breakdown.same_manager.percentage, background: 'var(--color-primary)' }} />
+             </div>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
+                <span className="text-[10px] font-black text-muted">ORG</span>
+                <span className="text-[10px] font-black">{rec.breakdown.different_manager.percentage}</span>
+             </div>
+             <div className="adoption-bar-container" style={{ height: 4 }}>
+                <div className="adoption-bar-fill" style={{ width: rec.breakdown.different_manager.percentage, background: 'var(--color-gray-300)' }} />
+             </div>
           </div>
         );
       }

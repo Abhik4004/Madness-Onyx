@@ -1,0 +1,71 @@
+/* Recommendation Component Styles */
+
+@keyframes pulse-risk {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes slide-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.iga-recommendation-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slide-in-up 0.5s ease-out backwards;
+}
+
+.iga-recommendation-item:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+.recommendation-badge-pulse {
+  animation: pulse-risk 2s infinite;
+}
+
+.adoption-bar-container {
+  height: 6px;
+  background: var(--color-gray-100);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.adoption-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.proactive-card-gradient {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  position: relative;
+}
+
+.proactive-card-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at top right, var(--styles-color-light), transparent);
+  opacity: 0.4;
+  z-index: 0;
+}
+
+.recommendation-stat-card {
+  background: #fff;
+  padding: 12px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border: 1px solid var(--color-gray-50);
+  transition: all 0.2s ease;
+}
+
+.recommendation-stat-card:hover {
+  border-color: var(--color-primary-light);
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.05);
+}

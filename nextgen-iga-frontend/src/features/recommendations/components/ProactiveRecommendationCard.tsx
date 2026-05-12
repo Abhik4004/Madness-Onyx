@@ -1,6 +1,7 @@
 import React from 'react';
-import { ShieldCheck, ShieldAlert, ShieldQuestion, Info, ArrowRight } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, ShieldQuestion, Info, Zap, Target, BarChart3 } from 'lucide-react';
 import type { AccessRecommendation } from '../../../types/recommendation.types';
+import '../recommendations.css';
 
 interface ProactiveRecommendationCardProps {
   recommendation: AccessRecommendation;
@@ -10,35 +11,35 @@ const getStatusStyles = (decision: AccessRecommendation['decision']) => {
   switch (decision) {
     case 'STRONGLY_RECOMMEND':
       return {
-        color: 'var(--color-success)',
+        color: '#22c55e',
         bg: 'rgba(34, 197, 94, 0.05)',
-        border: 'var(--color-success)',
+        light: '#dcfce7',
         icon: <ShieldCheck size={24} />,
         label: 'Highly Recommended'
       };
     case 'RECOMMEND_WITH_CAUTION':
       return {
-        color: 'var(--color-warning)',
+        color: '#f59e0b',
         bg: 'rgba(245, 158, 11, 0.05)',
-        border: 'var(--color-warning)',
+        light: '#fef3c7',
         icon: <ShieldQuestion size={24} />,
         label: 'Review with Caution'
       };
     case 'DO_NOT_RECOMMEND':
       return {
-        color: 'var(--color-danger)',
+        color: '#ef4444',
         bg: 'rgba(239, 68, 68, 0.05)',
-        border: 'var(--color-danger)',
+        light: '#fee2e2',
         icon: <ShieldAlert size={24} />,
-        label: 'Risk Warning'
+        label: 'Security Risk Warning'
       };
     default:
       return {
-        color: 'var(--color-gray-500)',
-        bg: 'var(--color-gray-50)',
-        border: 'var(--color-gray-200)',
+        color: '#64748b',
+        bg: '#f8fafc',
+        light: '#f1f5f9',
         icon: <Info size={24} />,
-        label: 'Governance Insight'
+        label: 'Governance Advice'
       };
   }
 };
@@ -48,118 +49,141 @@ export const ProactiveRecommendationCard: React.FC<ProactiveRecommendationCardPr
 
   return (
     <div 
-      className="proactive-recommendation-card" 
+      className="proactive-recommendation-card proactive-card-gradient iga-recommendation-item" 
       style={{ 
-        background: styles.bg,
-        border: `1px solid ${styles.color}40`,
-        borderRadius: 20,
-        padding: 24,
-        position: 'relative',
+        '--styles-color-light': styles.light,
+        borderRadius: 28,
+        padding: 32,
+        border: `1px solid ${styles.color}20`,
+        boxShadow: '0 20px 50px rgba(0,0,0,0.06)',
         overflow: 'hidden'
-      }}
+      } as React.CSSProperties}
     >
       {/* Decorative background element */}
       <div style={{ 
         position: 'absolute', 
-        top: -20, 
-        right: -20, 
-        color: `${styles.color}10`,
-        transform: 'rotate(-15deg)'
+        top: -30, 
+        right: -30, 
+        color: `${styles.color}08`,
+        transform: 'rotate(-15deg)',
+        pointerEvents: 'none'
       }}>
-        {React.cloneElement(styles.icon as React.ReactElement<any>, { size: 120 })}
+        {React.cloneElement(styles.icon as React.ReactElement<any>, { size: 180 })}
       </div>
 
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <div style={{ 
-            background: styles.color, 
-            color: '#fff', 
-            padding: 10, 
-            borderRadius: 12,
-            boxShadow: `0 10px 20px ${styles.color}30`
-          }}>
-            {styles.icon}
-          </div>
-          <div>
-            <div className="text-xs font-black uppercase tracking-widest" style={{ color: styles.color }}>
-              IGA Governance Assistant
-            </div>
-            <div className="text-2xl font-black" style={{ color: 'var(--color-gray-900)' }}>
-              {styles.label}
-            </div>
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+             <div style={{ 
+               background: `linear-gradient(135deg, ${styles.color} 0%, ${styles.color}cc 100%)`, 
+               color: '#fff', 
+               padding: 12, 
+               borderRadius: 14,
+               boxShadow: `0 12px 24px ${styles.color}40`
+             }}>
+               {styles.icon}
+             </div>
+             <div>
+               <div className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: styles.color, opacity: 0.8 }}>
+                 IGA Intelligence Assistant
+               </div>
+               <div className="text-3xl font-black" style={{ color: 'var(--color-gray-900)', letterSpacing: '-0.5px' }}>
+                 {styles.label}
+               </div>
+             </div>
+           </div>
+
+           <div style={{ textAlign: 'right' }}>
+              <div className="text-xs font-black text-muted uppercase tracking-wider mb-1">Decision Confidence</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
+                 <div className="text-2xl font-black" style={{ color: 'var(--color-gray-900)' }}>{recommendation.confidence}%</div>
+                 <div style={{ width: 40, height: 4, background: 'var(--color-gray-100)', borderRadius: 2 }}>
+                    <div style={{ width: `${recommendation.confidence}%`, height: '100%', background: styles.color, borderRadius: 2 }} />
+                 </div>
+              </div>
+           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
-          <div className="glass" style={{ padding: 12, borderRadius: 12, background: '#fff' }}>
-            <div className="text-xs text-muted font-bold mb-1">Decision</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
+          <div className="recommendation-stat-card" style={{ borderLeft: `4px solid ${styles.color}` }}>
+            <div className="text-[10px] text-muted font-black uppercase tracking-wider mb-1">Status</div>
             <div className="text-sm font-black" style={{ color: styles.color }}>{recommendation.decision.replace(/_/g, ' ')}</div>
           </div>
-          <div className="glass" style={{ padding: 12, borderRadius: 12, background: '#fff' }}>
-            <div className="text-xs text-muted font-bold mb-1">Risk Level</div>
+          <div className="recommendation-stat-card" style={{ borderLeft: `4px solid ${styles.color}` }}>
+            <div className="text-[10px] text-muted font-black uppercase tracking-wider mb-1">Risk Tier</div>
             <div className="text-sm font-black" style={{ color: styles.color, textTransform: 'capitalize' }}>{recommendation.risk_level}</div>
           </div>
-          <div className="glass" style={{ padding: 12, borderRadius: 12, background: '#fff' }}>
-            <div className="text-xs text-muted font-bold mb-1">Confidence</div>
-            <div className="text-sm font-black" style={{ color: 'var(--color-gray-900)' }}>{recommendation.confidence}%</div>
+          <div className="recommendation-stat-card">
+            <div className="text-[10px] text-muted font-black uppercase tracking-wider mb-1">Peer Similarity</div>
+            <div className="text-sm font-black" style={{ color: 'var(--color-gray-900)' }}>{recommendation.score}/100</div>
           </div>
-          <div className="glass" style={{ padding: 12, borderRadius: 12, background: '#fff' }}>
-            <div className="text-xs text-muted font-bold mb-1">Risk Score</div>
-            <div className="text-sm font-black" style={{ color: 'var(--color-gray-900)' }}>{recommendation.score}</div>
+          <div className="recommendation-stat-card">
+            <div className="text-[10px] text-muted font-black uppercase tracking-wider mb-1">Entitlements</div>
+            <div className="text-sm font-black" style={{ color: 'var(--color-gray-900)' }}>Standard</div>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ padding: 16, background: 'rgba(255,255,255,0.5)', borderRadius: 16, border: '1px solid var(--color-gray-100)' }}>
-            <div className="text-xs text-muted font-bold mb-2">Same Manager Adoption</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div className="text-2xl font-black">{recommendation.breakdown.same_manager.percentage}</div>
-              <div className="text-xs text-muted">
-                {recommendation.breakdown.same_manager.with_access} / {recommendation.breakdown.same_manager.total} peers
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 28 }}>
+          <div className="glass" style={{ padding: 20, background: 'rgba(255,255,255,0.4)', borderRadius: 20, border: '1px solid rgba(255,255,255,0.8)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+               <Target size={16} className="text-muted" />
+               <div className="text-xs text-muted font-black uppercase tracking-wider">Team Adoption</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div className="text-3xl font-black">{recommendation.breakdown.same_manager.percentage}</div>
+              <div className="text-xs text-muted font-medium">
+                {recommendation.breakdown.same_manager.with_access} of {recommendation.breakdown.same_manager.total} peers
               </div>
             </div>
-            <div className="progress-bar" style={{ height: 4, background: 'var(--color-gray-100)', borderRadius: 2, marginTop: 8 }}>
-              <div style={{ 
-                height: '100%', 
-                width: recommendation.breakdown.same_manager.percentage, 
-                background: styles.color, 
-                borderRadius: 2 
-              }} />
+            <div className="adoption-bar-container" style={{ marginTop: 12 }}>
+              <div className="adoption-bar-fill" style={{ width: recommendation.breakdown.same_manager.percentage, background: styles.color }} />
             </div>
           </div>
 
-          <div style={{ padding: 16, background: 'rgba(255,255,255,0.5)', borderRadius: 16, border: '1px solid var(--color-gray-100)' }}>
-            <div className="text-xs text-muted font-bold mb-2">Organization Adoption</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div className="text-2xl font-black">{recommendation.breakdown.different_manager.percentage}</div>
-              <div className="text-xs text-muted">
-                {recommendation.breakdown.different_manager.with_access} / {recommendation.breakdown.different_manager.total} total
+          <div className="glass" style={{ padding: 20, background: 'rgba(255,255,255,0.4)', borderRadius: 20, border: '1px solid rgba(255,255,255,0.8)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+               <BarChart3 size={16} className="text-muted" />
+               <div className="text-xs text-muted font-black uppercase tracking-wider">Enterprise Adoption</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div className="text-3xl font-black">{recommendation.breakdown.different_manager.percentage}</div>
+              <div className="text-xs text-muted font-medium">
+                {recommendation.breakdown.different_manager.with_access} users enterprise-wide
               </div>
             </div>
-            <div className="progress-bar" style={{ height: 4, background: 'var(--color-gray-100)', borderRadius: 2, marginTop: 8 }}>
-              <div style={{ 
-                height: '100%', 
-                width: recommendation.breakdown.different_manager.percentage, 
-                background: 'var(--color-primary)', 
-                borderRadius: 2 
-              }} />
+            <div className="adoption-bar-container" style={{ marginTop: 12 }}>
+              <div className="adoption-bar-fill" style={{ width: recommendation.breakdown.different_manager.percentage, background: 'var(--color-primary)' }} />
             </div>
           </div>
         </div>
 
         <div style={{ 
-          padding: 20, 
+          padding: 24, 
           background: '#fff', 
-          borderRadius: 16, 
-          borderLeft: `4px solid ${styles.color}`,
-          boxShadow: '0 4px 10px rgba(0,0,0,0.02)'
+          borderRadius: 24, 
+          borderLeft: `6px solid ${styles.color}`,
+          boxShadow: '0 10px 30px rgba(0,0,0,0.03)',
+          display: 'flex',
+          gap: 16
         }}>
-          <div className="text-xs text-muted font-black uppercase tracking-wider mb-2" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Info size={12} /> Governance Reasoning
+          <div style={{ 
+            background: styles.color, 
+            color: '#fff', 
+            padding: 8, 
+            borderRadius: 10, 
+            alignSelf: 'flex-start',
+            boxShadow: `0 4px 10px ${styles.color}30`
+          }}>
+            <Zap size={16} fill="#fff" />
           </div>
-          <p className="text-sm font-medium" style={{ color: 'var(--color-gray-700)', lineHeight: 1.6 }}>
-            {recommendation.reason}
-          </p>
+          <div>
+            <div className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: styles.color }}>
+              Detailed Governance Reasoning
+            </div>
+            <p className="text-base font-medium" style={{ color: 'var(--color-gray-800)', lineHeight: 1.7 }}>
+              {recommendation.reason}
+            </p>
+          </div>
         </div>
       </div>
     </div>
