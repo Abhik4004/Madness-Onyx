@@ -49,7 +49,7 @@ export const ProactiveRecommendationCard: React.FC<ProactiveRecommendationCardPr
 
   return (
     <div 
-      className="proactive-recommendation-card proactive-card-gradient iga-recommendation-item" 
+      className="proactive-recommendation-card proactive-card-premium iga-recommendation-item" 
       style={{ 
         '--styles-color-light': styles.light,
         borderRadius: 28,

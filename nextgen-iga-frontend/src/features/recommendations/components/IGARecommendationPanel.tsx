@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlertCircle, CheckCircle2, AlertTriangle, ShieldAlert, TrendingUp, Info, User, Shield, Zap } from 'lucide-react';
 import type { AccessRecommendation, ManagerReviewResult } from '../../../types/recommendation.types';
-import './recommendations.css';
+import '../recommendations.css';
 
 interface IGARecommendationPanelProps {
   results: ManagerReviewResult[];
