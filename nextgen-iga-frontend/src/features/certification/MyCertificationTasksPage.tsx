@@ -129,7 +129,7 @@ export function MyCertificationTasksPage() {
     ...(!isCampaignDetail ? [{ 
       key: 'campaign', 
       header: 'Campaign', 
-      render: (i: CertificationItem) => <span className="text-xs font-bold text-muted">{i.certification_name || 'Global'}</span> 
+      render: (i: any) => <span className="text-xs font-bold text-muted">{i.certification_name || 'Global'}</span> 
     }] : []),
     { key: 'user', header: 'User', render: i => <span className="font-medium">{i.user_name}</span> },
     { key: 'app', header: 'Application', render: i => i.application_name },
@@ -192,7 +192,7 @@ export function MyCertificationTasksPage() {
             {rec.decision === 'DO_NOT_RECOMMEND' && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Zap size={10} fill="#ef4444" color="#ef4444" />
-                <span style={{ fontSize: '0.6rem', color: '#ef4444', fontBlack: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                <span style={{ fontSize: '0.6rem', color: '#ef4444', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   Risk Alert: Excess Access
                 </span>
               </div>

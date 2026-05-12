@@ -32,6 +32,7 @@ export interface CertificationItem {
   recommendation_score: number | null;
   recommended_action: 'RETAIN' | 'REVIEW' | null;
   risk_score: number | null;
+  certification_name?: string;
 }
 
 // Alias kept for backward compatibility

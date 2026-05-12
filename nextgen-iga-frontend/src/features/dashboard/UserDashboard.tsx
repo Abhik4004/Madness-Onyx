@@ -8,6 +8,7 @@ import { notificationsApi } from '../../api/notifications.api';
 import { igaRecommendationApi } from '../../api/iga-recommendation.api';
 import { IGARecommendationPanel } from '../recommendations/components/IGARecommendationPanel';
 import { certificationApi } from '../../api/certification.api';
+import type { CertificationItem } from '../../types/certification.types';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
 import { formatDate, formatRelative, getErrorMessage } from '../../lib/utils';
@@ -157,7 +158,7 @@ export function UserDashboard() {
                       <div key={item.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: "var(--color-gray-50)", borderRadius: 12, marginBottom: 4 }}>
                         <div>
                           <div className="text-sm font-bold" style={{ color: "var(--color-gray-900)" }}>{item.user_name}</div>
-                          <div className="text-xs text-muted">{item.application_name} · <span className="font-bold">{item.certification_name}</span></div>
+                          <div className="text-xs text-muted">{item.application_name} · <span className="font-bold">{(item as any).certification_name}</span></div>
                         </div>
                         <Link to={`/supervisor/certifications/my-tasks/${item.certification_id}`} className="btn btn-sm btn-secondary">
                           Review
