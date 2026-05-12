@@ -6,7 +6,6 @@ import toast from 'react-hot-toast';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { StatusBadge } from '../../components/shared/StatusBadge';
 import { requestsApi } from '../../api/requests.api';
-import { recommendationsApi } from '../../api/recommendations.api';
 import { formatDate } from '../../lib/utils';
 import { TimeBasedProgress } from '../access-requests/components/TimeBasedProgress';
 
@@ -26,11 +25,8 @@ export function ApprovalDetailPage() {
 
   const req = data?.data;
 
-  const riskProfile = useQuery({
-    queryKey: ['risk', req?.user_id],
-    queryFn: () => recommendationsApi.getRiskProfile(req!.user_id!),
-    enabled: !!req?.user_id,
-  });
+  // Old risk profile removed
+  const risk = null;
 
   const approve = useMutation({
     mutationFn: () => requestsApi.approve(id!, { comment: comment || undefined }),
@@ -61,7 +57,6 @@ export function ApprovalDetailPage() {
     </div>
   );
 
-  const risk = riskProfile.data?.data;
 
   return (
     <div>
@@ -113,30 +108,6 @@ export function ApprovalDetailPage() {
             </div>
           </div>
 
-          {/* Risk Profile */}
-          {risk && (
-            <div className="card">
-              <div className="card-header">
-                <span className="card-title">Requester Risk Profile</span>
-                <span className={`badge badge-${risk.risk_level.toLowerCase()}`}>{risk.risk_level}</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div className="risk-score">
-                  <span className="text-xs text-muted" style={{ width: 100 }}>Risk Score</span>
-                  <div className="risk-bar">
-                    <div className={`risk-fill ${risk.risk_level.toLowerCase()}`} style={{ width: `${risk.overall_score}%` }} />
-                  </div>
-                  <span className="text-sm font-semibold">{risk.overall_score}/100</span>
-                </div>
-                {risk.factors.map((f) => (
-                  <div key={f.name} style={{ fontSize: '0.8rem' }}>
-                    <span className="font-medium">{f.name}</span>
-                    <span className="text-muted"> — {f.description}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Decision */}

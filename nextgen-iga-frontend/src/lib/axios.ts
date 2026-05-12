@@ -44,6 +44,12 @@ export const aiClient = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// IGA Recommendation engine client
+export const igaRecommendationClient = axios.create({
+  baseURL: "https://iga-accessrecomendation.onrender.com",
+  headers: { "Content-Type": "application/json" },
+});
+
 // ── Attach Bearer token + auto-detect Content-Type ───────────────────────────
 // ── Attach Bearer token + auto-detect Content-Type ───────────────────────────
 const authInterceptor = (config: InternalAxiosRequestConfig) => {

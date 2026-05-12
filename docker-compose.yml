@@ -71,8 +71,8 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
       - DB_NAME=${DB_NAME:-abhik_db}
       - EXTERNAL_AUTH_URL=${EXTERNAL_AUTH_URL:-http://18.60.129.12:8080}
-      - EXTERNAL_AUTH_URL=${EXTERNAL_AUTH_URL:-http://18.60.129.12:8080}  # External auth server
       - PUBLIC_URL=${PUBLIC_URL:-http://54.167.248.162:3000}
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - access-management
       - recommendation
@@ -117,8 +117,8 @@ services:
     build:
       context: ./nextgen-iga-frontend
       args:
-        - VITE_API_BASE_URL=http://52.90.238.161:3000   # Baked into JS bundle at build time
-        - VITE_KEYCLOAK_URL=http://18.60.129.12:8080     # Baked into JS bundle at build time
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://52.90.238.161:3000}
+        - VITE_KEYCLOAK_URL=${VITE_KEYCLOAK_URL:-http://18.60.129.12:8080}
     restart: always
     ports:
       - "80:80"

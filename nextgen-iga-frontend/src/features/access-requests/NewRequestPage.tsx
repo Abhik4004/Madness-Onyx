@@ -7,6 +7,7 @@ import {
   Globe,
   Lock,
   UserCheck,
+  ShieldAlert,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +19,9 @@ import { usersApi } from "../../api/users.api";
 import { applicationsApi } from "../../api/applications.api";
 import { usePermissions } from "../../hooks/usePermissions";
 import { useAuth } from "../../hooks/useAuth";
+import { igaRecommendationApi } from "../../api/iga-recommendation.api";
+import { ProactiveRecommendationCard } from "../recommendations/components/ProactiveRecommendationCard";
+import type { AccessRecommendation } from "../../types/recommendation.types";
 
 
 
@@ -64,6 +68,8 @@ export function NewRequestPage() {
   const [search, setSearch] = useState("");
   const [userSearch, setUserSearch] = useState("");
   const [resourceName, setResourceName] = useState("");
+  const [recommendation, setRecommendation] = useState<AccessRecommendation | null>(null);
+  const [isRecommendationLoading, setIsRecommendationLoading] = useState(false);
 
   const {
     register,
@@ -404,7 +410,30 @@ export function NewRequestPage() {
 
             <div className="flex justify-between mt-8">
               <button type="button" className="btn btn-secondary" onClick={() => setStep(1)}>← Back</button>
-              <button type="submit" className="btn btn-primary">Review →</button>
+              <button 
+                type="button" 
+                className="btn btn-primary"
+                onClick={handleSubmit(async (data) => {
+                  setIsRecommendationLoading(true);
+                  try {
+                    const res = await igaRecommendationApi.getProactiveRecommendation(
+                      data.targetUserId || user?.id || "",
+                      data.role,
+                      data.justification === "Other" ? (data.customJustification ?? "") : data.justification
+                    );
+                    if (res.success) {
+                      setRecommendation(res.proactiveRecommendation);
+                    }
+                  } catch (error) {
+                    console.error("Recommendation fetch failed:", error);
+                  } finally {
+                    setIsRecommendationLoading(false);
+                    setStep(3);
+                  }
+                })}
+              >
+                Review →
+              </button>
             </div>
           </form>
         </div>
@@ -448,14 +477,42 @@ export function NewRequestPage() {
             )}
           </div>
 
+          {/* IGA Recommendation Card */}
+          {isRecommendationLoading ? (
+            <div className="skeleton mb-8" style={{ height: 300, borderRadius: 20 }} />
+          ) : recommendation && (
+            <div style={{ marginBottom: 32 }}>
+               <ProactiveRecommendationCard recommendation={recommendation} />
+               
+               {recommendation.decision === 'DO_NOT_RECOMMEND' && (
+                 <div className="alert alert-danger mt-4" style={{ borderRadius: 12, border: '1px solid var(--color-danger-light)' }}>
+                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                     <ShieldAlert size={20} />
+                     <div className="text-sm font-bold">Risk Warning: This access is not recommended. Approving this will require additional audit logging.</div>
+                   </div>
+                 </div>
+               )}
+            </div>
+          )}
+
           <div className="flex justify-between">
             <button className="btn btn-secondary" onClick={() => setStep(2)} disabled={submit.isPending}>← Back</button>
             <button
               className="btn btn-primary"
               disabled={submit.isPending}
-              onClick={handleSubmit((d) => submit.mutate(d))}
+              onClick={handleSubmit((d) => {
+                const isOverride = recommendation?.decision === 'DO_NOT_RECOMMEND';
+                
+                submit.mutate({
+                  ...d,
+                  override: isOverride,
+                  override_reason: isOverride ? (d.justification === "Other" ? (d.customJustification ?? "") : d.justification) : undefined,
+                  approved_by: user?.id || "unknown",
+                  recommendation_score: recommendation?.score || 0,
+                });
+              })}
             >
-              {submit.isPending ? "Submitting..." : "Confirm & Submit"}
+              {submit.isPending ? "Submitting..." : (recommendation?.decision === 'DO_NOT_RECOMMEND' ? "Override & Submit" : "Confirm & Submit")}
             </button>
           </div>
         </div>

@@ -12,6 +12,9 @@ import { useAuth } from '../../hooks/useAuth';
 import { formatDate } from '../../lib/utils';
 import type { CertificationItem } from '../../types/certification.types';
 import { AIChatbot } from '../ai/AIChatbot';
+import { igaRecommendationApi } from '../../api/iga-recommendation.api';
+import type { ManagerReviewResult } from '../../types/recommendation.types';
+import { ShieldAlert, ShieldCheck, ShieldQuestion, Info } from 'lucide-react';
 
 export function MyCertificationTasksPage() {
   const { user } = useAuth();
@@ -45,6 +48,18 @@ export function MyCertificationTasksPage() {
     queryFn: () => certificationApi.listItems(campaignId, { reviewer_id: user!.id, page, per_page: perPage }),
     enabled: !!user,
   });
+
+  const managerReview = useQuery({
+    queryKey: ['iga-recommendations', 'manager-review', user?.id],
+    queryFn: () => igaRecommendationApi.getManagerReview(user!.id),
+    enabled: !!user,
+  });
+
+  const recommendationsMap = (managerReview.data?.results || []).reduce((acc: any, rec: ManagerReviewResult) => {
+    const key = `${rec.user_id}-${rec.access_type}`.toLowerCase();
+    acc[key] = rec.recommendation;
+    return acc;
+  }, {});
 
   console.log(`[cert-ui] User: ${user?.id}, CertId: ${certId}, Items Count: ${itemsQuery.data?.data?.length ?? 0}`);
   if (itemsQuery.data?.data) {
@@ -137,15 +152,50 @@ export function MyCertificationTasksPage() {
       width: '160px'
     },
     {
-      key: 'recommendation', header: 'AI Recommendation',
-      render: (i) => i.recommended_action ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Sparkles size={14} style={{ color: '#7c3aed' }} />
-          <span className={`badge badge-${i.recommended_action === 'RETAIN' ? 'low' : 'medium'}`} style={{ fontSize: '0.7rem', fontWeight: 700 }}>
-            {i.recommended_action}
-          </span>
-        </div>
-      ) : <span className="text-xs text-muted">Analyzing…</span>
+      key: 'recommendation', header: 'Governance Advice',
+      render: (i) => {
+        const key = `${i.user_id}-${i.application_name}`.toLowerCase();
+        const rec = recommendationsMap[key];
+        
+        if (!rec) return <span className="text-xs text-muted">No peer data</span>;
+
+        const color = rec.decision === 'STRONGLY_RECOMMEND' ? 'var(--color-success)' : rec.decision === 'RECOMMEND_WITH_CAUTION' ? 'var(--color-warning)' : 'var(--color-danger)';
+        const Icon = rec.decision === 'STRONGLY_RECOMMEND' ? ShieldCheck : rec.decision === 'RECOMMEND_WITH_CAUTION' ? ShieldQuestion : ShieldAlert;
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Icon size={14} style={{ color: color }} />
+              <span className="font-bold" style={{ color: color, fontSize: '0.7rem' }}>
+                {rec.decision.replace(/_/g, ' ')}
+              </span>
+              <span className="text-xs text-muted">({rec.confidence}%)</span>
+            </div>
+            <div className="text-xs italic" style={{ fontSize: '0.65rem', lineHeight: 1.2, color: 'var(--color-gray-500)', maxWidth: 200 }}>
+              {rec.reason}
+            </div>
+            {rec.decision === 'DO_NOT_RECOMMEND' && (
+              <span style={{ fontSize: '0.6rem', color: 'var(--color-danger)', fontWeight: 800, textTransform: 'uppercase' }}>
+                POTENTIAL EXCESS ACCESS
+              </span>
+            )}
+          </div>
+        );
+      }
+    },
+    {
+      key: 'peerAdoption', header: 'Peer Adoption',
+      render: (i) => {
+        const key = `${i.user_id}-${i.application_name}`.toLowerCase();
+        const rec = recommendationsMap[key];
+        if (!rec) return '—';
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div className="text-xs font-bold">{rec.breakdown.same_manager.percentage} Team</div>
+            <div className="text-xs text-muted">{rec.breakdown.different_manager.percentage} Org</div>
+          </div>
+        );
+      }
     },
     {
       key: 'actions', header: 'Actions',

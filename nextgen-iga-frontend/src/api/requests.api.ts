@@ -52,6 +52,10 @@ interface CreateRequestBody {
   role?: string;
   customRole?: string;
   targetUserId?: string;
+  override?: boolean;
+  override_reason?: string;
+  approved_by?: string;
+  recommendation_score?: number;
 }
 
 interface ListParams {
@@ -110,6 +114,10 @@ export const requestsApi = {
       justification: body.justification,
       duration: body.duration ?? body.duration_days,
       ...(body.targetUserId ? { targetUserId: body.targetUserId } : {}),
+      override: body.override || false,
+      override_reason: body.override_reason || "",
+      approved_by: body.approved_by || "",
+      recommendation_score: body.recommendation_score || 0,
     };
 
     console.debug(`[requestsApi.create] routing to ${url} | payload →`, payload);

@@ -5,7 +5,8 @@ import { PageHeader } from '../../components/layout/PageHeader';
 import { StatusBadge } from '../../components/shared/StatusBadge';
 import { requestsApi } from '../../api/requests.api';
 import { notificationsApi } from '../../api/notifications.api';
-import { recommendationsApi } from '../../api/recommendations.api';
+import { igaRecommendationApi } from '../../api/iga-recommendation.api';
+import { IGARecommendationPanel } from '../recommendations/components/IGARecommendationPanel';
 import { certificationApi } from '../../api/certification.api';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -38,11 +39,8 @@ export function UserDashboard() {
     refetchInterval: 30_000,
   });
 
-  const recommendations = useQuery({
-    queryKey: ['recommendations', user?.id],
-    queryFn: () => recommendationsApi.getUserRecommendations(user!.id),
-    enabled: !!user,
-  });
+  // Old personal recommendations removed as per instruction
+  const recommendations = { data: { data: [] }, isLoading: false };
   
   const certifications = useQuery({
     queryKey: ['certifications', { status: 'ACTIVE' }],
@@ -50,13 +48,13 @@ export function UserDashboard() {
     enabled: isSupervisor,
   });
 
-  const teamRecommendations = useQuery({
-    queryKey: ['recommendations', 'team', user?.id],
-    queryFn: () => recommendationsApi.getTeamRecommendations(user!.id),
+  const managerReview = useQuery({
+    queryKey: ['iga-recommendations', 'manager-review', user?.id],
+    queryFn: () => igaRecommendationApi.getManagerReview(user!.id),
     enabled: isSupervisor && !!user,
   });
 
-  const teamRecs = (teamRecommendations.data as any)?.team_recommendations || [];
+  const teamRecs = managerReview.data?.results || [];
 
   const pendingCount = pendingReqs.data?.meta?.total ?? 0;
   const activeCount = activeReqs.data?.meta?.total ?? 0;
@@ -95,44 +93,16 @@ export function UserDashboard() {
                 <div className="card-header" style={{ padding: "24px 30px" }}>
                   <div>
                     <span className="card-title" style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--color-primary)", fontSize: "1.5rem", fontWeight: 800 }}>
-                      <Sparkles size={28} /> Peer Recommendations
+                      <Sparkles size={28} /> IGA Peer Recommendations
                     </span>
-                    <p className="text-muted mt-1">AI-driven access suggestions for your team members and new joinees</p>
+                    <p className="text-muted mt-1">AI-driven access governance suggestions for your team</p>
                   </div>
                   <span className="badge" style={{ background: "var(--color-primary)", color: "#fff", padding: "8px 16px", borderRadius: 20, fontWeight: 700 }}>
-                    {teamRecs.length} Members Need Attention
+                    {teamRecs.length} Flagged Items
                   </span>
                 </div>
-                <div className="grid-12" style={{ padding: "0 30px 30px" }}>
-                  {teamRecs.map((member: any) => (
-                    <div key={member.userId} className="span-6 glass" style={{ background: "#fff", border: "1px solid var(--color-gray-100)", padding: 24, borderRadius: 20 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                          <div className="avatar-sm" style={{ background: "var(--color-primary-light)", color: "var(--color-primary)", fontWeight: 700 }}>
-                            {member.userName[0]}
-                          </div>
-                          <div>
-                            <div className="font-bold" style={{ fontSize: "1.1rem", color: "var(--color-gray-900)" }}>{member.userName}</div>
-                            <div className="text-xs text-muted">Direct Report</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        {member.suggestions.map((s: any, idx: number) => (
-                          <div key={idx} className="suggestion-item" style={{ padding: 16, background: "var(--color-gray-50)", borderRadius: 16, border: "1px solid var(--color-gray-100)", transition: "transform 0.2s" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <span className="text-sm font-bold" style={{ color: "var(--color-gray-800)" }}>{s.entitlement}</span>
-                              <span className="text-xs font-black" style={{ color: "var(--color-success)", background: "rgba(34, 197, 94, 0.1)", padding: "4px 8px", borderRadius: 6 }}>{s.confidence}% MATCH</span>
-                            </div>
-                            <div className="text-xs text-muted mt-2" style={{ lineHeight: 1.5 }}>{s.reason}</div>
-                            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
-                              <Link to="/requests/new" className="btn btn-sm btn-primary" style={{ borderRadius: 8, fontSize: "0.75rem", fontWeight: 600 }}>Provision Now →</Link>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                <div style={{ padding: "0 30px 30px" }}>
+                   <IGARecommendationPanel results={teamRecs} isLoading={managerReview.isLoading} />
                 </div>
               </div>
             )}

@@ -7,8 +7,9 @@ import { dashboardApi } from '../../api/dashboard.api';
 import { provisionApi } from '../../api/provision.api';
 import { formatDate, formatRelative } from '../../lib/utils';
 import { useAuth } from '../../hooks/useAuth';
-import { recommendationsApi } from '../../api/recommendations.api';
-import { Lightbulb, Sparkles } from 'lucide-react';
+import { igaRecommendationApi } from '../../api/iga-recommendation.api';
+import { IGARecommendationPanel } from '../recommendations/components/IGARecommendationPanel';
+import { Lightbulb, Sparkles, BrainCircuit } from 'lucide-react';
 // import { AIInsightsWidget, AIAnomaliesWidget } from '../ai/AIWidgets';
 
 export function AdminDashboard() {
@@ -29,13 +30,13 @@ export function AdminDashboard() {
   });
   
   const { user } = useAuth();
-  const teamRecommendations = useQuery({
-    queryKey: ['recommendations', 'team', user?.id],
-    queryFn: () => recommendationsApi.getTeamRecommendations(user!.id),
+  const managerReview = useQuery({
+    queryKey: ['iga-recommendations', 'manager-review', user?.id],
+    queryFn: () => igaRecommendationApi.getManagerReview(user!.id),
     enabled: !!user,
   });
 
-  const teamRecs = (teamRecommendations.data as any)?.data || [];
+  const teamRecs = managerReview.data?.results || [];
 
   return (
     <div className="fade-in">
@@ -136,41 +137,31 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      {/* Team Onboarding Suggestions */}
-      {teamRecs.length > 0 && (
-        <div className="card" style={{ marginBottom: 20, border: '1px dashed var(--color-primary)', background: 'var(--color-primary-lightest)' }}>
-          <div className="card-header">
-            <span className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-primary)' }}>
-              <Lightbulb size={18} /> Team Onboarding Suggestions
-            </span>
-            <span className="text-xs font-medium px-2 py-1 bg-white rounded-full text-primary border border-primary-light">
-              {teamRecs.length} reports need access
-            </span>
+      {/* IGA Governance Intelligence Panel */}
+      <div className="card glass" style={{ marginBottom: 32, border: '1px solid var(--color-primary-light)', background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.03) 0%, rgba(37, 99, 235, 0.01) 100%)' }}>
+        <div className="card-header" style={{ padding: '24px 30px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ padding: 12, background: 'var(--color-primary)', color: '#fff', borderRadius: 14, boxShadow: '0 8px 16px rgba(37, 99, 235, 0.2)' }}>
+              <BrainCircuit size={24} />
+            </div>
+            <div>
+              <span className="card-title" style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-gray-900)' }}>
+                IGA Peer Recommendation Intelligence
+              </span>
+              <p className="text-muted text-xs font-medium mt-1">Real-time risk scoring and adoption analytics for your direct reports</p>
+            </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {teamRecs.map((member: any) => (
-              <div key={member.userId} style={{ padding: 16, background: 'white', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-gray-100)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <div className="font-bold text-sm" style={{ color: 'var(--color-gray-900)' }}>{member.userName}</div>
-                  <div className="text-xs text-muted">Direct Report</div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
-                  {member.suggestions.map((s: any, idx: number) => (
-                    <div key={idx} style={{ padding: 10, background: 'var(--color-gray-50)', borderRadius: 6, border: '1px solid var(--color-gray-200)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700 }}>
-                        <span>{s.entitlement}</span>
-                        <span style={{ color: 'var(--color-success)' }}>{s.confidence}%</span>
-                      </div>
-                      <div className="text-xs text-muted" style={{ marginTop: 4, fontSize: '0.65rem' }}>{s.reason}</div>
-                      <Link to="/requests/new" className="text-xs font-bold block mt-2" style={{ color: 'var(--color-primary)', textAlign: 'right' }}>Provision →</Link>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          {teamRecs.length > 0 && (
+            <span className="badge" style={{ background: 'var(--color-danger)', color: '#fff', padding: '8px 16px', borderRadius: 20, fontWeight: 700 }}>
+              {teamRecs.length} Flagged Items
+            </span>
+          )}
         </div>
-      )}
+        
+        <div style={{ padding: '0 30px 30px' }}>
+          <IGARecommendationPanel results={teamRecs} isLoading={managerReview.isLoading} />
+        </div>
+      </div>
 
       {/* Global Active Access (Down Below) */}
       <div className="card">

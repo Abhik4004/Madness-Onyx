@@ -9,7 +9,6 @@ import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 import { DataTable, type Column } from '../../components/shared/DataTable';
 import { usersApi } from '../../api/users.api';
 import { applicationsApi, type Application } from '../../api/applications.api';
-import { recommendationsApi } from '../../api/recommendations.api';
 import { formatDate } from '../../lib/utils';
 import type { UserAccess } from '../../types/provision.types';
 
@@ -36,13 +35,8 @@ export function UserDetailPage() {
   const groups = userQuery.data?.data?.groups ?? [];
   const identityEntitlements = (userQuery.data?.data as any)?.entitlements ?? [];
   
-  const recommendationsQuery = useQuery({
-    queryKey: ['recommendations', id],
-    queryFn: () => recommendationsApi.getUserRecommendations(id!),
-    enabled: !!id,
-  });
-
-  const recommendations = (recommendationsQuery.data as any)?.recommendations ?? [];
+  // Old recommendation system removed
+  const recommendations: any[] = [];
 
   console.log(`[debug] Page loaded for ${id}:`, {
     groups: groups.length,
@@ -287,48 +281,6 @@ export function UserDetailPage() {
         />
       </div>
 
-      {/* ── AI Recommendations ─────────────────────────────────────────── */}
-      {recommendations.length > 0 && (
-        <div className="card" style={{ marginTop: 20, border: '1px dashed var(--color-primary)', background: 'var(--color-primary-lightest)' }}>
-          <div className="card-header">
-            <span className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-primary)' }}>
-              <Sparkles size={18} /> Recommended Access (AI Insights)
-            </span>
-          </div>
-          <div className="grid-12" style={{ padding: '0 20px 20px' }}>
-            {recommendations.map((rec: any, idx: number) => (
-              <div key={idx} className="span-4" style={{ 
-                background: 'white', 
-                padding: 16, 
-                borderRadius: 12, 
-                border: '1px solid var(--color-primary-light)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 12
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span className="font-bold text-sm" style={{ color: 'var(--color-gray-900)' }}>{rec.entitlement}</span>
-                  <span className="badge" style={{ background: 'var(--color-success)', color: 'white', fontSize: '0.7rem' }}>
-                    {rec.confidence}% Match
-                  </span>
-                </div>
-                <div className="text-xs text-muted leading-relaxed">
-                  {rec.reason}
-                </div>
-                <div style={{ marginTop: 'auto', paddingTop: 8 }}>
-                  <Link 
-                    to={`/requests/new?user=${id}&app=${rec.entitlement}`}
-                    className="btn btn-primary btn-sm btn-full" 
-                    style={{ fontSize: '0.75rem', textAlign: 'center' }}
-                  >
-                    Quick Grant
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* ── Add Access Modal ─────────────────────────────────────────── */}
       {addAccessOpen && (

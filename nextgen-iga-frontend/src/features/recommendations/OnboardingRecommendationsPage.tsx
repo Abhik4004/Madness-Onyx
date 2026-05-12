@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Lightbulb, User, Shield, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PageHeader } from '../../components/layout/PageHeader';
-import { recommendationsApi } from '../../api/recommendations.api';
+import { igaRecommendationApi } from '../../api/iga-recommendation.api';
+import { IGARecommendationPanel } from './components/IGARecommendationPanel';
 import { useAuth } from '../../hooks/useAuth';
 import { StatusBadge } from '../../components/shared/StatusBadge';
 import { requestsApi } from '../../api/requests.api';
@@ -15,12 +16,12 @@ export function OnboardingRecommendationsPage() {
   const navigate = useNavigate();
   
   const { data: response, isLoading } = useQuery({
-    queryKey: ['recommendations', 'team', user?.id],
-    queryFn: () => recommendationsApi.getTeamRecommendations(user!.id),
+    queryKey: ['iga-recommendations', 'manager-review', user?.id],
+    queryFn: () => igaRecommendationApi.getManagerReview(user!.id),
     enabled: !!user,
   });
 
-  const teamRecs = (response as any)?.team_recommendations || [];
+  const teamRecs = response?.results || [];
 
   const handleProvisionAll = async (member: any) => {
     const toastId = toast.loading(`Provisioning ${member.suggestions.length} items for ${member.userName}...`);
@@ -82,65 +83,20 @@ export function OnboardingRecommendationsPage() {
           <div style={{ background: 'var(--color-gray-100)', width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
             <Lightbulb size={32} className="text-muted" />
           </div>
-          <h3>No New Suggestions</h3>
+          <h3>No New Governance Items</h3>
           <p className="text-muted" style={{ maxWidth: 400, margin: '10px auto 0' }}>
             Your team members already have all standard access entitlements for their roles.
           </p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          {teamRecs.map((member: any) => (
-            <div key={member.userId} className="card hover-glow" style={{ borderLeft: '4px solid var(--color-primary)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ background: 'var(--color-primary-lightest)', color: 'var(--color-primary)', width: 40, height: 40, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <User size={20} />
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>{member.userName}</h3>
-                    <p className="text-xs text-muted">ID: {member.userId} · Pending Setup</p>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button 
-                    onClick={() => handleProvisionAll(member)}
-                    className="btn btn-primary btn-sm"
-                    style={{ borderRadius: 8 }}
-                  >
-                    Grant All Access
-                  </button>
-
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
-                {member.suggestions.map((s: any, idx: number) => (
-                  <div key={idx} style={{ padding: 16, background: 'var(--color-gray-50)', borderRadius: 12, border: '1px solid var(--color-gray-200)', position: 'relative' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Shield size={16} className="text-primary" />
-                        <span className="font-bold text-sm">{s.entitlement}</span>
-                      </div>
-                      <span className="badge badge-success" style={{ fontSize: '0.65rem' }}>{s.confidence}% Match</span>
-                    </div>
-                    
-                    <p className="text-xs text-muted" style={{ margin: '12px 0' }}>{s.reason}</p>
-                    
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-                      <StatusBadge status={s.risk === 'high' ? 'CRITICAL' : 'ACTIVE'} />
-                      <button 
-                        onClick={() => handleProvisionOne(member, s)}
-                        className="text-xs font-bold" 
-                        style={{ background: 'none', border: 'none', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', padding: 0 }}
-                      >
-                        Provision Now <ArrowRight size={12} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+          <div className="alert alert-info mb-4" style={{ borderRadius: 16 }}>
+             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Shield size={20} />
+                <span className="text-sm font-bold">IGA Governance Review: The following items have been flagged for your review based on peer adoption and risk scoring.</span>
+             </div>
+          </div>
+          <IGARecommendationPanel results={teamRecs} isLoading={isLoading} />
         </div>
       )}
     </div>
