@@ -103,9 +103,15 @@ export function Sidebar() {
             </NavLink>
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/team"><Users size={16} /> My Team</NavLink>
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/certifications/my-tasks"><Award size={16} /> Cert Tasks</NavLink>
-            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/certifications/history"><HistoryIcon size={16} /> Campaign History</NavLink>
-            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/ai-audit"><Sparkles size={16} /> AI Audit & Report</NavLink>
-            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/ai-assistant"><MessageSquare size={16} /> AI Assistant</NavLink>
+            {!isAdmin && (
+              <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/certifications/history"><HistoryIcon size={16} /> Campaign History</NavLink>
+            )}
+            {!isAdmin && (
+              <>
+                <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/ai-audit"><Sparkles size={16} /> AI Audit & Reports</NavLink>
+                <NavLink className={({ isActive }) => navCls(isActive, true)} to="/supervisor/ai-assistant"><MessageSquare size={16} /> AI Assistant</NavLink>
+              </>
+            )}
           </>
         )}
 
@@ -177,13 +183,8 @@ export function Sidebar() {
               <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/certifications/history"><HistoryIcon size={16} /> Campaign History</NavLink>
             </div>
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/audit"><Activity size={16} /> Audit Logs</NavLink>
-            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/ai-audit">
-              <Sparkles size={16} />
-              AI Audit & Reports
-            </NavLink>
-            <NavLink className={({ isActive }) => navCls(isActive, true)} style={{ paddingLeft: 44 }} to="/admin/ai-assistant">
-              <MessageSquare size={16} /> AI Assistant
-            </NavLink>
+            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/ai-audit"><Sparkles size={16} /> AI Audit & Reports</NavLink>
+            <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/ai-assistant"><MessageSquare size={16} /> AI Assistant</NavLink>
             <NavLink className={({ isActive }) => navCls(isActive, true)} to="/admin/permissions"><Lock size={16} /> Permissions</NavLink>
           </>
         )}
