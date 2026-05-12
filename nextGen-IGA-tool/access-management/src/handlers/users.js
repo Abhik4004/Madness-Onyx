@@ -104,7 +104,7 @@ export async function handleUserCreated(msg) {
       await js.publish("events.notify.email", jc.encode({
         to: "admin@nextgen-iga.com",
         subject: "Action Required: New User Registration",
-        body: `A new user (${full_name || userId}) has registered and is awaiting approval.\n\nPlease log in to the Admin Dashboard to review and approve this account.`
+        body: `A new user (${full_name || userId}) has registered and is awaiting approval.\n\nPlease log in to the Admin Dashboard to review and approve this account.\n\nLink: http://ec2-52-90-238-161.compute-1.amazonaws.com/login`
       }));
     } catch (notifyErr) {
       console.error("[users] Failed to notify admin:", notifyErr.message);
@@ -314,8 +314,8 @@ export async function handleUserApprove(msg) {
     const targetId = user?.id || userId;
 
     // Use the login page with pre-filled UID for the MFA activation flow
-    const frontendUrl = process.env.FRONTEND_URL || "http://54.167.248.162";
-    const finalMfaLink = `${frontendUrl}/login?uid=${targetId}`;
+    const frontendUrl = process.env.FRONTEND_URL || "http://ec2-52-90-238-161.compute-1.amazonaws.com";
+    const finalMfaLink = `${frontendUrl}/login`;
 
     console.log(`[users] Approving user: searchId=${userId}, targetId=${targetId}`);
 

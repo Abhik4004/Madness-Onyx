@@ -71,7 +71,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-abhikSQL}
       - DB_NAME=${DB_NAME:-abhik_db}
       - EXTERNAL_AUTH_URL=${EXTERNAL_AUTH_URL:-http://18.60.129.12:8080}
-      - PUBLIC_URL=${PUBLIC_URL:-http://54.167.248.162:3000}
+      - PUBLIC_URL=${PUBLIC_URL:-http://ec2-52-90-238-161.compute-1.amazonaws.com:3000}
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - access-management
