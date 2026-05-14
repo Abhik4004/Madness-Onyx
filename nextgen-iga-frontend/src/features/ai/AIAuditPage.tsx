@@ -164,7 +164,7 @@ export function AIAuditPage() {
                     <div className="text-sm text-muted">{selectedReport.header}</div>
                   </div>
                   <button className="btn btn-secondary" onClick={() => handleDownload(selectedReport.id, selectedReport.title)}>
-                    <Download size={16} /> Download CSV
+                    <Download size={16} /> Download Report
                   </button>
                 </div>
 

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Search, Check, X, Eye } from 'lucide-react';
+import { Search, Check, X, Eye, Zap, ShieldCheck, ShieldQuestion, ShieldAlert } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { DataTable, type Column } from '../../components/shared/DataTable';
@@ -10,6 +10,9 @@ import { requestsApi } from '../../api/requests.api';
 import { usePagination } from '../../hooks/usePagination';
 import { formatDate } from '../../lib/utils';
 import type { AccessRequest } from '../../types/request.types';
+import { useAuth } from '../../hooks/useAuth';
+import { igaRecommendationApi } from '../../api/iga-recommendation.api';
+import type { ManagerReviewResult } from '../../types/recommendation.types';
 
 export function ApprovalQueuePage() {
   const { page, perPage, setPage } = usePagination();
@@ -19,10 +22,24 @@ export function ApprovalQueuePage() {
   const [rejectOpen, setRejectOpen] = useState<string | null>(null);
   const qc = useQueryClient();
 
+  const { user } = useAuth();
+
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['approvals', { page }],
     queryFn: () => requestsApi.list({ page, per_page: perPage, status: 'PENDING' }),
   });
+
+  const managerReview = useQuery({
+    queryKey: ['iga-recommendations', 'manager-review', user?.id],
+    queryFn: () => igaRecommendationApi.getManagerReview(user!.id),
+    enabled: !!user,
+  });
+
+  const recommendationsMap = (managerReview.data?.results || []).reduce((acc: any, rec: ManagerReviewResult) => {
+    const key = `${rec.user_id}-${rec.access_type}`.toLowerCase();
+    acc[key] = rec.recommendation;
+    return acc;
+  }, {});
 
   const approve = useMutation({
     mutationFn: (id: string) => requestsApi.approve(id, {}),
@@ -78,6 +95,79 @@ export function ApprovalQueuePage() {
       key: 'status',
       header: 'Status',
       render: (r) => <StatusBadge status={r.status} />,
+    },
+    {
+      key: 'recommendation', header: 'Governance Advice',
+      render: (i) => {
+        const targetUser = i.target_user_id || i.user_id;
+        const key = `${targetUser}-${i.application_name}`.toLowerCase();
+        const rec = recommendationsMap[key];
+        
+        if (!rec) return <span className="text-xs text-muted">No peer data</span>;
+
+        const color = rec.decision === 'STRONGLY_RECOMMEND' ? '#22c55e' : rec.decision === 'RECOMMEND_WITH_CAUTION' ? '#f59e0b' : '#ef4444';
+        const Icon = rec.decision === 'STRONGLY_RECOMMEND' ? ShieldCheck : rec.decision === 'RECOMMEND_WITH_CAUTION' ? ShieldQuestion : ShieldAlert;
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 220 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ 
+                background: `${color}15`, 
+                color: color, 
+                padding: 4, 
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Icon size={14} />
+              </div>
+              <span className="font-black" style={{ color: color, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                {rec.decision.replace(/_/g, ' ')}
+              </span>
+              <span className="text-xs font-bold" style={{ color: 'var(--color-gray-400)' }}>{rec.confidence}%</span>
+            </div>
+            <div className="text-xs font-medium" style={{ fontSize: '0.7rem', lineHeight: 1.4, color: 'var(--color-gray-600)', background: 'var(--color-gray-50)', padding: '6px 10px', borderRadius: 8 }}>
+              {rec.reason}
+            </div>
+            {rec.decision === 'DO_NOT_RECOMMEND' && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Zap size={10} fill="#ef4444" color="#ef4444" />
+                <span style={{ fontSize: '0.6rem', color: '#ef4444', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Risk Alert: Excess Access
+                </span>
+              </div>
+            )}
+          </div>
+        );
+      }
+    },
+    {
+      key: 'peerAdoption', header: 'Peer Adoption',
+      render: (i) => {
+        const targetUser = i.target_user_id || i.user_id;
+        const key = `${targetUser}-${i.application_name}`.toLowerCase();
+        const rec = recommendationsMap[key];
+        if (!rec) return <span className="text-muted">—</span>;
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: 100 }}>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span className="text-[10px] font-black text-muted">TEAM</span>
+                <span className="text-[10px] font-black">{rec.breakdown.same_manager.percentage}</span>
+             </div>
+             <div className="adoption-bar-container" style={{ height: 4 }}>
+                <div className="adoption-bar-fill" style={{ width: rec.breakdown.same_manager.percentage, background: 'var(--color-primary)' }} />
+             </div>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
+                <span className="text-[10px] font-black text-muted">ORG</span>
+                <span className="text-[10px] font-black">{rec.breakdown.different_manager.percentage}</span>
+             </div>
+             <div className="adoption-bar-container" style={{ height: 4 }}>
+                <div className="adoption-bar-fill" style={{ width: rec.breakdown.different_manager.percentage, background: 'var(--color-gray-300)' }} />
+             </div>
+          </div>
+        );
+      }
     },
     {
       key: 'actions',
