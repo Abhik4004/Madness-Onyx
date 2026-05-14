@@ -17,6 +17,7 @@ export interface BackendAccessRequest {
   requestedBy: string;
   // User info
   user_name?: string;
+  target_user_id?: string;
   target_user_name?: string;
   approver_name?: string;
   // Application / Role
