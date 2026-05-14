@@ -131,7 +131,7 @@ export function ApprovalDetailPage() {
             </div>
           </div>
 
-        </div>
+
 
         {rec && (
           <div className="card glass">
@@ -196,7 +196,7 @@ export function ApprovalDetailPage() {
           </div>
         )}
 
-      </div>
+        </div>
 
         {/* Decision */}
         {req.status === 'PENDING' && (
