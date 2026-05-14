@@ -1301,10 +1301,12 @@ export async function handleCertificationGet(msg) {
     let itemQuery = `
       SELECT i.*, COALESCE(u.full_name, i.user_id) AS user_name, 
              COALESCE(a.app_name, i.application_id) as application_name,
-             COALESCE(a.risk_score, i.risk_score, 0) as risk_score
+             COALESCE(a.risk_score, i.risk_score, 0) as risk_score,
+             c.name as certification_name
       FROM certification_items i
       LEFT JOIN users_access u ON i.user_id = u.id
       LEFT JOIN applications a ON i.application_id = a.id
+      LEFT JOIN access_certifications c ON i.certification_id = c.id
       WHERE i.certification_id = ?
     `;
     let itemParams = [certId];
@@ -1385,10 +1387,12 @@ export async function handleCertificationItemsList(msg) {
 
     let itemQuery = `
       SELECT i.*, COALESCE(u.full_name, i.user_id) as user_name, COALESCE(a.app_name, i.application_id) as application_name,
-             COALESCE(a.risk_score, i.risk_score, 0) as risk_score
+             COALESCE(a.risk_score, i.risk_score, 0) as risk_score,
+             c.name as certification_name
       FROM certification_items i
       LEFT JOIN users_access u ON i.user_id = u.id
       LEFT JOIN applications a ON i.application_id = a.id
+      LEFT JOIN access_certifications c ON i.certification_id = c.id
       WHERE 1=1
     `;
     let itemParams = [];
@@ -1581,7 +1585,14 @@ export async function handleCertificationItemUpdate(msg) {
       const match = String(mId).match(/uid=([^,]+)/i);
       mId = match ? match[1] : mId;
     }
-    const isDirectManager = String(mId).toLowerCase() === String(requestorId).toLowerCase();
+    
+    // Also extract bareUid from requestorId for consistent matching
+    const bareRequestorId = String(requestorId).includes("=") 
+      ? (String(requestorId).match(/uid=([^,]+)/i)?.[1] || requestorId) 
+      : requestorId;
+
+    const isDirectManager = String(mId).toLowerCase() === String(bareRequestorId).toLowerCase() || 
+                            String(item.manager_id).toLowerCase() === String(requestorId).toLowerCase();
 
     if (!isOwner && !isDirectManager && envelope.role !== "admin") {
       await logActivity("UNAUTHORIZED_CERTIFICATION_ATTEMPT", requestorId, requestorId, targetItemId, { decision });
